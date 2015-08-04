@@ -2,8 +2,7 @@
     "background": {"scripts": ["background.js"]},
     "browser_action": {
         "default_icon": "icon-128.png",
-        "default_name": "Analyze with Mediathread",
-        "default_title": "mediathread"
+        "default_title": "Collect with Mediathread"
     },
     "name": "Mediathread",
     "description": "Find assets to analyze in Mediathread",
