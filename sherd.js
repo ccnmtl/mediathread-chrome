@@ -183,7 +183,8 @@ SherdBookmarklet = {
   user_ready:function() {
       return SherdBookmarklet.user_status.ready;
   },
-  needs_update:function() {
+    needs_update:function() {
+        return false;
       return !SherdBookmarklet.user_status.current;
   },
   update_user_status:function(user_status) {
@@ -928,7 +929,8 @@ SherdBookmarklet = {
                               rv.hash="start="+emb.getCurrentTime();
                       }
                       var yt_callback = 'sherd_youtube_callback_'+index;
-                      window[yt_callback] = function(yt_data) {
+                      window[yt_callback] = function(yt_data, b, c) {
+                          console.log('yt_data', yt_data, b, c);
                           if (yt_data.items.length > 0) {
                               var item = yt_data.items[0].snippet;
                               rv.sources.title = item.title;
@@ -946,6 +948,7 @@ SherdBookmarklet = {
                           }
                           optional_callback(index, rv);
                       };
+                      console.log('cb', window[yt_callback]);
                       var ajax_options = {
                           url: rv.sources.gapi + '&key=' + apikey + '&part=snippet,status&callback=' + yt_callback,
                           dataType: 'script',
@@ -954,6 +957,7 @@ SherdBookmarklet = {
                       if (SherdBookmarklet.options.cross_origin) {
                           ajax_options.dataType = 'json';
                           ajax_options.success = window[yt_callback];
+                          console.log('rv', rv.sources.gdata);
                           ajax_options.url = rv.sources.gdata+'?v=2&alt=json';
                       }
                       jQ.ajax(ajax_options);
@@ -2352,9 +2356,9 @@ SherdBookmarklet = {
               if (assets[i].page_resource) ++self.page_resource_count;
               var after_merge = self.mergeRedundant(assets[i]);
               if (after_merge) {
-                  after_merge.html_id = self.assetHtmlID(after_merge); 
+                  after_merge.html_id = self.assetHtmlID(after_merge);
                   self.ASYNC.display(after_merge, /*index*/assets.length-1);
-                  window.SherdBookmarklet.assetBucket = assets; 
+                  window.SherdBookmarklet.assetBucket = assets;
                   if (window.console) {
                       window.console.log(assets);
                   }
@@ -2521,6 +2525,7 @@ SherdBookmarklet = {
           return M.elt(doc,tag,className,style,children);
       };
       this.setupContent = function(target) {
+          console.log('setupContent!');
           var exists = jQ('div.sherd-analyzer',target);
           if (exists.length) {
               comp.top = exists.empty().get(0);
@@ -2576,6 +2581,7 @@ SherdBookmarklet = {
               self.windowStatus = false;
           });
       };
+      console.log('checking o.target');
       if (o.target) {
           this.setupContent(o.target);
       }
@@ -2591,6 +2597,7 @@ SherdBookmarklet = {
       };
 
       this.maybeShowInFrame = function(frame) {
+          console.log('maybeShowInFrame');
           if (!comp.window && frame) {
               var target = o.target || frame.document.body;
               self.setupContent(target);
@@ -2609,6 +2616,7 @@ SherdBookmarklet = {
         return newUrl;
       };
       this.displayAsset = function(asset,index) {
+          console.log('displayAsset!');
         var assetUrl = asset.sources[asset.primary_type];
         if(assetUrl !== undefined){
           // make sure to strip out any url params
@@ -2807,6 +2815,7 @@ SherdBookmarklet = {
           }
       };
       this.showAssets = function(assets) {
+          console.log('showAssets!');
           self.showWindow();
           self.clearAssets();
           for (var i=0;assets.length>i;i++) {
@@ -2911,73 +2920,47 @@ if (!window.SherdBookmarkletOptions) {
     window.SherdBookmarkletOptions = {};
 }
 
-if (SherdBookmarkletOptions.decorate) {
-    var scripts = document.getElementsByTagName("script");
-    var i = scripts.length;
-    while (--i >= 0) {
-        var me_embedded = scripts[i];
-        if (/bookmarklets\/analyze.js/.test(me_embedded.src)) {
-            var sbo = window.SherdBookmarkletOptions;
-            sbo.host_url=String(me_embedded.src).split("/",3).join("/")+"/save/?";
-            sbo.action = "decorate";
-            
-            SherdBookmarklet.runners[sbo.action](sbo.host_url,true);
-            break;
-        }
-    }
-} else if (window.chrome && chrome.extension) {
-    ///1. search for assets--as soon as we find one, break out and send show:true
-    ///2. on request, return a full asset list
-    ///3. allow the grabber to be created by sending an asset list to it
-    SherdBookmarklet.options = SherdBookmarkletOptions;
-    var finder = new SherdBookmarklet.Finder();
-    var found_one = false;
-    finder.ASYNC.display = function(asset) {
-        if (!asset.disabled && !found_one) {//just run once
-            found_one = true;
-            ///request sent TO background.html
-            chrome.extension.sendRequest({found_asset:true,show_icon:true}, function(response) {});
-        }
-    };
-    ///request sent TO background.html
-    chrome.extension.sendRequest({show_icon:true}, function(response) {});
-    function cleanup(obj) {
-        var json_safe =  JSON.parse(
-            JSON.stringify(obj,function(key,value){
-                if (typeof value=='object' && value.tagName) {
-                    return '';
-                } else return value;
-            }));
-        //remove merged assets
-        for (var i=0;i<json_safe.length;i++) {
-            if ( ! json_safe[i].html_id)
-                json_safe.splice(i--,1); //decrement after splice to combat loop
-        }
-        return json_safe;
-    }
-    chrome.extension.onRequest.addListener(
-        //for request sent FROM popup.html
-        function(request,sender,sendResponse) {
-            if (finder.assets_found.length) {
-                sendResponse({'assets':cleanup(finder.assets_found)});
-            } else {
-                ///try again
-                finder.ASYNC.display = function(asset) {
-                    sendResponse({'assets':cleanup(finder.assets_found),
-                                  'where':'after'
-                                 });
-                };
-                finder.findAssets();
-            }
-        });
-    finder.findAssets();
-} else {
-    var o = SherdBookmarkletOptions;
-    SherdBookmarklet.options = o;
-    SherdBookmarklet.debug = o.debug;
-    if (o.user_status) {
-        SherdBookmarklet.update_user_status(o.user_status);
-    }
-    SherdBookmarklet.runners[o.action](o.host_url,true);
-}
+///1. search for assets--as soon as we find one, break out and send show:true
+///2. on request, return a full asset list
+///3. allow the grabber to be created by sending an asset list to it
+SherdBookmarklet.options = SherdBookmarkletOptions;
+//var finder = new SherdBookmarklet.Finder();
+//var found_one = false;
+/*finder.ASYNC.display = function(asset) {
+  if (!asset.disabled && !found_one) {//just run once
+  found_one = true;
+  SherdBookmarklet.showWindow();
+  console.log('found one');
+  ///request sent TO background.html
+  chrome.extension.sendMessage({
+  found_asset:true,
+  show_icon:true
+  }, function(response) {});
+  }
+  };*/
+///request sent TO background.html
+//chrome.extension.sendMessage({show_icon:true}, function(response) {});
 
+/*chrome.extension.onMessage.addListener(
+//for request sent FROM popup.html
+function(request,sender,sendResponse) {
+if (finder.assets_found.length) {
+sendResponse({'assets':cleanup(finder.assets_found)});
+} else {
+///try again
+finder.ASYNC.display = function(asset) {
+sendResponse({'assets':cleanup(finder.assets_found),
+'where':'after'
+});
+};
+finder.findAssets();
+}
+});*/
+//finder.findAssets();
+console.log('options', SherdBookmarkletOptions);
+if (SherdBookmarkletOptions.user_status) {
+    SherdBookmarklet.update_user_status(
+        SherdBookmarkletOptions.user_status);
+}
+SherdBookmarklet.runners['jump'](
+    SherdBookmarkletOptions.host_url,true);

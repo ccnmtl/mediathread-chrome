@@ -1,20 +1,21 @@
 {
-    "background": {"scripts": ["background.js"]},
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
     "browser_action": {
         "default_icon": "icon-128.png",
         "default_title": "Collect with Mediathread"
     },
     "name": "Mediathread",
-    "description": "Find assets to analyze in Mediathread",
+    "description": "Find assets to analyze in Mediathread.",
     "icons": {
         "16": "icon-16.png",
         "48": "icon-48.png",
         "128": "icon-128.png"
     },
     "permissions": [
-        "tabs",
-        "http://*/*",
-        "https://*/*"
+        "activeTab"
     ],
     "version": "0.1",
     "manifest_version": 2
