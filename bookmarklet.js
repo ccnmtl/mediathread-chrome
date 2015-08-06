@@ -1,6 +1,11 @@
+/*
+ * NOTE: This file isn't currently in use for this extension.
+ * This is just here for reference purposes - it's an unminified
+ * version of the bookmarklet loader from mediathread, since it
+ * was hard to understand what was going on with that code.
+ */
 (function(host, bookmarklet_url, user_url) {
     var b = document.body;
-    console.log('yo', SherdBookmarkletOptions, window.SherdBookmarkletOptions);
     var sb = window.SherdBookmarkletOptions;
     if (!sb) {
         sb = window.SherdBookmarkletOptions = {};

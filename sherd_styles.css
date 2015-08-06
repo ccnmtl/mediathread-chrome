@@ -7,11 +7,11 @@
 	background: url(/img/overlaybg.png) repeat;
 }
 .sherd-window-inner h2{
-   color: #fff;
-   font-size: 14px;
-   font-weight: 200;
-   font-family : 'Helvetica Neue', Helvetica, Arial !important;
-   margin: 16px 0;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 200;
+    font-family : 'Helvetica Neue', Helvetica, Arial !important;
+    margin: 16px 0;
 }
 .sherd-window{
 	padding:0 25px 0 0;
@@ -44,7 +44,7 @@
 .sherd-asset-wrap{
 	min-height: 55px;
 	min-width: 215px;
-	/*
+/*
 	setting the min height and width will make sure that videos are 
 	picked up and shown when they do not have thubmnails on their
 	hosted sites --> like the 9/11 archive. 
@@ -89,7 +89,7 @@ img.sherd-image{
 	height: 55px;
 	background: url(/img/logo_mediathread_new.png) #383838 no-repeat;
 	background-position: center left;
-	}
+}
 
 input.analyze.btn-primary, input.cont.btn-primary{
 	display: block;
@@ -188,7 +188,7 @@ button.sherd-collection:hover{
 	color: #fff !important;
 }
 .sherd-btn-overlay{
-display: none;
+    display: none;
 }
 div.alert-saved{
 	position:absolute;
