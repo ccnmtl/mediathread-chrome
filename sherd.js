@@ -168,6 +168,13 @@ ARCHITECTURE:
      
 */
 
+$('head').append(
+    $('<link>')
+        .attr('rel', 'stylesheet')
+        .attr('type', 'text/css')
+        .attr('href', chrome.extension.getURL('sherd_styles.css'))
+);
+
 SherdBookmarklet = {
   "user_status": {/* updated by /accounts/logged_in.js */
       ready:false
@@ -181,6 +188,8 @@ SherdBookmarklet = {
       }
   },
   user_ready:function() {
+      // FIXME :P
+      return true;
       return SherdBookmarklet.user_status.ready;
   },
     needs_update:function() {
@@ -2964,3 +2973,5 @@ if (SherdBookmarkletOptions.user_status) {
 }
 SherdBookmarklet.runners['jump'](
     SherdBookmarkletOptions.host_url,true);
+
+

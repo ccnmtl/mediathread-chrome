@@ -7,6 +7,10 @@
         "default_icon": "icon-128.png",
         "default_title": "Collect with Mediathread"
     },
+    "web_accessible_resources": [
+        "img/*.png",
+        "sherd_styles.css"
+    ],
     "name": "Mediathread",
     "description": "Find assets to analyze in Mediathread.",
     "icons": {
