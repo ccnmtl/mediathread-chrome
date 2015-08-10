@@ -162,10 +162,6 @@
    FOOTER:
    At the bottom of this file is the init/bootstrap code which runs the right part of
    SherdBookmarklet.* (generally a runner) after inspecting SherdBookmarkletOptions
-
-   Chrome bookmarklet case is for when this same code is used as a library in the chrome
-   bookmarklet.  See: src/bookmarklets/browser_extensions/google_chrome in this repo.
-
 */
 
 $('head').append(
@@ -2049,15 +2045,17 @@ SherdBookmarklet = {
     },
     "microdataSearch":function(elem, doc) {
         var item;
-        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
-        jQ(elem).parents('*[itemscope=]').each(function(){ item = this; });
+        var jQ = (window.SherdBookmarkletOptions.jQuery || window.jQuery);
+        jQ(elem).parents('[itemscope]').each(function() {
+            item = this;
+        });
         if (item) {
             if (item.properties) {
                 return item.properties;
             } else {
                 var props = {};
                 var abs = SherdBookmarklet.absolute_url;
-                jQ('*[itemprop]',item).each(function(){
+                jQ('[itemprop]',item).each(function(){
                     var p = this.getAttribute('itemprop');
                     props[p] = props[p] || [];
                     switch(String(this.tagName).toLowerCase()) {
@@ -2253,7 +2251,6 @@ SherdBookmarklet = {
                 self.findGeneralAssets();
 
             }
-            console.log(':)', self.assets_found, handler);
             if(self.assets_found.length === 0 && SherdBookmarklet.user_ready()){
                 self.noAssetMessage();
             }
