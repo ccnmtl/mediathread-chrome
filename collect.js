@@ -2043,7 +2043,7 @@ SherdBookmarklet = {
             }
         }
     },
-    "microdataSearch":function(elem, doc) {
+    "microdataSearch": function(elem, doc) {
         var item;
         var jQ = (window.SherdBookmarkletOptions.jQuery || window.jQuery);
         jQ(elem).parents('[itemscope]').each(function() {
@@ -2055,13 +2055,20 @@ SherdBookmarklet = {
             } else {
                 var props = {};
                 var abs = SherdBookmarklet.absolute_url;
-                jQ('[itemprop]',item).each(function(){
+                jQ('[itemprop]', item).each(function() {
                     var p = this.getAttribute('itemprop');
                     props[p] = props[p] || [];
                     switch(String(this.tagName).toLowerCase()) {
-                    case "a":case "link":case "area":
+                    case "a":
+                    case "link":
+                    case "area":
                         props[p].push(abs(this.href, doc));
-                    case "audio":case "embed":case "iframe":case "img":case "source":case "video":
+                    case "audio":
+                    case "embed":
+                    case "iframe":
+                    case "img":
+                    case "source":
+                    case "video":
                         props[p].push(abs(this.src, doc));
                     default:
                         props[p].push(jQ(this).text());
@@ -2532,7 +2539,6 @@ SherdBookmarklet = {
             return M.elt(doc,tag,className,style,children);
         };
         this.setupContent = function(target) {
-            console.log('setupContent!');
             var exists = jQ('div.sherd-analyzer',target);
             if (exists.length) {
                 comp.top = exists.empty().get(0);
@@ -2588,7 +2594,6 @@ SherdBookmarklet = {
                 self.windowStatus = false;
             });
         };
-        console.log('checking o.target');
         if (o.target) {
             this.setupContent(o.target);
         }
@@ -2604,7 +2609,6 @@ SherdBookmarklet = {
         };
 
         this.maybeShowInFrame = function(frame) {
-            console.log('maybeShowInFrame');
             if (!comp.window && frame) {
                 var target = o.target || frame.document.body;
                 self.setupContent(target);
@@ -2623,7 +2627,6 @@ SherdBookmarklet = {
             return newUrl;
         };
         this.displayAsset = function(asset,index) {
-            console.log('displayAsset!');
             var assetUrl = asset.sources[asset.primary_type];
             if(assetUrl !== undefined){
                 // make sure to strip out any url params
@@ -2822,7 +2825,6 @@ SherdBookmarklet = {
             }
         };
         this.showAssets = function(assets) {
-            console.log('showAssets!');
             self.showWindow();
             self.clearAssets();
             for (var i=0;assets.length>i;i++) {
@@ -2964,7 +2966,6 @@ finder.findAssets();
 }
 });*/
 //finder.findAssets();
-console.log('options', SherdBookmarkletOptions);
 if (SherdBookmarkletOptions.user_status) {
     SherdBookmarklet.update_user_status(
         SherdBookmarkletOptions.user_status);
