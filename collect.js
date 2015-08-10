@@ -918,8 +918,12 @@ SherdBookmarklet = {
                     asset:function(emb,match,context,index,optional_callback) {
                         var apikey = SherdBookmarklet.options.youtube_apikey;
 
-                        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
-                        var VIDEO_ID = match[1]; //e.g. "LPHEvaNjdhw";
+                        var jQ = (window.SherdBookmarkletOptions.jQuery || window.jQuery);
+                        if (match.length > 0) {
+                            var VIDEO_ID = match[1]; //e.g. "LPHEvaNjdhw";
+                        } else {
+                            return {};
+                        }
                         var rv = {
                             html: emb,
                             wait: true,
