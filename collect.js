@@ -1,18 +1,10 @@
 /* SherdJS Extension
    HOW IT IS RUN:
-   This is the main file for MediaThread bookmarklet code.  It is not
-   the actually bookmarklet that the user installs
-
-   -- this way, changes to this file will be run without users needing
-   to reinstall the bookmarklet.  In MediaThread, the actual
-   bookmarklet is here:
-   https://github.com/ccnmtl/mediathread/blob/master/templates/assetmgr/bookmarklet.js
-   And this file (through a symlink and urls.py redirection) becomes
-   available through /bookmarklets/analyze.js
+   This is the main file for Mediathread Collect extension code.
 
    DEPENDENCIES:
    Large parts of this file now depend on jQuery.  This must be
-   embedded by the actual bookmarklet, preferably before this file, but
+   embedded by the actual extension, preferably before this file, but
    if not, it can be loaded, and then call
    MediathreadCollect.onJQuery(jQuery)
 
@@ -21,19 +13,19 @@
    window.MediathreadCollectOptions.
 
    MediathreadCollectOptions is a dictionary which can (and must to work
-   as a bookmarklet) be created before this file is loaded.  This
+   as a extension) be created before this file is loaded.  This
    way, if required, this file could also be used as a library.  In
    this scenario, if a site wanted an 'AnalyzeThis' button to work
-   without a user needing to install a bookmarklet, then this file
+   without a user needing to install a extension, then this file
    would be loaded, and the button would call into
    MediathreadCollect.runners['jump'] (or .decorate).
 
    A typical MediathreadCollectOptions set of values would be
    {'action':'jump', 'host_url':'http://mediathread.example.com/save/?', 'flickr_apikey':'foobar123456789'}
 
-   The 'action' mostly services the bookmarklet, but in theory, this
+   The 'action' mostly services the extension, but in theory, this
    separates the initialization code along with what the
-   bookmarklet's action would be -- to immediatley jump into
+   extension's action would be -- to immediately jump into
    mediathread or to display the options list (which is more often
    the default).
 
@@ -69,7 +61,7 @@
 
    .assethandler.* : This is where all the methods are that look for
    media or metadata on the page.  Each key:value
-   is run with the bookmarklet for a chance to
+   is run with the extension for a chance to
    find its kind of assets, and, if found, query
    for more data.
 
@@ -82,7 +74,7 @@
 
    note: use the context passed into the method
    rather than global window/document
-   objects, since the bookmarklet
+   objects, since the extension
    supports deeply embedded
    frames/iframes and the context might
    be different The .find method is
@@ -139,7 +131,7 @@
 
    runners : as described above, runners are alternate 'setups' that mediathread can be run in.
    'jump' generally means if one asset is found on the page jump right into mediathread
-   'decorate' means bring up the Bookmarklet.Interface and let the user take another
+   'decorate' means bring up the MediathreadCollect.Interface and let the user take another
    action.  This is probably the best one going forward.
 
    HELP FUNCTIONS:
@@ -153,7 +145,7 @@
    Finder() : This object is the main thing that walks through the document's media through
    any sub-frames and merges the results into a list.
 
-   Interface() : This is the object that creates and manages the bookmarklet interface
+   Interface() : This is the object that creates and manages the extension interface
    (The gray widget that appears, listing the assets, and presenting the
    analyze buttons, etc.)
 
@@ -639,7 +631,7 @@ MediathreadCollect = {
             allow_save_all:true,
             find:function(callback) {
                 if (! /materialsLib/.test(document.location.pathname)) {
-                    callback([],'Go to the Course Library page and run the bookmarklet again');
+                    callback([],'Go to the Course Library page and run the extension again');
                 }
                 MediathreadCollect.run_with_jquery(function(jQuery) {
                     var found_videos = [];
@@ -792,7 +784,7 @@ MediathreadCollect = {
                 MediathreadCollect.run_with_jquery(function _find(jQuery) {
                     var videos = jQuery('.video-wrapper');
                     if (videos.length < 1) {
-                        var message = "This Vimeo page does not contain videos accessible to the bookmarklet. Try clicking into a single video page.";
+                        var message = "This Vimeo page does not contain videos accessible to the extension. Try clicking into a single video page.";
                         alert(message);
                         callback([]); // no items found
                     } else {
@@ -2315,7 +2307,7 @@ MediathreadCollect = {
                     } catch(e) {
                         ++self.handler_count;
                         MediathreadCollect.error = e;
-                        alert("Bookmarklet Error in "+h+": "+e.message);
+                        alert("Extension Error in "+h+": "+e.message);
                     }
                 }
             });
@@ -2436,7 +2428,7 @@ MediathreadCollect = {
             message_no_assets:'Sorry, no supported assets were found on this page. Try going to an asset page if you are on a list/search page.  If there is a video on the page, press play and then try again.',
             message_no_assets_short:'No Items',
             message_disabled_asset:'This item cannot be embedded on external sites.',
-            widget_name:'the bookmarklet'
+            widget_name:'the extension'
         }; if (options) for (var a in options) {this.options[a]=options[a];}
         //bring in options from MediathreadCollectOptions
         for (var b in this.options) {if (M.options[b]) this.options[b]=M.options[b];}
@@ -2475,7 +2467,7 @@ MediathreadCollect = {
                         o.login_url = o.login_url || host_url.split("/",3).join("/") + "/upgrade/";
                         jQ(comp.message).empty().append(
                             self.elt(null,'span','',{},
-                                     ['This Mediathread bookmarklet is outdated.',
+                                     ['This Mediathread extension is outdated.',
                                       self.elt(null,'br','',{}),
                                       'To update, please ',
                                       self.elt(null,'a','',{
