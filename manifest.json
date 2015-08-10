@@ -9,7 +9,7 @@
     },
     "web_accessible_resources": [
         "img/*.png",
-        "sherd_styles.css"
+        "css/sherd_styles.css"
     ],
     "name": "Mediathread",
     "description": "Find assets to analyze in Mediathread.",

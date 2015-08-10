@@ -168,7 +168,7 @@ $('head').append(
     $('<link>')
         .attr('rel', 'stylesheet')
         .attr('type', 'text/css')
-        .attr('href', chrome.extension.getURL('sherd_styles.css'))
+        .attr('href', chrome.extension.getURL('css/sherd_styles.css'))
 );
 
 SherdBookmarklet = {
