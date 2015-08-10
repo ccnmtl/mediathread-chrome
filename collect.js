@@ -1,4 +1,4 @@
-/* SherdJS Bookmarklet
+/* SherdJS Extension
    HOW IT IS RUN:
    This is the main file for MediaThread bookmarklet code.  It is not
    the actually bookmarklet that the user installs
@@ -14,21 +14,21 @@
    Large parts of this file now depend on jQuery.  This must be
    embedded by the actual bookmarklet, preferably before this file, but
    if not, it can be loaded, and then call
-   SherdBookmarklet.onJQuery(jQuery)
+   MediathreadCollect.onJQuery(jQuery)
 
    ARCHITECTURE:
-   Everything lives within two namespaces: window.SherdBookmarklet and
-   window.SherdBookmarkletOptions.
+   Everything lives within two namespaces: window.MediathreadCollect and
+   window.MediathreadCollectOptions.
 
-   SherdBookmarkletOptions is a dictionary which can (and must to work
+   MediathreadCollectOptions is a dictionary which can (and must to work
    as a bookmarklet) be created before this file is loaded.  This
    way, if required, this file could also be used as a library.  In
    this scenario, if a site wanted an 'AnalyzeThis' button to work
    without a user needing to install a bookmarklet, then this file
    would be loaded, and the button would call into
-   SherdBookmarklet.runners['jump'] (or .decorate).
+   MediathreadCollect.runners['jump'] (or .decorate).
 
-   A typical SherdBookmarkletOptions set of values would be
+   A typical MediathreadCollectOptions set of values would be
    {'action':'jump', 'host_url':'http://mediathread.example.com/save/?', 'flickr_apikey':'foobar123456789'}
 
    The 'action' mostly services the bookmarklet, but in theory, this
@@ -161,7 +161,7 @@
 
    FOOTER:
    At the bottom of this file is the init/bootstrap code which runs the right part of
-   SherdBookmarklet.* (generally a runner) after inspecting SherdBookmarkletOptions
+   MediathreadCollect.* (generally a runner) after inspecting MediathreadCollectOptions
 */
 
 $('head').append(
@@ -171,55 +171,55 @@ $('head').append(
         .attr('href', chrome.extension.getURL('css/sherd_styles.css'))
 );
 
-SherdBookmarklet = {
+MediathreadCollect = {
     "user_status": {/* updated by /accounts/logged_in.js */
         ready:false
     },
     run_with_jquery:function(func) {
-        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
         if (jQ) {
             func(jQ);
         } else {
-            SherdBookmarkletOptions.onJQuery = func;
+            MediathreadCollectOptions.onJQuery = func;
         }
     },
     user_ready:function() {
         // FIXME :P
         return true;
-        return SherdBookmarklet.user_status.ready;
+        return MediathreadCollect.user_status.ready;
     },
     needs_update:function() {
         return false;
-        return !SherdBookmarklet.user_status.current;
+        return !MediathreadCollect.user_status.current;
     },
     update_user_status:function(user_status) {
-        var uninit = (! window.SherdBookmarklet.user_status.ready);
+        var uninit = (! window.MediathreadCollect.user_status.ready);
         for (var a in user_status) {
-            window.SherdBookmarklet.user_status[a] = user_status[a];
+            window.MediathreadCollect.user_status[a] = user_status[a];
         }
         if (window.console) {
             window.console.log(user_status);
         }
 
         if ('youtube_apikey' in user_status) {
-            window.SherdBookmarklet.options.youtube_apikey = user_status.youtube_apikey;
+            window.MediathreadCollect.options.youtube_apikey = user_status.youtube_apikey;
         }
 
         if ('flickr_apikey' in user_status) {
-            window.SherdBookmarklet.options.flickr_apikey = user_status.flickr_apikey;
+            window.MediathreadCollect.options.flickr_apikey = user_status.flickr_apikey;
         }
 
         //Safari sometimes loads logged_in.js last, even when added first
-        if (uninit && user_status.ready && SherdBookmarklet.g) {
+        if (uninit && user_status.ready && MediathreadCollect.g) {
             //find assets again
-            SherdBookmarklet.g.findAssets();
+            MediathreadCollect.g.findAssets();
         }
     },
     "hosthandler": {
         /*Try to keep them ALPHABETICAL by 'brand' */
         "alexanderstreet.com": {
             find:function(callback) {
-                SherdBookmarklet.run_with_jquery(function _find(jQuery) {
+                MediathreadCollect.run_with_jquery(function _find(jQuery) {
                     var token = document.documentElement.innerHTML.match(/token=([^&\"\']+)/);
                     if (! token) {
                         return callback([]);
@@ -286,7 +286,7 @@ SherdBookmarklet = {
         "artstor.org": {
             find:function(callback) {
                 /*must have floating pane open to find image*/
-                SherdBookmarklet.run_with_jquery(function _find(jQuery) {
+                MediathreadCollect.run_with_jquery(function _find(jQuery) {
                     var found_images = [];
                     var floating_pane = jQuery(".MetaDataWidgetRoot");
                     var selected_thumbs = jQuery(".thumbNailImageSelected");
@@ -358,8 +358,8 @@ SherdBookmarklet = {
         },
         "blakearchive.org": {
             find:function(callback) {
-                SherdBookmarklet.run_with_jquery(function(jQ) {
-                    var SB = SherdBookmarklet;
+                MediathreadCollect.run_with_jquery(function(jQ) {
+                    var SB = MediathreadCollect;
                     var obj = {'sources':{"title":document.title},'metadata':{}};
                     try {
                         var opt_urls = document.forms.form.elements.site.options;
@@ -403,7 +403,7 @@ SherdBookmarklet = {
         // first version of this added by Eddie 10/28/11:
         "classpop.ccnmtl.columbia.edu": {
             find:function(callback) {
-                SherdBookmarklet.run_with_jquery(function _find(jQuery) {
+                MediathreadCollect.run_with_jquery(function _find(jQuery) {
                     if (jQuery ('#currently_playing').length > 0) {
 
                         // the YouTube id is passed up via a postMessage
@@ -416,7 +416,7 @@ SherdBookmarklet = {
                         // i'm just using an empty div.
                         var video_dom_object = jQuery ("<div></div>");
 
-                        SherdBookmarklet.assethandler.objects_and_embeds.players
+                        MediathreadCollect.assethandler.objects_and_embeds.players
                             .youtube.asset(
                                 video_dom_object,
                                 v_match,
@@ -438,7 +438,7 @@ SherdBookmarklet = {
         },
         "dropbox.com": {
             find:function(callback) {
-                SherdBookmarklet.run_with_jquery(function(jQ) {
+                MediathreadCollect.run_with_jquery(function(jQ) {
                     var save_link = document.getElementById('gallery_full_size');
                     if (save_link) {
                         var regex = String(save_link.href).match(/dropbox.com\/s\/[^\/]+\/([^?]+)/);
@@ -464,8 +464,8 @@ SherdBookmarklet = {
         },
         "flickr.com": {
             find:function(callback) {
-                SherdBookmarklet.run_with_jquery(function(jQuery) {
-                    var apikey = SherdBookmarklet.options.flickr_apikey;
+                MediathreadCollect.run_with_jquery(function(jQuery) {
+                    var apikey = MediathreadCollect.options.flickr_apikey;
                     // expected:/photos/<userid>/<imageid>/
                     var bits = document.location.pathname.split("/");
                     var imageId = bits[3];
@@ -480,7 +480,7 @@ SherdBookmarklet = {
                     /* http://docs.jquery.com/Release:jQuery_1.2/Ajax#Cross-Domain_getJSON_.28using_JSONP.29 */
                     var baseUrl = "https://api.flickr.com/services/rest/?format=json&api_key=" +
                         apikey+"&photo_id="+imageId+
-                        ((SherdBookmarklet.options.cross_origin) ? '&nojsoncallback=1' : '&jsoncallback=?');
+                        ((MediathreadCollect.options.cross_origin) ? '&nojsoncallback=1' : '&jsoncallback=?');
                     jQuery.getJSON(baseUrl + "&method=flickr.photos.getInfo",function(getInfoData) {
                         if (getInfoData.photo === undefined || getInfoData.photo.media=="video") {
                             /*video is unsupported*/
@@ -529,7 +529,7 @@ SherdBookmarklet = {
         },
         "mirc.sc.edu": {
             find:function(callback){
-                SherdBookmarklet.run_with_jquery(function _find(jQuery) {
+                MediathreadCollect.run_with_jquery(function _find(jQuery) {
                     if(jQuery("a.usc-flowplayer > :first").is('img')){
                         //This works inconsistently...so I'm going to put up a warning as a workaround
                         // var fp = jQuery(".usc-flowplayer").flowplayer(0);
@@ -543,9 +543,9 @@ SherdBookmarklet = {
                     // console.log(jQuery("a.usc-flowplayer").flowplayer(0));
                     var video = document.getElementById(fp_id);
                     if (video && video !== null) {
-                        var v_match = SherdBookmarklet.assethandler.objects_and_embeds.players.flowplayer3.match(video); //the flowplayer version
+                        var v_match = MediathreadCollect.assethandler.objects_and_embeds.players.flowplayer3.match(video); //the flowplayer version
                         if (v_match && v_match !== null) {
-                            var fp_rv=SherdBookmarklet.assethandler.objects_and_embeds.players.flowplayer3.asset(video,v_match,{'window':window,'document':document});
+                            var fp_rv=MediathreadCollect.assethandler.objects_and_embeds.players.flowplayer3.asset(video,v_match,{'window':window,'document':document});
                         }
                     }
                     // if(typeof(fp)!='undefined') fp.unload();
@@ -587,7 +587,7 @@ SherdBookmarklet = {
             find:function(callback) {
                 var returnArray = [];
                 var patt = /data/;// regex pattern for data url
-                SherdBookmarklet.run_with_jquery(function(jQ){
+                MediathreadCollect.run_with_jquery(function(jQ){
                     jQ('img').each(function(i){
                         var obj = {};
                         var source = jQuery(this).attr('src');
@@ -613,7 +613,7 @@ SherdBookmarklet = {
             find:function(callback) {
                 var returnArray = [];
                 var patt = /data/;// regex pattern for data url
-                SherdBookmarklet.run_with_jquery(function(jQ){
+                MediathreadCollect.run_with_jquery(function(jQ){
                     jQ('img').each(function(i){
                         var obj = {};
                         var source = jQuery(this).attr('src');
@@ -641,7 +641,7 @@ SherdBookmarklet = {
                 if (! /materialsLib/.test(document.location.pathname)) {
                     callback([],'Go to the Course Library page and run the bookmarklet again');
                 }
-                SherdBookmarklet.run_with_jquery(function(jQuery) {
+                MediathreadCollect.run_with_jquery(function(jQuery) {
                     var found_videos = [];
                     var course_library = jQuery('a.thumbnail');
                     var done = course_library.length;
@@ -700,9 +700,9 @@ SherdBookmarklet = {
         "learn.columbia.edu": {
             /*and www.mcah.columbia.edu */
             find:function(callback) {
-                SherdBookmarklet.run_with_jquery(function(jQuery) {
+                MediathreadCollect.run_with_jquery(function(jQuery) {
                     var rv = [];
-                    var abs = SherdBookmarklet.absolute_url;
+                    var abs = MediathreadCollect.absolute_url;
                     jQuery('table table table img').each(function() {
                         var match_img = String(this.src).match(/arthum2\/mediafiles\/(\d+)\/(.*)$/);
                         if (match_img) {
@@ -755,7 +755,7 @@ SherdBookmarklet = {
                             url:p.join('/')+'/gallery.xml',
                             dataType:'text',
                             success:function(gallery_xml,textStatus,xhr) {
-                                var gxml = SherdBookmarklet.xml2dom(gallery_xml,xhr);
+                                var gxml = MediathreadCollect.xml2dom(gallery_xml,xhr);
                                 var i_path = jQuery('simpleviewerGallery',gxml).attr('imagePath');
                                 var t_path = jQuery('simpleviewerGallery',gxml).attr('thumbPath');
                                 jQuery('image',gxml).each(function() {
@@ -789,7 +789,7 @@ SherdBookmarklet = {
         "vimeo.com": {
 
             find: function(callback) {
-                SherdBookmarklet.run_with_jquery(function _find(jQuery) {
+                MediathreadCollect.run_with_jquery(function _find(jQuery) {
                     var videos = jQuery('.video-wrapper');
                     if (videos.length < 1) {
                         var message = "This Vimeo page does not contain videos accessible to the bookmarklet. Try clicking into a single video page.";
@@ -802,7 +802,7 @@ SherdBookmarklet = {
                         var url = jQuery(parent).attr("data-fallback-url");
                         var vimeoId = url.split("/")[4];
 
-                        SherdBookmarklet.assethandler.objects_and_embeds.players
+                        MediathreadCollect.assethandler.objects_and_embeds.players
                             .moogaloop.asset(video,
                                              vimeoId,
                                              {'window':window,'document':document},
@@ -816,7 +816,7 @@ SherdBookmarklet = {
         },
         "youtube.com": {
             find:function(callback) {
-                SherdBookmarklet.run_with_jquery(function _find(jQuery) {
+                MediathreadCollect.run_with_jquery(function _find(jQuery) {
                     var video = document.getElementById("movie_player");
                     if (video && video !== null) {
                         var v_match = video.getAttribute('flashvars');
@@ -830,12 +830,12 @@ SherdBookmarklet = {
                         } else { //mostly for <OBJECT>
                             v_match = document.location.search.match(/[?&]v=([^&]*)/);
                         }
-                        if(v_match===null && SherdBookmarklet.getURLParameters('v')){
-                            var vid = SherdBookmarklet.getURLParameters('v');
+                        if(v_match===null && MediathreadCollect.getURLParameters('v')){
+                            var vid = MediathreadCollect.getURLParameters('v');
                             v_match = ['video_id=' + vid, vid];
                         }
 
-                        SherdBookmarklet.assethandler.objects_and_embeds.players
+                        MediathreadCollect.assethandler.objects_and_embeds.players
                             .youtube.asset(video,
                                            v_match,
                                            {'window':window,'document':document},0,
@@ -844,7 +844,7 @@ SherdBookmarklet = {
                         video = document.getElementsByTagName("video")[0];
                         var videoId = jQuery(video).attr("data-youtube-id");
                         var faux_match = [null, videoId];
-                        SherdBookmarklet.assethandler.objects_and_embeds.players
+                        MediathreadCollect.assethandler.objects_and_embeds.players
                             .youtube.asset(video,
                                            faux_match,
                                            {'window':window,'document':document},0,
@@ -873,8 +873,8 @@ SherdBookmarklet = {
                                 (String(eo.type) == 'audio/x-pn-realaudio-plugin' && 'emb') || null );
                     },
                     asset:function(emb,match,context,index,optional_callback) {
-                        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
-                        var abs = SherdBookmarklet.absolute_url;
+                        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
+                        var abs = MediathreadCollect.absolute_url;
                         var rv = {
                             html:emb,
                             primary_type:"realplayer",
@@ -916,14 +916,15 @@ SherdBookmarklet = {
                         return String(emb.src).match(/^http:\/\/www.youtube.com\/v\/([\w\-]*)/);
                     },
                     asset:function(emb,match,context,index,optional_callback) {
-                        var apikey = SherdBookmarklet.options.youtube_apikey;
+                        var apikey = MediathreadCollect.options.youtube_apikey;
 
-                        var jQ = (window.SherdBookmarkletOptions.jQuery || window.jQuery);
+                        var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
                         if (match.length > 0) {
                             var VIDEO_ID = match[1]; //e.g. "LPHEvaNjdhw";
                         } else {
                             return {};
                         }
+                        console.log('VIDEO_ID', VIDEO_ID);
                         var rv = {
                             html: emb,
                             wait: true,
@@ -963,7 +964,7 @@ SherdBookmarklet = {
                             dataType: 'script',
                             error:function(){optional_callback(index);}
                         };
-                        if (SherdBookmarklet.options.cross_origin) {
+                        if (MediathreadCollect.options.cross_origin) {
                             ajax_options.dataType = 'json';
                             ajax_options.success = window[yt_callback];
                             console.log('rv', rv.sources.gdata);
@@ -1023,7 +1024,7 @@ SherdBookmarklet = {
                         }
                         rv.sources[rv.primary_type+'-metadata'] = "w"+c.width+"h"+c.height;
                         if (item.image) {
-                            rv.sources.thumb = SherdBookmarklet.absolute_url(item.image,
+                            rv.sources.thumb = MediathreadCollect.absolute_url(item.image,
                                                                              context.document);
                         }
                         if (item.title) {
@@ -1037,15 +1038,15 @@ SherdBookmarklet = {
                         if (obj.data) {
                             return String(obj.data).match(/flowplayer[\.\-\w]+3[.\d]+\.swf/);
                         } else {//IE7 ?+
-                            var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
-                            var movie = SherdBookmarklet.find_by_attr(jQ,'param','name','movie',obj);
+                            var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
+                            var movie = MediathreadCollect.find_by_attr(jQ,'param','name','movie',obj);
                             return ((movie.length)?String(movie.get(0).value).match(/flowplayer-3[\.\d]+\.swf/):null);
                         }
                     },
                     asset:function(obj,match,context) {
                         /* TODO: 1. support audio
                          */
-                        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+                        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                         var $f = (context.window.$f && context.window.$f(obj.parentNode));
 
                         var cfg = (($f)? $f.getConfig()
@@ -1059,7 +1060,7 @@ SherdBookmarklet = {
                     queryasset:function(context,obj,cfg,clip,time,ref_id) {
                         var sources = {};
                         var type = 'video';
-                        var abs = SherdBookmarklet.absolute_url;
+                        var abs = MediathreadCollect.absolute_url;
                         if (cfg.playlist && ( !clip.url || cfg.playlist.length > 1)) {
                             for (var i=0;i<cfg.playlist.length;i++) {
                                 var p = cfg.playlist[i];
@@ -1112,7 +1113,7 @@ SherdBookmarklet = {
                             sources[primary_type+"-metadata"] = "w"+obj.offsetWidth+"h"+(obj.offsetHeight-25);
                         }
 
-                        var meta_obj = SherdBookmarklet.flowclipMetaSearch(document);
+                        var meta_obj = MediathreadCollect.flowclipMetaSearch(document);
                         for(var k in meta_obj){
                             sources[k] = meta_obj[k];
                         }
@@ -1138,7 +1139,7 @@ SherdBookmarklet = {
                         return String(emb.src).match(/FLVPlayer_Progressive\.swf/);
                     },
                     asset:function(emb,match,context) {
-                        var abs = SherdBookmarklet.absolute_url;
+                        var abs = MediathreadCollect.absolute_url;
                         var flashvars = emb.getAttribute('flashvars');
                         if (flashvars) {
                             var stream = flashvars.match(/streamName=([^&]+)/);
@@ -1157,7 +1158,7 @@ SherdBookmarklet = {
                 },/*end flvplayer_progressive*/
                 "kaltura": {
                     match:function(objemb) {
-                        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+                        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                         var movie = jQ(objemb).children('param[name=movie],param[name=MOVIE]');
 
                         // kaltura & vimeo use the same classid, apparently vimeo was built off kaltura?
@@ -1170,7 +1171,7 @@ SherdBookmarklet = {
                     asset:function(objemb,match_rv,context,index,optional_callback) {
                         var stream = objemb.data || objemb.src;
                         if (!stream) {
-                            var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+                            var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                             var movie = jQ(objemb).children('param[name=movie],param[name=MOVIE]');
                             stream = movie.val();
                         }
@@ -1212,8 +1213,8 @@ SherdBookmarklet = {
                                ) || null;
                     },
                     asset:function(objemb,match,context) {
-                        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
-                        var abs = SherdBookmarklet.absolute_url;
+                        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
+                        var abs = MediathreadCollect.absolute_url;
                         var src = objemb.src || jQ(objemb).children('param[name=src],param[name=SRC]');
                         if (src.length) {
                             src = (src.get) ? src.get(0).value : src;
@@ -1232,7 +1233,7 @@ SherdBookmarklet = {
                 },
                 "moogaloop": {
                     match:function(objemb) {
-                        var jQ = (window.SherdBookmarkletOptions.jQuery || window.jQuery);
+                        var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
                         var movie = jQ(objemb).children('param[name=movie],param[name=MOVIE]');
 
                         return ((objemb.classid=="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" && movie.val().search('moogaloop') > -1) ||
@@ -1241,7 +1242,7 @@ SherdBookmarklet = {
                                   (objemb.src && String(objemb.src).search('moogaloop.swf') > -1)))) || null;
                     },
                     asset:function(objemb,match_rv,context,index,optional_callback) {
-                        var jQ = (window.SherdBookmarkletOptions.jQuery || window.jQuery);
+                        var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
 
                         var vimeoId;
                         if (match_rv) {
@@ -1294,7 +1295,7 @@ SherdBookmarklet = {
                             dataType: 'script',
                             error:function(){optional_callback(index);}
                         };
-                        if (SherdBookmarklet.options.cross_origin) {
+                        if (MediathreadCollect.options.cross_origin) {
                             ajax_options.dataType = 'json';
                             ajax_options.success = window[vm_callback];
                             ajax_options.url = "https://www.vimeo.com/api/v2/video/" + vimeoId + ".json";
@@ -1308,8 +1309,8 @@ SherdBookmarklet = {
                         return (String(objemb.innerHTML).match(/zoomifyImagePath=([^&\"\']*)/) || String(objemb.flashvars).match(/zoomifyImagePath=([^&\"\']*)/));
                     },
                     asset:function(objemb,match,context,index,optional_callback) {
-                        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
-                        var tile_root = SherdBookmarklet.absolute_url(match[1],context.document);
+                        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
+                        var tile_root = MediathreadCollect.absolute_url(match[1],context.document);
                         tile_root = tile_root.replace(/\/$/,'');//chomp trailing /
                         var img = document.createElement("img");
                         img.src = tile_root+"/TileGroup0/0-0-0.jpg";
@@ -1470,7 +1471,7 @@ SherdBookmarklet = {
         "audio": {
             find:function(callback,context) {
                 if(!jQuery){
-                    jQuery = window.SherdBookmarkletOptions.jQuery;
+                    jQuery = window.MediathreadCollectOptions.jQuery;
                 }
                 // test if we are on the asset itself, relying on
                 // the browser (support) handling the mp3 file
@@ -1484,7 +1485,7 @@ SherdBookmarklet = {
                     }]);
                 }else{//this must be a listing of audio files somewhere
                     // on the page.
-                    window.SherdBookmarklet.snd_asset_2_django = function(mp3, type){
+                    window.MediathreadCollect.snd_asset_2_django = function(mp3, type){
                         mp3.each(function(i){
                             callback([{
                                 "html":document.documentElement,
@@ -1504,7 +1505,7 @@ SherdBookmarklet = {
                         type = 'src';
                     }//end else if
                     if (mp3 !== undefined){
-                        window.SherdBookmarklet.snd_asset_2_django(mp3, type);
+                        window.MediathreadCollect.snd_asset_2_django(mp3, type);
                     }//end if
                 }//end else
             }//end find
@@ -1514,15 +1515,15 @@ SherdBookmarklet = {
                 if (!window.postMessage) return callback([]);
                 var frms = context.document.getElementsByTagName("iframe");
                 var result = [];
-                var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
-                SherdBookmarklet.connect(context.window,'message',function(evt) {
+                var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
+                MediathreadCollect.connect(context.window,'message',function(evt) {
                     try {
                         var id, d = jQ.parseJSON(evt.data);
                         if ((id = String(d.id).match(/^sherd(\d+)/)) && d.info) {
                             var i = d.info;
                             switch(i.player) {
                             case "flowplayer":
-                                var fp = (SherdBookmarklet.assethandler.objects_and_embeds.players
+                                var fp = (MediathreadCollect.assethandler.objects_and_embeds.players
                                           .flowplayer3.queryasset(context,frms[parseInt(id[1],10)],i.config, i.clip, i.time, i.id));
                                 return callback([fp]);
                             default:
@@ -1542,11 +1543,11 @@ SherdBookmarklet = {
             find:function(callback, context) {
                 var frms = context.document.getElementsByTagName("iframe");
                 var result = [];
-                var jQ = (window.SherdBookmarkletOptions.jQuery || window.jQuery);
+                var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
                 for (var i = 0; i < frms.length; i++) {
                     var v_match = String(frms[i].src).match(/^http:\/\/www.youtube.com\/embed\/([\w\-]*)/);
                     if (v_match && v_match.length > 1) {
-                        SherdBookmarklet.assethandler.objects_and_embeds.players
+                        MediathreadCollect.assethandler.objects_and_embeds.players
                             .youtube.asset(frms[i],
                                            v_match,
                                            {'window': window,
@@ -1562,7 +1563,7 @@ SherdBookmarklet = {
                 var result = [];
                 var zoomify_urls = {};
                 var done = 0;
-                var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+                var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                 for (var i=0;i<imgs.length;i++) {
                     //IGNORE headers/footers/logos
                     var image = imgs[i];
@@ -1600,7 +1601,7 @@ SherdBookmarklet = {
                         ////Zoomify Tile Images support
                         var zoomify_match = String(image.src).match(/^(.*)\/TileGroup\d\//);
                         if (zoomify_match) {
-                            var tile_root = SherdBookmarklet.absolute_url(zoomify_match[1],context.document);
+                            var tile_root = MediathreadCollect.absolute_url(zoomify_match[1],context.document);
                             if (tile_root in zoomify_urls)
                                 continue;
                             else {
@@ -1633,7 +1634,7 @@ SherdBookmarklet = {
                     }
                 }
                 for (i=0;i<result.length;i++) {
-                    SherdBookmarklet.metadataSearch(result[i], context.document);
+                    MediathreadCollect.metadataSearch(result[i], context.document);
                 }
                 if (done===0) callback(result);
             }
@@ -1643,7 +1644,7 @@ SherdBookmarklet = {
             ///BUT it might have more metadata
             find:function(callback) {
                 var result = [];
-                var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+                var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                 jQ('div.asset-links').each(function(){
                     var top = this;
                     var res0 = {html:top, sources:{}};
@@ -1667,7 +1668,7 @@ SherdBookmarklet = {
             page_resource:true,
             find:function(callback,context) {
                 var self = this;
-                var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+                var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                 var unapi = jQ('abbr.unapi-id');
                 ///must find one, or it's not a page resource, and we won't know what asset to connect to
                 if (unapi.length == 1) {
@@ -1690,7 +1691,7 @@ SherdBookmarklet = {
                                     },
                                     "metadata":{'subject':[]}
                                 };
-                                var pb = SherdBookmarklet.xml2dom(pbcore_xml,xhr);
+                                var pb = MediathreadCollect.xml2dom(pbcore_xml,xhr);
                                 if (! jQ('PBCoreDescriptionDocument',pb).length) {
                                     return callback([]);
                                 }
@@ -1765,7 +1766,7 @@ SherdBookmarklet = {
             page_resource:true,
             find:function(callback,context) {
                 var self = this;
-                var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+                var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                 var oembed_link = false;
                 jQ("link").each(function(){
                     //jQuery 1.0 compatible
@@ -1836,7 +1837,7 @@ SherdBookmarklet = {
         }/* end oEmbed.json assethandler */
     },/*end assethandler*/
     "gethosthandler":function() {
-        var hosthandler = SherdBookmarklet.hosthandler;
+        var hosthandler = MediathreadCollect.hosthandler;
         hosthandler['mcah.columbia.edu'] = hosthandler['learn.columbia.edu'];
         for (var host in hosthandler) {
             if (new RegExp(host+'$').test(location.hostname.replace('.ezproxy.cul.columbia.edu','')))
@@ -1857,7 +1858,7 @@ SherdBookmarklet = {
         return destination;
     },/*obj2url*/
     "obj2form": function(host_url,obj,doc,target, index) {
-        var M = window.SherdBookmarklet;
+        var M = window.MediathreadCollect;
         doc = doc||document;
         target = target||'_top';
         ///if more than one asset, we should try to prefix this to keep url= unique
@@ -1897,7 +1898,7 @@ SherdBookmarklet = {
     },/*addField*/
     "forms": {
         "mediathread": function(obj,form,ready,doc) {
-            var M = window.SherdBookmarklet;
+            var M = window.MediathreadCollect;
             /* just auto-save immediately
              * this also allows us to send larger amounts of metadata
              */
@@ -1919,7 +1920,7 @@ SherdBookmarklet = {
             M.addField("asset-source", "bookmarklet",form,doc);
         },/*mediathread_form*/
         "imagemat":function(obj,form,ready,doc) {
-            var M = window.SherdBookmarklet;
+            var M = window.MediathreadCollect;
             if (obj.sources.title) {
                 var span = doc.createElement('span');
                 span.innerHTML = obj.sources.title;
@@ -1942,7 +1943,7 @@ SherdBookmarklet = {
     "runners": {
         jump: function(host_url,jump_now) {
             var final_url = host_url;
-            var M = SherdBookmarklet;
+            var M = MediathreadCollect;
             var handler = M.gethosthandler();
             var grabber_func = function(jQuery) {
                 M.g = new M.Interface(host_url);
@@ -1970,7 +1971,7 @@ SherdBookmarklet = {
             handler.find.call(handler, jump_with_first_asset);
         },
         decorate: function(host_url) {
-            var M = SherdBookmarklet;
+            var M = MediathreadCollect;
             function go(run_func) {
                 M.run_with_jquery(function() {
                     M.g = new M.Interface(host_url);
@@ -2029,7 +2030,7 @@ SherdBookmarklet = {
     },
     "metadataSearch":function(result, doc) {
         /*searches for neighboring metadata in microdata and some ad-hoc microformats */
-        var M = SherdBookmarklet;
+        var M = MediathreadCollect;
         if (!M.mergeMetadata(result,M.metadataTableSearch(result.html, doc))) {
             M.mergeMetadata(result,M.microdataSearch(result.html, doc));
         }
@@ -2049,7 +2050,7 @@ SherdBookmarklet = {
     },
     "microdataSearch": function(elem, doc) {
         var item;
-        var jQ = (window.SherdBookmarkletOptions.jQuery || window.jQuery);
+        var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
         jQ(elem).parents('[itemscope]').each(function() {
             item = this;
         });
@@ -2058,7 +2059,7 @@ SherdBookmarklet = {
                 return item.properties;
             } else {
                 var props = {};
-                var abs = SherdBookmarklet.absolute_url;
+                var abs = MediathreadCollect.absolute_url;
                 jQ('[itemprop]', item).each(function() {
                     var p = this.getAttribute('itemprop');
                     props[p] = props[p] || [];
@@ -2084,7 +2085,7 @@ SherdBookmarklet = {
     },
     "metadataTableSearch":function(elem, doc) {
         /*If asset is in a table and the next row has the word 'Metadata' */
-        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
         if ('td'===elem.parentNode.tagName.toLowerCase()) {
             var trs = jQ(elem.parentNode.parentNode).nextAll();
             if (trs.length && /metadata/i.test(jQ(trs[0]).text())) {
@@ -2092,13 +2093,13 @@ SherdBookmarklet = {
                 trs.each(function() {
                     var tds = jQ('td',this);
                     if (tds.length === 2) {
-                        var p = SherdBookmarklet.clean(jQ(tds[0]).text());
+                        var p = MediathreadCollect.clean(jQ(tds[0]).text());
                         if (p) {
                             props[p] = props[p] || [];
-                            var val = SherdBookmarklet.clean(jQ(tds[1]).text());
+                            var val = MediathreadCollect.clean(jQ(tds[1]).text());
                             //if there's an <a> tag, then use the URL -- use for thumbs
                             jQ('a',tds[1]).slice(0,1).each(function() {
-                                val = SherdBookmarklet.absolute_url(this.href,doc);
+                                val = MediathreadCollect.absolute_url(this.href,doc);
                             });
                             props[p].push(val);
                         }
@@ -2230,7 +2231,7 @@ SherdBookmarklet = {
     *************/
     "Finder" : function() {
         var self = this;
-        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
 
         this.handler_count = 0;
         this.final_count = 0;
@@ -2252,7 +2253,7 @@ SherdBookmarklet = {
 
         this.findAssets = function() {
             self.assets_found = [];
-            var handler = SherdBookmarklet.gethosthandler();
+            var handler = MediathreadCollect.gethosthandler();
             if (handler) {
                 handler.find.call(handler, self.collectAssets);
                 if (handler.also_find_general) {
@@ -2262,7 +2263,7 @@ SherdBookmarklet = {
                 self.findGeneralAssets();
 
             }
-            if(self.assets_found.length === 0 && SherdBookmarklet.user_ready()){
+            if(self.assets_found.length === 0 && MediathreadCollect.user_ready()){
                 self.noAssetMessage();
             }
         };
@@ -2297,7 +2298,7 @@ SherdBookmarklet = {
             self.no_assets_yet = true;
             self.asset_keys = {};
 
-            var handlers = SherdBookmarklet.assethandler;
+            var handlers = MediathreadCollect.assethandler;
             var frames = self.walkFrames();
             self.best_frame = frames.best;
             self.ASYNC.best_frame(frames.best);
@@ -2305,15 +2306,15 @@ SherdBookmarklet = {
 
             jQ(frames.all).each(function(i,context) {
                 ++self.handler_count; //for each frame
-                for (var h in SherdBookmarklet.assethandler) {
+                for (var h in MediathreadCollect.assethandler) {
                     ++self.final_count;
                 }
-                for (h in SherdBookmarklet.assethandler) {
+                for (h in MediathreadCollect.assethandler) {
                     try {///DEBUG
                         handlers[h].find.call(handlers[h],self.collectAssets,context);
                     } catch(e) {
                         ++self.handler_count;
-                        SherdBookmarklet.error = e;
+                        MediathreadCollect.error = e;
                         alert("Bookmarklet Error in "+h+": "+e.message);
                     }
                 }
@@ -2376,7 +2377,7 @@ SherdBookmarklet = {
                 if (after_merge) {
                     after_merge.html_id = self.assetHtmlID(after_merge);
                     self.ASYNC.display(after_merge, /*index*/assets.length-1);
-                    window.SherdBookmarklet.assetBucket = assets;
+                    window.MediathreadCollect.assetBucket = assets;
                     if (window.console) {
                         window.console.log(assets);
                     }
@@ -2392,7 +2393,7 @@ SherdBookmarklet = {
             rv.all.unshift({'frame':window,
                             'document':document,
                             'window':window,
-                            'hasBody':SherdBookmarklet.hasBody(document)});
+                            'hasBody':MediathreadCollect.hasBody(document)});
             var max =((rv.all[0].hasBody) ? document.body.offsetWidth*document.body.offsetHeight: 0);
             rv.best = ((max)? rv.all[0] : null);
             function _walk(index,domElement) {
@@ -2402,7 +2403,7 @@ SherdBookmarklet = {
                     var context = {
                         frame:this,document:doc,
                         window:this.contentWindow,
-                        hasBody:SherdBookmarklet.hasBody(doc)
+                        hasBody:MediathreadCollect.hasBody(doc)
                     };
                     rv.all.push(context);
                     var area = context.hasBody * this.offsetWidth * this.offsetHeight;
@@ -2420,7 +2421,7 @@ SherdBookmarklet = {
      END Finder
       *****************/
     "Interface" : function (host_url, options) {
-        var M = SherdBookmarklet;
+        var M = MediathreadCollect;
         this.options = {
             login_url:null,
             tab_label:"Analyze in Mediathread",
@@ -2437,9 +2438,9 @@ SherdBookmarklet = {
             message_disabled_asset:'This item cannot be embedded on external sites.',
             widget_name:'the bookmarklet'
         }; if (options) for (var a in options) {this.options[a]=options[a];}
-        //bring in options from SherdBookmarkletOptions
+        //bring in options from MediathreadCollectOptions
         for (var b in this.options) {if (M.options[b]) this.options[b]=M.options[b];}
-        var jQ = (window.SherdBookmarkletOptions.jQuery ||window.jQuery );
+        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
 
         var o = this.options;
         var self = this;
@@ -2454,8 +2455,8 @@ SherdBookmarklet = {
             return target.ownerDocument.body.scrollTop;
         };
         this.loadStyles = function(){
-            var jQ = window.SherdBookmarkletOptions.jQuery || window.jQuery;
-            var root_url =  SherdBookmarkletOptions.host_url.split('/save/?').shift();
+            var jQ = window.MediathreadCollectOptions.jQuery || window.jQuery;
+            var root_url =  MediathreadCollectOptions.host_url.split('/save/?').shift();
             jQ('head').append('<link rel="stylesheet" type="text/css" href="'+ root_url +'/media/js/sherdjs/src/bookmarklets/sherd_styles.css">');
             jQ('head').append('<link rel="stylesheet" type="text/css" href="'+ root_url +'/media/css/mediathread.css">');
         };
@@ -2467,8 +2468,8 @@ SherdBookmarklet = {
                 comp.window.style.display = "block";
                 comp.tab.style.display = "none";
                 jQ(comp.ul).empty();
-                if (!SherdBookmarklet.user_ready()) {
-                    if (SherdBookmarklet.needs_update()) {
+                if (!MediathreadCollect.user_ready()) {
+                    if (MediathreadCollect.needs_update()) {
                         // display message here
                         jQ(comp.h2).empty().get(0).appendChild(document.createTextNode('Please update'));
                         o.login_url = o.login_url || host_url.split("/",3).join("/") + "/upgrade/";
@@ -2582,7 +2583,7 @@ SherdBookmarklet = {
 
             M.connect(comp.tab, "click", this.onclick);
             M.connect(comp.collection, "click", function(evt) {
-                hostURL = SherdBookmarkletOptions.host_url;
+                hostURL = MediathreadCollectOptions.host_url;
                 var url = self.unHttpsTheLink(hostURL.split('/save/?')[0]);
                 window.location.replace(url + '/asset/');
             });
@@ -2592,7 +2593,7 @@ SherdBookmarklet = {
                 if(window.IEVideo){
                     jQ(window.IEVideo).css('display','block');
                 }
-                if (SherdBookmarklet.options.decorate) {
+                if (MediathreadCollect.options.decorate) {
                     comp.tab.style.display = 'block';
                 }
                 self.windowStatus = false;
@@ -2658,7 +2659,7 @@ SherdBookmarklet = {
             }
             if (asset.disabled) {
                 form.lastChild.innerHTML = o.message_disabled_asset;
-            } else if (SherdBookmarklet.user_ready()){
+            } else if (MediathreadCollect.user_ready()){
                 form.submitButton = self.elt(null,'input','analyze btn-primary',{type:'button',value:'Open in Mediathread'});
                 form.submitButton2 = self.elt(null,'input','cont btn-primary',{type:'button',value:'Collect'});
                 if(!window.IEVideo){
@@ -2842,7 +2843,7 @@ SherdBookmarklet = {
             var save_all = document.createElement('li');
             comp.ul.appendChild(save_all);
             ///TODO: cheating without possible dom weirdness
-            save_all.innerHTML = '<button onclick="SherdBookmarklet.g.saveAll()">Save All '+count+' Items</button>';
+            save_all.innerHTML = '<button onclick="MediathreadCollect.g.saveAll()">Save All '+count+' Items</button>';
             comp.saveAll = save_all;
             comp.saveAllButton = save_all.firstChild;
         };
@@ -2927,22 +2928,22 @@ SherdBookmarklet = {
     getURLParameters: function(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
     }
-};/*SherdBookmarklet (root)*/
+};/*MediathreadCollect (root)*/
 
-if (!window.SherdBookmarkletOptions) {
-    window.SherdBookmarkletOptions = {};
+if (!window.MediathreadCollectOptions) {
+    window.MediathreadCollectOptions = {};
 }
 
 ///1. search for assets--as soon as we find one, break out and send show:true
 ///2. on request, return a full asset list
 ///3. allow the grabber to be created by sending an asset list to it
-SherdBookmarklet.options = SherdBookmarkletOptions;
-//var finder = new SherdBookmarklet.Finder();
+MediathreadCollect.options = MediathreadCollectOptions;
+//var finder = new MediathreadCollect.Finder();
 //var found_one = false;
 /*finder.ASYNC.display = function(asset) {
   if (!asset.disabled && !found_one) {//just run once
   found_one = true;
-  SherdBookmarklet.showWindow();
+  MediathreadCollect.showWindow();
   console.log('found one');
   ///request sent TO background.html
   chrome.extension.sendMessage({
@@ -2970,9 +2971,9 @@ finder.findAssets();
 }
 });*/
 //finder.findAssets();
-if (SherdBookmarkletOptions.user_status) {
-    SherdBookmarklet.update_user_status(
-        SherdBookmarkletOptions.user_status);
+if (MediathreadCollectOptions.user_status) {
+    MediathreadCollect.update_user_status(
+        MediathreadCollectOptions.user_status);
 }
-SherdBookmarklet.runners['jump'](
-    SherdBookmarkletOptions.host_url,true);
+MediathreadCollect.runners['jump'](
+    MediathreadCollectOptions.host_url,true);

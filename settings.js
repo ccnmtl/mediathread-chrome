@@ -1,4 +1,4 @@
-var SherdBookmarkletOptions = {
+var MediathreadCollectOptions = {
     flickr_apikey: 'fill this in',
     youtube_apikey: 'fill this in',
     host_url: 'https://mediathread.stage.ccnmtl.columbia.edu/save/',
