@@ -469,7 +469,8 @@ MediathreadCollect = {
                     if (imageId.length < 1 || imageId.search(/\d{1,12}/) < 0)
                         return callback([]);
 
-                    /* http://docs.jquery.com/Release:jQuery_1.2/Ajax#Cross-Domain_getJSON_.28using_JSONP.29 */
+                    // See jsonp docs for $.getJSON:
+                    // http://api.jquery.com/jquery.getjson/
                     var baseUrl = "https://api.flickr.com/services/rest/?format=json&api_key=" +
                         apikey+"&photo_id="+imageId+
                         ((MediathreadCollect.options.cross_origin) ? '&nojsoncallback=1' : '&jsoncallback=?');
