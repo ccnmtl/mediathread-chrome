@@ -462,7 +462,7 @@ MediathreadCollect = {
                     var bits = document.location.pathname.split("/");
                     var imageId = bits[3];
                     window.imageId = imageId;
-                    if(imageId === undefined){
+                    if(typeof imageId === 'undefined'){
                         return callback([]);
                     }
 
@@ -475,7 +475,7 @@ MediathreadCollect = {
                         apikey+"&photo_id="+imageId+
                         ((MediathreadCollect.options.cross_origin) ? '&nojsoncallback=1' : '&jsoncallback=?');
                     jQuery.getJSON(baseUrl + "&method=flickr.photos.getInfo",function(getInfoData) {
-                        if (getInfoData.photo === undefined || getInfoData.photo.media=="video") {
+                        if (typeof getInfoData.photo === 'undefined' || getInfoData.photo.media=="video") {
                             /*video is unsupported*/
                             return callback([]);
                         }
@@ -1183,7 +1183,7 @@ MediathreadCollect = {
 
                         if (objemb.evaluate) {
                             var currentTime = objemb.evaluate("{video.player.currentTime}");
-                            if (currentTime !== undefined && currentTime > 0)
+                            if (typeof currentTime !== 'undefined' && currentTime > 0)
                                 rv.hash="start="+ currentTime;
 
                             var entry = objemb.evaluate('{mediaProxy.entry}');
@@ -1497,7 +1497,7 @@ MediathreadCollect = {
                         mp3 = jQuery('*[src$="mp3"]');
                         type = 'src';
                     }//end else if
-                    if (mp3 !== undefined){
+                    if (typeof mp3 !== 'undefined'){
                         window.MediathreadCollect.snd_asset_2_django(mp3, type);
                     }//end if
                 }//end else
@@ -2106,13 +2106,13 @@ MediathreadCollect = {
         if (jQuery){
             var metaData = {};
             var metaDataElms = jQuery('*[itemprop]', document);
-            if (metaDataElms !== undefined){
+            if (typeof metaDataElms !== 'undefined'){
                 metaDataElms.each(function(){
                     var itemProp = jQuery(this).attr('itemprop');
                     var val = jQuery(this).text();
                     if(jQuery(this).attr('itemref')){
                         var metaId = jQuery(this).attr('itemref');
-                        if(metaData['metadata-'+itemProp] === undefined ){
+                        if(typeof metaData['metadata-'+itemProp] === 'undefined') {
                             metaData['metadata-'+itemProp] = {};
                         }
                         metaListItem = jQuery("#"+metaId).text();
@@ -2626,7 +2626,7 @@ MediathreadCollect = {
         };
         this.displayAsset = function(asset,index) {
             var assetUrl = asset.sources[asset.primary_type];
-            if(assetUrl !== undefined){
+            if (typeof assetUrl !== 'undefined'){
                 // make sure to strip out any url params
                 asset.sources[asset.primary_type] = assetUrl.split('?')[0];
             }
