@@ -181,11 +181,9 @@
         user_ready:function() {
             // FIXME :P
             return true;
-            return MediathreadCollect.user_status.ready;
         },
         needs_update:function() {
             return false;
-            return !MediathreadCollect.user_status.current;
         },
         update_user_status:function(user_status) {
             var uninit = (! window.MediathreadCollect.user_status.ready);
@@ -356,8 +354,9 @@
                     MediathreadCollect.run_with_jquery(function(jQ) {
                         var SB = MediathreadCollect;
                         var obj = {'sources':{"title":document.title},'metadata':{}};
+                        var opt_urls;
                         try {
-                            var opt_urls = document.forms.form.elements.site.options;
+                            opt_urls = document.forms.form.elements.site.options;
                         } catch(e) {
                             return callback([]);
                         }
@@ -526,6 +525,7 @@
             "mirc.sc.edu": {
                 find:function(callback){
                     MediathreadCollect.run_with_jquery(function _find(jQuery) {
+                        var fp_rv;
                         if(jQuery("a.usc-flowplayer > :first").is('img')){
                             //This works inconsistently...so I'm going to put up a warning as a workaround
                             // var fp = jQuery(".usc-flowplayer").flowplayer(0);
@@ -541,40 +541,49 @@
                         if (video && video !== null) {
                             var v_match = MediathreadCollect.assethandler.objects_and_embeds.players.flowplayer3.match(video); //the flowplayer version
                             if (v_match && v_match !== null) {
-                                var fp_rv=MediathreadCollect.assethandler.objects_and_embeds.players.flowplayer3.asset(video,v_match,{'window':window,'document':document});
+                                fp_rv = MediathreadCollect.assethandler.objects_and_embeds.players.flowplayer3.asset(video,v_match,{'window':window,'document':document});
                             }
                         }
                         // if(typeof(fp)!='undefined') fp.unload();
 
                         fp_rv.metadata = {};
+                        var i;
 
                         try { fp_rv.metadata.title = fp_rv.sources.title = [jQuery("#edit-title--2").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.title = ''}
+                        catch (e) {fp_rv.metadata.title = '';}
                         try { fp_rv.metadata.produced = [jQuery("#edit-production-date").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.produced = ''}
+                        catch (e) {fp_rv.metadata.produced = '';}
                         try { fp_rv.metadata.description = [jQuery("#edit-description--2").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.description = ''}
+                        catch (e) {fp_rv.metadata.description = '';}
                         try { fp_rv.metadata.copyright = [jQuery("#edit-credits-preserved-by-rights").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.copyright = ''}
+                        catch (e) {fp_rv.metadata.copyright = '';}
                         try { fp_rv.metadata.temporal = [jQuery("#edit-tempo--2").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.temporal = ''}
+                        catch (e) {fp_rv.metadata.temporal = '';}
                         try { fp_rv.metadata.geographical = [jQuery("#edit-geo").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.geographical = ''}
+                        catch (e) {fp_rv.metadata.geographical = '';}
                         try {
                             var tags = jQuery("#edit-subjects").html().replace(/<label(.*)<\/label>/g, "").split(/(<br>)+/);
-                            for(var i=tags.length-1; i>=0; i--) tags[i].trim()=='<br>' || tags[i].trim()=='' ? tags.splice(i, 1) : tags[i]=tags[i].trim();
+                            for(i=tags.length-1; i>=0; i--) tags[i].trim()==='<br>' || tags[i].trim()==='' ? tags.splice(i, 1) : tags[i]=tags[i].trim();
                             fp_rv.metadata.subject = tags;
                         } catch (e) {fp_rv.metadata.tags = [];}
                         try {
                             var credits = jQuery("#edit-credits").text().split('Donor')[0].split('Credits')[1].split('.');
-                            for(var i=credits.length-1; i>=0; i--) credits[i].trim()=='<br>' || credits[i].trim()=='' ? credits.splice(i, 1) : credits[i]=credits[i].trim();
+                            for (i=credits.length-1; i>=0; i--) {
+                                if (credits[i].trim() === '<br>' || credits[i].trim() === '') {
+                                    credits.splice(i, 1);
+                                } else {
+                                    credits[i] = credits[i].trim();
+                                }
+                            }
                             fp_rv.metadata.credits = credits;
-                        } catch (e) {fp_rv.metadata.credits = [];}
+                        } catch (e) {
+                            fp_rv.metadata.credits = [];
+                        }
 
-                        fp_rv.sources.thumb="http://mirc.sc.edu/sites/all/modules/usc_mirc/images/playbuttonblack.jpg"
+                        fp_rv.sources.thumb="http://mirc.sc.edu/sites/all/modules/usc_mirc/images/playbuttonblack.jpg";
 
                         return callback([fp_rv]);
-                    })
+                    });
                 },
                 decorate:function(objs){
                 }
@@ -1726,11 +1735,12 @@
                                 },
                                 error:function(){
                                     //attempt to scrape manually
+                                    var rv;
                                     if(console){
                                         console.log('trying to scrape manually, something went wrong with the unAPI call');
                                         // if Openvault
                                         if(request_url.indexOf('openvault')>0){
-                                            var rv = {
+                                            rv = {
                                                 "page_resource":true,
                                                 "html":document,
                                                 "primary_type":"pbcore",
@@ -2012,7 +2022,8 @@
         "mergeMetadata":function(result,metadata) {
             if (!metadata) return;
             if (!result.metadata) {
-                return result.metadata = metadata;
+                result.metadata = metadata;
+                return result.metadata;
             } else {
                 for (var a in metadata) {
                     if (result.metadata[a]) {
@@ -2767,35 +2778,44 @@
                             '-webkit-border-radius':'4px',
                             'background-color':'#efefef',
                             '*background-color':'#efefef',
-                            'background-image':'-moz-linear-gradient(top, #fcfcfc, #efefef)',
-                            'background-image':'-webkit-gradient(linear, 0 0, 0 100%, from(#fcfcfc), to(#efefef))',
-                            'background-image':'-webkit-linear-gradient(top, #fcfcfc, #efefef)',
-                            'background-image':'-o-linear-gradient(top, #fcfcfc, #efefef)',
-                            'background-image':'linear-gradient(to bottom, #fcfcfc, #efefef)',
+                            'background-image': [
+                                '-moz-linear-gradient(top, #fcfcfc, #efefef)',
+                                '-webkit-gradient(linear, 0 0, 0 100%, from(#fcfcfc), to(#efefef))',
+                                '-webkit-linear-gradient(top, #fcfcfc, #efefef)',
+                                '-o-linear-gradient(top, #fcfcfc, #efefef)',
+                                'linear-gradient(to bottom, #fcfcfc, #efefef)'
+                            ],
                             'background-repeat':'repeat-x',
-                            'border-color':'#0044cc #0044cc #002a80',
-                            'border-color':'rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)',
-                            'filter':'progid:DXImageTransform.Microsoft.gradient(startColorstr="#ff0088cc", endColorstr="#ff0044cc", GradientType=0)',
-                            'filter':'progid:DXImageTransform.Microsoft.gradient(enabled=false)',
+                            'border-color': [
+                                '#0044cc #0044cc #002a80',
+                                'rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)'
+                            ],
+                            'filter': [
+                                'progid:DXImageTransform.Microsoft.gradient(startColorstr="#ff0088cc", endColorstr="#ff0044cc", GradientType=0)',
+                                'progid:DXImageTransform.Microsoft.gradient(enabled=false)'
+                            ],
                             'cursor':'pointer',
                             'display':'inline-block'
                         });
                         submitBtn.hover(function(){
                             jQ(this).css({
-                                'background-image':'-moz-linear-gradient(top, #efefef, #fcfcfc)',
-                                'background-image':'-webkit-gradient(linear, 0 0, 0 100%, from(#efefef), to(#fcfcfc))',
-                                'background-image':'-webkit-linear-gradient(top, #efefef, #fcfcfc)',
-                                'background-image':'-o-linear-gradient(top, #efefef, #fcfcfc)',
-                                'background-image':'linear-gradient(to bottom, #efefef, #fcfcfc)'
-
+                                'background-image': [
+                                    '-moz-linear-gradient(top, #efefef, #fcfcfc)',
+                                    '-webkit-gradient(linear, 0 0, 0 100%, from(#efefef), to(#fcfcfc))',
+                                    '-webkit-linear-gradient(top, #efefef, #fcfcfc)',
+                                    '-o-linear-gradient(top, #efefef, #fcfcfc)',
+                                    'linear-gradient(to bottom, #efefef, #fcfcfc)'
+                                ]
                             });
                         }, function(){
                             jQ(this).css({
-                                'background-image':'-moz-linear-gradient(top, #fcfcfc, #efefef)',
-                                'background-image':'-webkit-gradient(linear, 0 0, 0 100%, from(#fcfcfc), to(#efefef))',
-                                'background-image':'-webkit-linear-gradient(top, #fcfcfc, #efefef)',
-                                'background-image':'-o-linear-gradient(top, #fcfcfc, #efefef)',
-                                'background-image':'linear-gradient(to bottom, #fcfcfc, #efefef)'
+                                'background-image': [
+                                    '-moz-linear-gradient(top, #fcfcfc, #efefef)',
+                                    '-webkit-gradient(linear, 0 0, 0 100%, from(#fcfcfc), to(#efefef))',
+                                    '-webkit-linear-gradient(top, #fcfcfc, #efefef)',
+                                    '-o-linear-gradient(top, #fcfcfc, #efefef)',
+                                    'linear-gradient(to bottom, #fcfcfc, #efefef)'
+                                ]
                             });
                         });
 
@@ -2922,7 +2942,7 @@
 
         }, /*END Interface*/
         getURLParameters: function(name) {
-            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[null,""])[1].replace(/\+/g, '%20'))||null;
         }
     };/*MediathreadCollect (root)*/
 
@@ -2939,7 +2959,7 @@
         MediathreadCollect.update_user_status(
             MediathreadCollectOptions.user_status);
     }
-    MediathreadCollect.runners['jump'](
+    MediathreadCollect.runners.jump(
         MediathreadCollectOptions.host_url,true);
 
 })();
