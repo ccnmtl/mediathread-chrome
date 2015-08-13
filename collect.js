@@ -166,7 +166,7 @@
             .attr('href', chrome.extension.getURL('css/sherd_styles.css'))
     );
 
-    MediathreadCollect = {
+    window.MediathreadCollect = {
         "user_status": {/* updated by /accounts/logged_in.js */
             ready:false
         },
