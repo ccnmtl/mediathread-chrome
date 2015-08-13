@@ -2934,39 +2934,7 @@
     ///2. on request, return a full asset list
     ///3. allow the grabber to be created by sending an asset list to it
     MediathreadCollect.options = MediathreadCollectOptions;
-    //var finder = new MediathreadCollect.Finder();
-    //var found_one = false;
-    /*finder.ASYNC.display = function(asset) {
-      if (!asset.disabled && !found_one) {//just run once
-      found_one = true;
-      MediathreadCollect.showWindow();
-      console.log('found one');
-      ///request sent TO background.html
-      chrome.extension.sendMessage({
-      found_asset:true,
-      show_icon:true
-      }, function(response) {});
-      }
-      };*/
-    ///request sent TO background.html
-    //chrome.extension.sendMessage({show_icon:true}, function(response) {});
 
-    /*chrome.extension.onMessage.addListener(
-    //for request sent FROM popup.html
-    function(request,sender,sendResponse) {
-    if (finder.assets_found.length) {
-    sendResponse({'assets':cleanup(finder.assets_found)});
-    } else {
-    ///try again
-    finder.ASYNC.display = function(asset) {
-    sendResponse({'assets':cleanup(finder.assets_found),
-    'where':'after'
-    });
-    };
-    finder.findAssets();
-    }
-    });*/
-    //finder.findAssets();
     if (MediathreadCollectOptions.user_status) {
         MediathreadCollect.update_user_status(
             MediathreadCollectOptions.user_status);
