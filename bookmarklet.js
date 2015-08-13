@@ -4,7 +4,7 @@
  * version of the bookmarklet loader from mediathread, since it
  * was hard to understand what was going on with that code.
  */
-(function(host, bookmarklet_url, user_url) {
+(function(host, bookmarkletUrl, userUrl) {
     var b = document.body;
     var sb = window.SherdBookmarkletOptions;
     if (!sb) {
@@ -21,10 +21,10 @@
 
     if (b) {
         var x = document.createElement('script');
-        x.src = 'https://' + host + user_url + r4();
+        x.src = 'https://' + host + userUrl + r4();
         b.appendChild(x);
         var z = document.createElement('script');
-        z.src = 'https://' + host + bookmarklet_url + r4();
+        z.src = 'https://' + host + bookmarkletUrl + r4();
         b.appendChild(z);
     }
 })(
