@@ -9,11 +9,11 @@
     var sb = window.SherdBookmarkletOptions;
     if (!sb) {
         sb = window.SherdBookmarkletOptions = {};
-        sb['action'] = 'jump';
+        sb.action = 'jump';
     }
 
-    sb['host_url'] = 'https://' + host + '/save/?';
-    sb['flickr_apikey'] = 'undefined';
+    sb.host_url = 'https://' + host + '/save/?';
+    sb.flickr_apikey = 'undefined';
 
     var r4 = function() {
         return '&nocache=' + Number(new Date());
@@ -31,4 +31,4 @@
     'maldive.ccnmtl.columbia.edu',
     '/bookmarklets/analyze.js?',
     '/accounts/logged_in.js?version=1'
-)
+);
