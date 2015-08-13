@@ -2461,16 +2461,9 @@
             this.visibleY = function(target) {
                 return target.ownerDocument.body.scrollTop;
             };
-            this.loadStyles = function(){
-                var jQ = window.MediathreadCollectOptions.jQuery || window.jQuery;
-                var root_url =  MediathreadCollectOptions.host_url.split('/save/?').shift();
-                jQ('head').append('<link rel="stylesheet" type="text/css" href="'+ root_url +'/media/js/sherdjs/src/bookmarklets/sherd_styles.css">');
-                jQ('head').append('<link rel="stylesheet" type="text/css" href="'+ root_url +'/media/css/mediathread.css">');
-            };
             this.showWindow = function() {
                 self.windowStatus = true;
                 if (comp.window) {
-                    self.loadStyles();
                     comp.window.style.top = self.visibleY(comp.window)+'px';
                     comp.window.style.display = "block";
                     comp.tab.style.display = "none";
@@ -2961,5 +2954,17 @@
     }
     MediathreadCollect.runners.jump(
         MediathreadCollectOptions.host_url,true);
+
+
+    /*$.ajax({
+        url: MediathreadCollectOptions.user_url,
+        dataType: 'jsonp',
+        success: function(d) {
+            console.log('!', d);
+        },
+        error: function(d) {
+            console.error('#', d);
+        }
+    });*/
 
 })();
