@@ -930,7 +930,7 @@
 
                             var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
                             var VIDEO_ID;
-                            if (match.length > 0) {
+                            if (match && match.length > 0) {
                                 VIDEO_ID = match[1]; //e.g. "LPHEvaNjdhw";
                             } else {
                                 return {};
@@ -1873,8 +1873,11 @@
             var hosthandler = MediathreadCollect.hosthandler;
             hosthandler['mcah.columbia.edu'] = hosthandler['learn.columbia.edu'];
             for (var host in hosthandler) {
-                if (new RegExp(host+'$').test(location.hostname.replace('.ezproxy.cul.columbia.edu','')))
+                if (new RegExp(host+'$').test(
+                    location.hostname.replace('.ezproxy.cul.columbia.edu', '')
+                )) {
                     return hosthandler[host];
+                }
             }
         },/*gethosthandler*/
         "obj2url": function(host_url,obj) {
@@ -1963,18 +1966,23 @@
                 }
                 M.addField('htmls[0]',obj.sources.url,form,doc);
                 M.addField('urls[0]',obj.sources[obj.primary_type],form,doc);
-                M.addField('jsons[0]',
-                           JSON.stringify(obj,
-                                          function(key,value){
-                                              if (typeof value=='object' && value.tagName) {
-                                                  return '';
-                                              } else return value;
-                                          }),
-                           form,doc);
+                M.addField(
+                    'jsons[0]',
+                    JSON.stringify(
+                        obj,
+                        function(key, value) {
+                            if (typeof value == 'object' && value.tagName) {
+                                return '';
+                            } else {
+                                return value;
+                            }
+                        }),
+                    form,
+                    doc);
             }/*imagemat_form*/
         },
         "runners": {
-            jump: function(host_url,jump_now) {
+            jump: function(host_url, jump_now) {
                 var final_url = host_url;
                 var M = MediathreadCollect;
                 var handler = M.gethosthandler();
@@ -1986,18 +1994,24 @@
                     M.run_with_jquery(grabber_func);
                     return;
                 }
-                var jump_with_first_asset = function(assets,error) {
+                var jump_with_first_asset = function(assets, error) {
                     if (assets.length === 0) {
                         if (handler.also_find_general) {
                             M.run_with_jquery(grabber_func);
                             return;
                         }
-                        var message = error||"This page does not contain any supported media assets. Try going to an asset page.";
+                        var message = error ||
+                            'This page does not contain any supported media assets. ' +
+                            'Try going to an asset page.';
                         return alert(message);
                     } else if (assets.length === 1 && assets[0].disabled) {
-                        return alert("This asset cannot be embedded on external sites. Please select another asset.");
+                        return alert(
+                            'This asset cannot be embedded on external sites. ' +
+                                'Please select another asset.');
                     } else {
-                        M.g = new M.Interface(host_url, {'allow_save_all': handler.allow_save_all});
+                        M.g = new M.Interface(host_url, {
+                            'allow_save_all': handler.allow_save_all
+                        });
                         M.g.showAssets(assets);
                     }
                 };/*end jump_with_first_asset*/
@@ -2008,7 +2022,9 @@
                 function go(run_func) {
                     M.run_with_jquery(function() {
                         M.g = new M.Interface(host_url);
-                        if (run_func=='onclick') M.g.findAssets();
+                        if (run_func == 'onclick') {
+                            M.g.findAssets();
+                        }
                     });
                 }
                 /*ffox 3.6+ and all other browsers:*/
@@ -2036,7 +2052,7 @@
         "clean":function(str) {
             return str.replace(/^\s+/,'').replace(/\s+$/,'').replace(/\s+/,' ');
         },
-        "getImageDimensions":function(src,callback,onerror) {
+        "getImageDimensions": function(src, callback, onerror) {
             //
             var img = document.createElement("img");
             img.onload = function() {
@@ -2046,7 +2062,7 @@
             img.src = src;
             return img;
         },
-        "mergeMetadata":function(result,metadata) {
+        "mergeMetadata": function(result, metadata) {
             if (!metadata) return;
             if (!result.metadata) {
                 result.metadata = metadata;
@@ -2319,7 +2335,7 @@
 
                 messageBox.css({
                     left: (winWidth / 2) - 262 + 'px',
-                    top : (winHeight / 2) - 100 + 'px'
+                    top: (winHeight / 2) - 100 + 'px'
                 });
 
                 closeBtn.click(function(){
@@ -2330,10 +2346,6 @@
                     jQ('.sherd-analyzer').append(messageBox);
                     messageBox.prepend(closeBtn);
                 }
-
-
-
-
             };
 
             this.findGeneralAssets = function() {
@@ -2371,7 +2383,11 @@
                 self.asset_keys.ref_id = self.asset_keys.ref_id || {};
                 var list = self.asset_keys[primary_type] = (self.asset_keys[primary_type] || {});
                 var merge_with = false;
-                if (asset.page_resource && asset != self.assets_found[0] && self.assets_found.length-self.page_resource_count < 2) {
+                if (
+                    asset.page_resource &&
+                        asset != self.assets_found[0] &&
+                        self.assets_found.length-self.page_resource_count < 2
+                ) {
                     //if there's only one asset on the page and rest are page_resources
                     merge_with = self.assets_found[self.assets_found.length-2];
                 } else if (asset.ref_id && asset.ref_id in self.asset_keys.ref_id) {
