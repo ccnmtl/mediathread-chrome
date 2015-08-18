@@ -5,5 +5,4 @@
 Chrome extension for importing assets to Mediathread - a port of the bookmarklet
 
 ## Installation
-* Navigate to chrome://extensions in your browser, and click "Load
-  unpacked extension".
+Download from the Chrome Web Store [here](https://chrome.google.com/webstore/detail/mediathread/gambcgmmppeklfmbahomokogelnaffbi).
