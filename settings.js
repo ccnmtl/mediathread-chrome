@@ -1,7 +1,6 @@
 var MediathreadCollectOptions = {
-    flickr_apikey: 'fill this in',
-    youtube_apikey: 'fill this in',
-    host_url: 'https://mediathread.stage.ccnmtl.columbia.edu/save/',
-    user_url: 'https://mediathread.stage.ccnmtl.columbia.edu/accounts/logged_in.js',
+    host_url: 'https://mediathread.qa.ccnmtl.columbia.edu/',
+    user_url: 'https://mediathread.qa.ccnmtl.columbia.edu/accounts/is_logged_in/',
+
     cross_origin: true
 };

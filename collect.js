@@ -2956,15 +2956,25 @@
         MediathreadCollectOptions.host_url,true);
 
 
-    /*$.ajax({
+    $.ajax({
         url: MediathreadCollectOptions.user_url,
-        dataType: 'jsonp',
+        dataType: 'json',
+        crossDomain: true,
+        cache: false,
+        xhrFields: {
+            withCredentials: true
+        },
         success: function(d) {
             console.log('!', d);
+            if (d.logged_in === true) {
+                console.log('great, you\'re logged in.');
+            } else {
+                alert('log in to mediathread!');
+            }
         },
         error: function(d) {
             console.error('#', d);
         }
-    });*/
+    });
 
 })();
