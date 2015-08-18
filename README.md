@@ -1,6 +1,6 @@
-# mediathread-collect
+# Mediathread extension for Google Chrome
 
-[![Build Status](https://travis-ci.org/nikolas/mediathread-collect.svg?branch=master)](https://travis-ci.org/nikolas/mediathread-collect)
+[![Build Status](https://travis-ci.org/ccnmtl/mediathread-chrome.svg?branch=master)](https://travis-ci.org/ccnmtl/mediathread-chrome)
 
 Chrome extension for importing assets to Mediathread - a port of the bookmarklet
 
