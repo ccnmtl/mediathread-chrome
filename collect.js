@@ -305,45 +305,45 @@
                         var obj_final = function() {
                             return callback(found_images);
                         };
-                        for (var i=0;i<found_images.length;i++) {
-                            var getArtStorData = function(obj) {
-                                jQuery
-                                    .ajax({url:"http://"+location.hostname+"/library/secure/imagefpx/"+obj.artstorId+"/103/5",
-                                           dataType:'json',
-                                           success:function(fpxdata,textStatus) {
-                                               var f = fpxdata[0];
-                                               obj.sources.fsiviewer = "http://viewer2.artstor.org/erez3/fsi4/fsi.swf";
-                                               obj.sources.image_fpxid = obj.artstorId;
-                                               obj.sources["image_fpxid-metadata"] = "w"+f.width+"h"+f.height;
-                                               if (--done===0) obj_final();
-                                           },
-                                           error:function(){
-                                               if (--done===0) obj_final();
-                                           }
-                                          });
-                                jQuery
-                                    .ajax({url:"http://"+location.hostname+"/library/secure/metadata/"+obj.artstorId,
-                                           dataType:'json',
-                                           success:function(metadata,textStatus) {
-                                               var img_link = metadata.imageUrl.match(/size\d\/(.*)\.\w+$/);
-                                               obj.sources.title = metadata.title;
-                                               obj.sources.thumb = "http://library.artstor.org"+metadata.imageUrl;
-                                               var m = metadata.metaData;
-                                               for (var i=0;i<m.length;i++) {
-                                                   ///so multiple values are still OK
-                                                   if (m[i].fieldName in obj.metadata) {
-                                                       obj.metadata[m[i].fieldName].push(m[i].fieldValue);
-                                                   } else {
-                                                       obj.metadata[m[i].fieldName] = [m[i].fieldValue];
-                                                   }
+                        var getArtStorData = function(obj) {
+                            jQuery
+                                .ajax({url:"http://"+location.hostname+"/library/secure/imagefpx/"+obj.artstorId+"/103/5",
+                                       dataType:'json',
+                                       success:function(fpxdata,textStatus) {
+                                           var f = fpxdata[0];
+                                           obj.sources.fsiviewer = "http://viewer2.artstor.org/erez3/fsi4/fsi.swf";
+                                           obj.sources.image_fpxid = obj.artstorId;
+                                           obj.sources["image_fpxid-metadata"] = "w"+f.width+"h"+f.height;
+                                           if (--done===0) obj_final();
+                                       },
+                                       error:function(){
+                                           if (--done===0) obj_final();
+                                       }
+                                      });
+                            jQuery
+                                .ajax({url:"http://"+location.hostname+"/library/secure/metadata/"+obj.artstorId,
+                                       dataType:'json',
+                                       success:function(metadata,textStatus) {
+                                           var img_link = metadata.imageUrl.match(/size\d\/(.*)\.\w+$/);
+                                           obj.sources.title = metadata.title;
+                                           obj.sources.thumb = "http://library.artstor.org"+metadata.imageUrl;
+                                           var m = metadata.metaData;
+                                           for (var i=0;i<m.length;i++) {
+                                               ///so multiple values are still OK
+                                               if (m[i].fieldName in obj.metadata) {
+                                                   obj.metadata[m[i].fieldName].push(m[i].fieldValue);
+                                               } else {
+                                                   obj.metadata[m[i].fieldName] = [m[i].fieldValue];
                                                }
-                                               if (--done===0) obj_final();
-                                           },
-                                           error:function(){
-                                               if (--done===0) obj_final();
                                            }
-                                          });
-                            };
+                                           if (--done===0) obj_final();
+                                       },
+                                       error:function(){
+                                           if (--done===0) obj_final();
+                                       }
+                                      });
+                        };
+                        for (var i=0;i<found_images.length;i++) {
                             getArtStorData(found_images[i]);
                         }
                     });
@@ -1568,15 +1568,23 @@
                     var frms = context.document.getElementsByTagName("iframe");
                     var result = [];
                     var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
+                    var cb = function(ind, rv) {
+                        callback([rv]);
+                    };
                     for (var i = 0; i < frms.length; i++) {
                         var v_match = String(frms[i].src).match(/^http:\/\/www.youtube.com\/embed\/([\w\-]*)/);
                         if (v_match && v_match.length > 1) {
                             MediathreadCollect.assethandler.objects_and_embeds.players
-                                .youtube.asset(frms[i],
-                                               v_match,
-                                               {'window': window,
-                                                'document': document}, 0,
-                                               function(ind, rv){ callback([rv]); });
+                                .youtube.asset(
+                                    frms[i],
+                                    v_match,
+                                    {
+                                        'window': window,
+                                        'document': document
+                                    },
+                                    0,
+                                    cb
+                                );
                         }
                     }
                 }
@@ -2224,10 +2232,15 @@
             var setStyle = function(e,style) {
                 //BROKEN IN IE: http://www.peterbe.com/plog/setAttribute-style-IE
                 var css = style.split(';');
+                var bToUpperCase = function(a, b) {
+                    return b.toUpperCase();
+                };
                 for (var i=0;i<css.length;i++) {
                     var kv = css[i].split(':');
                     if (kv[0] && kv.length===2) {
-                        e.style[kv[0].replace(/-([a-z])/,function(a,b){return b.toUpperCase();})] = kv[1];
+                        e.style[
+                            kv[0].replace(/-([a-z])/, bToUpperCase)
+                        ] = kv[1];
                     }
                 }
             };
