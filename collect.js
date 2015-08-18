@@ -306,7 +306,7 @@
                             return callback(found_images);
                         };
                         for (var i=0;i<found_images.length;i++) {
-                            function getArtStorData(obj) {
+                            var getArtStorData = function(obj) {
                                 jQuery
                                     .ajax({url:"http://"+location.hostname+"/library/secure/imagefpx/"+obj.artstorId+"/103/5",
                                            dataType:'json',
@@ -343,7 +343,7 @@
                                                if (--done===0) obj_final();
                                            }
                                           });
-                            }
+                            };
                             getArtStorData(found_images[i]);
                         }
                     });
@@ -563,7 +563,12 @@
                         catch (e) {fp_rv.metadata.geographical = '';}
                         try {
                             var tags = jQuery("#edit-subjects").html().replace(/<label(.*)<\/label>/g, "").split(/(<br>)+/);
-                            for(i=tags.length-1; i>=0; i--) tags[i].trim()==='<br>' || tags[i].trim()==='' ? tags.splice(i, 1) : tags[i]=tags[i].trim();
+                            for(i=tags.length-1; i>=0; i--)
+                                if (tags[i].trim() === '<br>' || tags[i].trim() === '') {
+                                    tags.splice(i, 1);
+                                } else {
+                                    tags[i]=tags[i].trim();
+                                }
                             fp_rv.metadata.subject = tags;
                         } catch (e) {fp_rv.metadata.tags = [];}
                         try {
@@ -729,13 +734,13 @@
                                     var ancestor = jQuery(this).parents().get(9);
                                     //td[5] for gallery searches, td[3] for image portfolios
                                     var cell = (jQuery(ancestor).children('td').length==5) ? 'td[5]' : 'td[3]' ;
-                                    function tryEval(obj,name,xpath,inArray) {
+                                    var tryEval = function(obj,name,xpath,inArray) {
                                         var res = document.evaluate(xpath,ancestor,null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null).snapshotItem(0);
                                         if (res) {
                                             var v = res.textContent.replace(/\s+/,' ');
                                             obj[name] = ((inArray)?[v]:v);
                                         }
-                                    }
+                                    };
                                     //xpath begins right after the tbody/tr[2]/
                                     tryEval(img_data.sources,'title',cell+'/table[2]/tbody/tr[3]/td/table/tbody/tr/td');
                                     tryEval(img_data.metadata,'creator',cell+'/table[1]/tbody/tr[3]/td[1]/table/tbody/tr/td',true);
@@ -924,8 +929,9 @@
                             var apikey = MediathreadCollect.options.youtube_apikey;
 
                             var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
+                            var VIDEO_ID;
                             if (match.length > 0) {
-                                var VIDEO_ID = match[1]; //e.g. "LPHEvaNjdhw";
+                                VIDEO_ID = match[1]; //e.g. "LPHEvaNjdhw";
                             } else {
                                 return {};
                             }
@@ -1344,19 +1350,31 @@
                                             dim.width = tile.width;
                                             dim.height = tile.height;
                                             break;
-                                        case 'x': ++dim.x; break;
-                                        case 'y': ++dim.y; break;
-                                        case 'tilegrp': ++dim.tilegrp; break;
+                                        case 'x': ++dim.x;
+                                            break;
+                                        case 'y': ++dim.y;
+                                            break;
+                                        case 'tilegrp':
+                                            ++dim.tilegrp;
+                                            break;
                                         }
                                         walktiles(mode);
                                     };
                                     tile.onerror = function() {
                                         switch(mode) {
-                                        case 'z': --dim.z; dim.mode = 'x'; return walktiles('x');
-                                        case 'x': --dim.x; dim.mode = 'y'; return walktiles('y');
+                                        case 'z':
+                                            --dim.z;
+                                            dim.mode = 'x';
+                                            return walktiles('x');
+                                        case 'x':
+                                            --dim.x;
+                                            dim.mode = 'y';
+                                            return walktiles('y');
                                         case 'y':
                                             if (dim.mode!='tilegrp'){
-                                                ++dim.tilegrp; dim.mode='y'; return walktiles('tilegrp');
+                                                ++dim.tilegrp;
+                                                dim.mode='y';
+                                                return walktiles('tilegrp');
                                             } else {
                                                 --dim.y;
                                                 rv_zoomify.sources["xyztile-metadata"] = (
@@ -1364,6 +1382,7 @@
                                                 rv_zoomify._data_collection = 'Hackish tile walk';
                                                 return optional_callback(index,rv_zoomify);
                                             }
+                                            break;
                                         case 'tilegrp': --dim.tilegrp;
                                             var m = dim.mode; dim.mode = 'tilegrp';
                                             return walktiles(m);
@@ -2075,6 +2094,7 @@
                         case "link":
                         case "area":
                             props[p].push(abs(this.href, doc));
+                            break;
                         case "audio":
                         case "embed":
                         case "iframe":
@@ -2082,8 +2102,10 @@
                         case "source":
                         case "video":
                             props[p].push(abs(this.src, doc));
+                            break;
                         default:
                             props[p].push(jQ(this).text());
+                            break;
                         }
                     });
                     return props;
