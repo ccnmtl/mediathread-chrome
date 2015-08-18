@@ -1,4 +1,4 @@
-# Mediathread extension for Google Chrome
+# mediathread-chrome
 
 [![Build Status](https://travis-ci.org/ccnmtl/mediathread-chrome.svg?branch=master)](https://travis-ci.org/ccnmtl/mediathread-chrome)
 
