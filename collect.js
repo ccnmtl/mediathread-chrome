@@ -1870,7 +1870,7 @@
             var hosthandler = MediathreadCollect.hosthandler;
             hosthandler['mcah.columbia.edu'] = hosthandler['learn.columbia.edu'];
             for (var host in hosthandler) {
-                if (new RegExp(host+'$').test(
+                if (new RegExp(host + '$').test(
                     location.hostname.replace('.ezproxy.cul.columbia.edu', '')
                 )) {
                     return hosthandler[host];
@@ -2982,9 +2982,6 @@
         MediathreadCollect.update_user_status(
             MediathreadCollectOptions.user_status);
     }
-    MediathreadCollect.runners.jump(
-        MediathreadCollectOptions.host_url,true);
-
 
     $.ajax({
         url: MediathreadCollectOptions.user_url,
@@ -2995,11 +2992,24 @@
             withCredentials: true
         },
         success: function(d) {
-            console.log('!', d);
-            if (d.logged_in === true) {
-                console.log('great, you\'re logged in.');
+            if ('flickr_apikey' in d) {
+                MediathreadCollect.options.flickr_apikey =
+                    d['flickr_apikey'];
+            }
+            if ('youtube_apikey' in d) {
+                MediathreadCollect.options.youtube_apikey =
+                    d['youtube_apikey'];
+            }
+
+            if (d.logged_in === true && d.course_selected === true) {
+                // Start the main plugin code
+                MediathreadCollect.runners.jump(
+                    MediathreadCollectOptions.host_url, true);
+            } else if (d.logged_in === true && d.course_selected === false) {
+                alert('You\'re logged in to mediathread, ' +
+                      'now select a course to use the browser extension');
             } else {
-                alert('log in to mediathread!');
+                alert('Log in to mediathread and select a course!');
             }
         },
         error: function(d) {
