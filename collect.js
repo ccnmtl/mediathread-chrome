@@ -3007,7 +3007,7 @@
                     MediathreadCollectOptions.host_url, true);
             } else if (d.logged_in === true && d.course_selected === false) {
                 alert('You\'re logged in to mediathread, ' +
-                      'now select a course to use the browser extension');
+                      'now select a course to use the browser extension.');
             } else {
                 alert('Log in to mediathread and select a course!');
             }
