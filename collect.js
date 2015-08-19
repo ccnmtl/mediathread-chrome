@@ -1125,9 +1125,10 @@
                             for(var k in meta_obj){
                                 sources[k] = meta_obj[k];
                             }
-                            if(!sources.thumb){
+                            if (!sources.thumb) {
                                 var paramConfig = jQuery('*[name=flashvars]')[0].value.split('config=')[1];
-                                eval('var paramObj='+paramConfig);
+                                paramConfig = JSON.parse(paramConfig);
+                                var paramObj = paramConfig;
                                 paramThumb = paramObj.canvas.background.split('url(')[1].split(')')[0];
                                 sources.thumb = paramThumb;
                             }
@@ -1587,27 +1588,32 @@
                 }
             },
             "image": {
-                find:function(callback,context) {
+                find: function(callback,context) {
                     var imgs = context.document.getElementsByTagName("img");
                     var result = [];
                     var zoomify_urls = {};
                     var done = 0;
-                    var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
-                    for (var i=0;i<imgs.length;i++) {
+                    var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
+                    for (var i = 0; i < imgs.length; i++) {
                         //IGNORE headers/footers/logos
                         var image = imgs[i];
-                        if (/(footer|header)/.test(image.className)||
+                        if (/(footer|header)/.test(image.className) ||
                             //WGBH header
-                            /site_title/.test(image.parentNode.parentNode.className)||
+                            /site_title/.test(image.parentNode.parentNode.className) ||
                             //drupal logo
-                            /logo/.test(image.id)||
+                            /logo/.test(image.id) ||
                             //drupal7 logo
-                            /logo/.test(image.parentNode.id)||
+                            /logo/.test(image.parentNode.id) ||
                             //web.mit.edu/shakespeare/asia/
                             /logo\W/.test(image.src)
-                           ) continue;
-                        if (image.src.length > 4096 || image.src.indexOf('data') === 0)
+                           ) {
                             continue;
+                        }
+                        if (image.src.length > 4096 ||
+                            image.src.indexOf('data') === 0
+                           ) {
+                            continue;
+                        }
                         /*recreate the <img> so we get the real width/height */
                         var image_ind = document.createElement("img");
                         image_ind.src = image.src;
@@ -1616,36 +1622,42 @@
                             //cheating: TODO - jQ(image_ind).bind('load',function() { /*see dropbox.com above*/ });
                             image_ind = image;
                         }
-                        if (image_ind.width >= 400 || image_ind.height >= 400) {
+                        if (image_ind.width >= 400 ||
+                            image_ind.height >= 400
+                           ) {
                             result.push({
-                                "html":image,
-                                "primary_type":"image",
+                                "html": image,
+                                "primary_type": "image",
                                 "sources": {
-                                    "title":image.title || undefined,
-                                    "image":image.src,
-                                    "image-metadata":"w"+image_ind.width+"h"+image_ind.height
+                                    "title": image.title || undefined,
+                                    "image": image.src,
+                                    "image-metadata": "w" + image_ind.width +
+                                        "h" + image_ind.height
                                 }
                             });
                         } else {
                             ////Zoomify Tile Images support
-                            var zoomify_match = String(image.src).match(/^(.*)\/TileGroup\d\//);
+                            var zoomify_match = String(image.src).match(
+                                    /^(.*)\/TileGroup\d\//);
                             if (zoomify_match) {
-                                var tile_root = MediathreadCollect.absolute_url(zoomify_match[1],context.document);
-                                if (tile_root in zoomify_urls)
+                                var tile_root = MediathreadCollect.absolute_url(
+                                    zoomify_match[1],
+                                    context.document);
+                                if (tile_root in zoomify_urls) {
                                     continue;
-                                else {
+                                } else {
                                     zoomify_urls[tile_root] = 1;
                                     var img = document.createElement("img");
-                                    img.src = tile_root+"/TileGroup0/0-0-0.jpg";
+                                    img.src = tile_root + "/TileGroup0/0-0-0.jpg";
                                     var zoomify = {
-                                        "html":image,
-                                        "primary_type":"image",
+                                        "html": image,
+                                        "primary_type": "image",
                                         "sources": {
-                                            "title":tile_root.split('/').pop(),//better guess than 0-0-0.jpg
-                                            "xyztile":tile_root + "/TileGroup0/${z}-${x}-${y}.jpg",
-                                            "thumb":img.src,
-                                            "image":img.src, /*nothing bigger available*/
-                                            "image-metadata":"w"+img.width+"h"+img.height
+                                            "title": tile_root.split('/').pop(), //better guess than 0-0-0.jpg
+                                            "xyztile": tile_root + "/TileGroup0/${z}-${x}-${y}.jpg",
+                                            "thumb": img.src,
+                                            "image": img.src, /*nothing bigger available*/
+                                            "image-metadata": "w" + img.width + "h" + img.height
                                         }
                                     };
                                     result.push(zoomify);
@@ -1653,19 +1665,30 @@
                                     /*Get width/height from zoomify's XML file
                                       img_root+"/source/"+img_key+"/"+img_key+"/ImageProperties.xml"
                                     */
-                                    jQ.get(tile_root+"/ImageProperties.xml",null,function(dir) {
-                                        var sizes = dir.match(/WIDTH=\"(\d+)\"\s+HEIGHT=\"(\d+)\"/);
-                                        zoomify.sources["xyztile-metadata"] = "w"+(sizes[1])+"h"+(sizes[2]);
-                                        if (--done===0) callback(result);
-                                    },"text");
+                                    jQ.get(
+                                        tile_root + "/ImageProperties.xml",
+                                        null,
+                                        /* jshint ignore:start */
+                                        function(dir) {
+                                            var sizes = dir.match(/WIDTH=\"(\d+)\"\s+HEIGHT=\"(\d+)\"/);
+                                            zoomify.sources['xyztile-metadata'] =
+                                                "w" + sizes[1] + "h" + sizes[2];
+                                            if (--done === 0) {
+                                                callback(result);
+                                            }
+                                        },
+                                        /* jshint ignore:end */
+                                        'text');
                                 }
                             }
                         }
                     }
-                    for (i=0;i<result.length;i++) {
+                    for (i = 0; i < result.length; i++) {
                         MediathreadCollect.metadataSearch(result[i], context.document);
                     }
-                    if (done===0) callback(result);
+                    if (done === 0) {
+                        callback(result);
+                    }
                 }
             },/* end image assethandler */
             "mediathread": {
@@ -2993,12 +3016,10 @@
         },
         success: function(d) {
             if ('flickr_apikey' in d) {
-                MediathreadCollect.options.flickr_apikey =
-                    d['flickr_apikey'];
+                MediathreadCollect.options.flickr_apikey = d.flickr_apikey;
             }
             if ('youtube_apikey' in d) {
-                MediathreadCollect.options.youtube_apikey =
-                    d['youtube_apikey'];
+                MediathreadCollect.options.youtube_apikey = d.youtube_apikey;
             }
 
             if (d.logged_in === true && d.course_selected === true) {
