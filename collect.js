@@ -3027,10 +3027,15 @@
                 MediathreadCollect.runners.jump(
                     MediathreadCollectOptions.host_url, true);
             } else if (d.logged_in === true && d.course_selected === false) {
-                alert('You\'re logged in to mediathread, ' +
-                      'now select a course to use the browser extension.');
+                alert(
+                    'You\'re logged in to mediathread at ' +
+                        MediathreadCollectOptions.host_url +
+                        ', now select a course to use the browser extension.');
             } else {
-                alert('Log in to mediathread and select a course!');
+                alert(
+                    'Log in to mediathread (' +
+                        MediathreadCollectOptions.host_url +
+                        ') and select a course!');
             }
         },
         error: function(d) {
