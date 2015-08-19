@@ -1,0 +1,4 @@
+2015-08-19  Nik Nyby  <nnyby@columbia.edu>
+
+	* Upgrade jQuery to 2.1.4
+	* Display mediathread url when not logged in
