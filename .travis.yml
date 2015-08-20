@@ -1,7 +1,3 @@
 language: node_js
-before_script:
-  - npm install jshint --prefix .
-#  - npm install jscs --prefix .
 script:
-  - ./node_modules/jshint/bin/jshint *.js
-#  - ./node_modules/jscs/bin/jscs *.js
+  - make jshint
