@@ -1,161 +1,161 @@
-/* SherdJS Extension
-   HOW IT IS RUN:
-   This is the main file for Mediathread Collect extension code.
+/*
+  Mediathread Chrome Extension
+  HOW IT IS RUN:
+  This is the main file for Mediathread Collect extension code.
 
-   DEPENDENCIES:
-   Large parts of this file now depend on jQuery.  This must be
-   embedded by the actual extension, preferably before this file, but
-   if not, it can be loaded, and then call
-   MediathreadCollect.onJQuery(jQuery)
+  DEPENDENCIES:
+  Large parts of this file now depend on jQuery.  This must be
+  embedded by the actual extension, preferably before this file, but
+  if not, it can be loaded, and then call
+  MediathreadCollect.onJQuery(jQuery)
 
-   ARCHITECTURE:
-   Everything lives within two namespaces: window.MediathreadCollect and
-   window.MediathreadCollectOptions.
+  ARCHITECTURE:
+  Everything lives within two namespaces: window.MediathreadCollect and
+  window.MediathreadCollectOptions.
 
-   MediathreadCollectOptions is a dictionary which can (and must to work
-   as a extension) be created before this file is loaded.  This
-   way, if required, this file could also be used as a library.  In
-   this scenario, if a site wanted an 'AnalyzeThis' button to work
-   without a user needing to install a extension, then this file
-   would be loaded, and the button would call into
-   MediathreadCollect.runners['jump'] (or .decorate).
+  MediathreadCollectOptions is a dictionary which can (and must to work
+  as a extension) be created before this file is loaded.  This
+  way, if required, this file could also be used as a library.  In
+  this scenario, if a site wanted an 'AnalyzeThis' button to work
+  without a user needing to install a extension, then this file
+  would be loaded, and the button would call into
+  MediathreadCollect.runners['jump'] (or .decorate).
 
-   A typical MediathreadCollectOptions set of values would be
-   {'action':'jump', 'host_url':'http://mediathread.example.com/save/?', 'flickr_apikey':'foobar123456789'}
+  A typical MediathreadCollectOptions set of values would be
+  {'action': 'jump', 'host_url': 'http://mediathread.example.com/save/?', 'flickr_apikey': 'foobar123456789'}
 
-   The 'action' mostly services the extension, but in theory, this
-   separates the initialization code along with what the
-   extension's action would be -- to immediately jump into
-   mediathread or to display the options list (which is more often
-   the default).
+  The 'action' mostly services the extension, but in theory, this
+  separates the initialization code along with what the
+  extension's action would be -- to immediately jump into
+  mediathread or to display the options list (which is more often
+  the default).
 
-   Basic parts:
-   .hosthandler.* : This dictionary is a list of all special-cased
-   hosts.  When these keys match anywhere (so
-   university proxies will work) in
-   document.location, then this code will be
-   preferred rather than searching over the normal
-   media types.  This should be a method of last
-   resort -- supporting generic media-types is much
-   better, but this can be especially useful when
-   looking for metadata.
+  Basic parts:
+  .hosthandler.* : This dictionary is a list of all special-cased
+  hosts.  When these keys match anywhere (so
+  university proxies will work) in
+  document.location, then this code will be
+  preferred rather than searching over the normal
+  media types.  This should be a method of last
+  resort -- supporting generic media-types is much
+  better, but this can be especially useful when
+  looking for metadata.
 
-   find:function(callback) = this is the function, which fill find assets and then run
-   callback([array of assets -- see below for datastructure])
-   -- async allows you to make ajax calls, or whatever else you need
+  find: function(callback) = this is the function, which fill find assets and then run
+  callback([array of assets -- see below for datastructure])
+  -- async allows you to make ajax calls, or whatever else you need
 
-   allow_save_all = if true, there will be an interface on the
-   bottom to save all assets at once.  This is
-   somewhat experimental -- used to load a
-   whole course from VITAL into MediaThread
+  allow_save_all = if true, there will be an interface on the
+  bottom to save all assets at once.  This is
+  somewhat experimental -- used to load a
+  whole course from VITAL into MediaThread
 
-   also_find_general = if true, then the normal media type
-   queries will be run.  This is a good way
-   to implement custom metadata searches,
-   without rewriting support for media.
-   Also, see the youtube.com example for a
-   way to call into the general media types
-   to search for a particular kind of media,
-   without duplicating code.
-
-
-   .assethandler.* : This is where all the methods are that look for
-   media or metadata on the page.  Each key:value
-   is run with the extension for a chance to
-   find its kind of assets, and, if found, query
-   for more data.
-
-   Besides finding media, an assethandler can also find metadata,
-   and if the metadata can only be pinned to 'something on the page'
-   then you should set "page_resource":true in the assethandler dict.
-
-   Each .find method is called as
-   find.apply(assethandler,callback,{window:window,document:document})
-
-   note: use the context passed into the method
-   rather than global window/document
-   objects, since the extension
-   supports deeply embedded
-   frames/iframes and the context might
-   be different The .find method is
-   responsible for eventually calling
-   callback([array of assets]) with a
-   blank array if none are found.
+  also_find_general = if true, then the normal media type
+  queries will be run.  This is a good way
+  to implement custom metadata searches,
+  without rewriting support for media.
+  Also, see the youtube.com example for a
+  way to call into the general media types
+  to search for a particular kind of media,
+  without duplicating code.
 
 
-   The asset objects passed back should have the following structure:
-   {html:<dom object of media>,
-   primary_type:<string of the sources key
-   most important for this media.  e.g. 'video' >,
-   sources:{
-   title:<title string.  if omitted, it will
-   be discerned from the primary_type's filename>,
+  .assethandler.* : This is where all the methods are that look for
+  media or metadata on the page.  Each key:value
+  is run with the extension for a chance to
+  find its kind of assets, and, if found, query
+  for more data.
 
-   url: <only use if you want to
-   override the url that is
-   displayed to the user as a
-   link to get back to the
-   archive's page for the
-   asset.  mostly this is just
-   document.location>
+  Besides finding media, an assethandler can also find metadata,
+  and if the metadata can only be pinned to 'something on the page'
+  then you should set 'page_resource':true in the assethandler dict.
 
-   <key:values of urls that will be
-   stored in the asset's Source
-   objects in MediaThread>
+  Each .find method is called as
+  find.apply(assethandler,callback,{window: window,document: document})
 
-   <key>-metadata: <metadata for the source
-   key in the form of "w<width>h<height>" >
-   },
-
-   metadata:{ <key, value pairs for metadata.
-   Values should always be an array of strings>
-   }
-
-   }
-   .assethandler.objects_and_embeds.*
-   Since a large subset of assethandlers look for an
-   object or embed tag, and dancing between duplicate
-   versions often appear in sites, the general code is
-   handled as a big assethandler with sub-handlers for checking object and embed tags.  It's important to look at examples for good practices on how to go through these elements.  These have two main functions:
-
-   .match(embed_or_object) = this function should ===null if the embed/object tag does not match, and can return anything else, if it does match.
-   .asset(embed_or_object,match_rv,context,index,optional_callback)
-   @match_rv = whatever .match returned
-   @optional_callback = you can just return the asset_object directly
-   but if you need to do ajax, or callback-based apis to get all the
-   info/metadata, then you can return an asset object with with a
-   "wait":true key, and then call
-   optional_callback(@index, asset_object) where @index is the
-   index argument passed to .asset.
+  note: use the context passed into the method
+  rather than global window/document
+  objects, since the extension
+  supports deeply embedded
+  frames/iframes and the context might
+  be different The .find method is
+  responsible for eventually calling
+  callback([array of assets]) with a
+  blank array if none are found.
 
 
-   runners : as described above, runners are alternate 'setups' that mediathread can be run in.
-   'jump' generally means if one asset is found on the page jump right into mediathread
-   'decorate' means bring up the MediathreadCollect.Interface and let the user take another
-   action.  This is probably the best one going forward.
+  The asset objects passed back should have the following structure:
+  {html:<dom object of media>,
+  primary_type:<string of the sources key
+  most important for this media.  e.g. 'video' >,
+  sources: {
+  title:<title string.  if omitted, it will
+  be discerned from the primary_type's filename>,
 
-   HELP FUNCTIONS:
-   connect: quick cross-browser event-listener
-   hasClass(elem,cls),
-   hasBody(doc) -- does it have a doc.body value?  <frameset> pages do NOT
-   clean(str), getImageDimensions(), mergeMetadata(),
-   xml2dom(str,xhr), absolute_url(),
-   elt() for creating new html in a way that is frame/browser friendly
+  url: <only use if you want to
+  override the url that is
+  displayed to the user as a
+  link to get back to the
+  archive's page for the
+  asset.  mostly this is just
+  document.location>
 
-   Finder() : This object is the main thing that walks through the document's media through
-   any sub-frames and merges the results into a list.
+  <key:values of urls that will be
+  stored in the asset's Source
+  objects in MediaThread>
 
-   Interface() : This is the object that creates and manages the extension interface
-   (The gray widget that appears, listing the assets, and presenting the
-   analyze buttons, etc.)
+  <key>-metadata: <metadata for the source
+  key in the form of 'w<width>h<height>' >
+  },
 
-   This interface calls Finder() and displays the results
+  metadata: { <key, value pairs for metadata.
+  Values should always be an array of strings>
+  }
 
-   FOOTER:
-   At the bottom of this file is the init/bootstrap code which runs the right part of
-   MediathreadCollect.* (generally a runner) after inspecting MediathreadCollectOptions
+  }
+  .assethandler.objects_and_embeds.*
+  Since a large subset of assethandlers look for an
+  object or embed tag, and dancing between duplicate
+  versions often appear in sites, the general code is
+  handled as a big assethandler with sub-handlers for checking object and embed tags.  It's important to look at examples for good practices on how to go through these elements.  These have two main functions:
+
+  .match(embed_or_object) = this function should ===null if the embed/object tag does not match, and can return anything else, if it does match.
+  .asset(embed_or_object,match_rv,context,index,optional_callback)
+  @match_rv = whatever .match returned
+  @optional_callback = you can just return the asset_object directly
+  but if you need to do ajax, or callback-based apis to get all the
+  info/metadata, then you can return an asset object with with a
+  'wait':true key, and then call
+  optional_callback(@index, asset_object) where @index is the
+  index argument passed to .asset.
+
+
+  runners : as described above, runners are alternate 'setups' that mediathread can be run in.
+  'jump' generally means if one asset is found on the page jump right into mediathread
+  'decorate' means bring up the MediathreadCollect.Interface and let the user take another
+  action.  This is probably the best one going forward.
+
+  HELP FUNCTIONS:
+  connect: quick cross-browser event-listener
+  hasClass(elem,cls),
+  hasBody(doc) -- does it have a doc.body value?  <frameset> pages do NOT
+  clean(str), getImageDimensions(), mergeMetadata(),
+  xml2dom(str,xhr), absolute_url(),
+  elt() for creating new html in a way that is frame/browser friendly
+
+  Finder() : This object is the main thing that walks through the document's media through
+  any sub-frames and merges the results into a list.
+
+  Interface() : This is the object that creates and manages the extension interface
+  (The gray widget that appears, listing the assets, and presenting the
+  analyze buttons, etc.)
+
+  This interface calls Finder() and displays the results
+
+  FOOTER:
+  At the bottom of this file is the init/bootstrap code which runs the right part of
+  MediathreadCollect.* (generally a runner) after inspecting MediathreadCollectOptions
 */
-
 
 (function() {
 
@@ -167,210 +167,272 @@
     );
 
     window.MediathreadCollect = {
-        "user_status": {/* updated by /accounts/logged_in.js */
-            ready:false
+        /* updated by /accounts/logged_in.js */
+        'user_status': {
+            ready: false
         },
-        run_with_jquery:function(func) {
-            var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
+        run_with_jquery: function(func) {
+            var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
             if (jQ) {
                 func(jQ);
             } else {
                 MediathreadCollectOptions.onJQuery = func;
             }
         },
-        user_ready:function() {
+        user_ready: function() {
             // FIXME :P
             return true;
         },
-        update_user_status:function(user_status) {
-            var uninit = (! window.MediathreadCollect.user_status.ready);
-            for (var a in user_status) {
-                window.MediathreadCollect.user_status[a] = user_status[a];
+        update_user_status: function(userStatus) {
+            var uninit = !window.MediathreadCollect.user_status.ready;
+            for (var a in userStatus) {
+                window.MediathreadCollect.user_status[a] = userStatus[a];
             }
             if (window.console) {
-                window.console.log(user_status);
+                window.console.log(userStatus);
             }
 
-            if ('youtube_apikey' in user_status) {
-                window.MediathreadCollect.options.youtube_apikey = user_status.youtube_apikey;
+            if ('youtube_apikey' in userStatus) {
+                window.MediathreadCollect.options.youtube_apikey =
+                    userStatus.youtube_apikey;
             }
 
-            if ('flickr_apikey' in user_status) {
-                window.MediathreadCollect.options.flickr_apikey = user_status.flickr_apikey;
+            if ('flickr_apikey' in userStatus) {
+                window.MediathreadCollect.options.flickr_apikey =
+                    userStatus.flickr_apikey;
             }
 
             //Safari sometimes loads logged_in.js last, even when added first
-            if (uninit && user_status.ready && MediathreadCollect.g) {
+            if (uninit && userStatus.ready && MediathreadCollect.g) {
                 //find assets again
                 MediathreadCollect.g.findAssets();
             }
         },
-        "hosthandler": {
+        'hosthandler': {
             /*Try to keep them ALPHABETICAL by 'brand' */
-            "alexanderstreet.com": {
-                find:function(callback) {
+            'alexanderstreet.com': {
+                find: function(callback) {
                     MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                        var token = document.documentElement.innerHTML.match(/token=([^&\"\']+)/);
-                        if (! token) {
+                        var token = document.documentElement.innerHTML.match(
+                                /token=([^&\"\']+)/);
+                        if (!token) {
                             return callback([]);
                         }
-                        jQuery
-                            .ajax({url:"http://"+location.hostname+"/video/meta/"+token[1],
-                                   dataType:'json',
-                                   dataFilter: function(data,type) {
-                                       ///removes 'json=' prefix and unescapes content
-                                       return unescape(String(data).substr(5));
-                                   },
-                                   success:function(json,textStatus) {
-                                       var rv = [];
-                                       function deplus(str,arr) {
-                                           if (str) {
-                                               return ((arr)?[str.replace(/\+/g,' ')]:str.replace(/\+/g,' '));
-                                           }
-                                       }
-                                       if (json) {
-                                           if (json.tracks && json.tracks.length > 0 && json.tracks[0].chunks.length > 0) {
-                                               var t = json.tracks[0];
-                                               var i = 0; //ASSUME: all chunks refer to same video file?
-                                               var asp_vid = {
-                                                   "primary_type":"video_rtmp",
-                                                   "sources":{
-                                                       'title':deplus(t.title),
-                                                       'video_rtmp':t.chunks[i].high.split('?')[0],
-                                                       'video_rtmp_low':t.chunks[i].low.split('?')[0]
-                                                   },
-                                                   "metadata":{},
-                                                   "_jsondump":json
-                                               };
-                                               for (var a in t.metadata) {
-                                                   if (t.metadata[a] && ! /id$/.test(a)) {
-                                                       asp_vid.metadata[a] = [ deplus(t.metadata[a])];
-                                                   }
-                                               }
-                                               rv.push(asp_vid);
-                                           } else if (json.video && json.video.length > 0) {
-                                               var v = json.video[0];
-                                               rv.push({
-                                                   "primary_type":"video_rtmp",
-                                                   "sources":{
-                                                       'title':deplus(v.title),
-                                                       'video_rtmp':v.high.split('?')[0],
-                                                       'video_rtmp_low':v.low.split('?')[0]
-                                                   },
-                                                   "metadata":{
-                                                       'Copyright':deplus(v.copyright,1)||undefined,
-                                                       'Publication Year':deplus(v.publicationyear,1)||undefined,
-                                                       'Publisher':deplus(v.publisher,1)||undefined
-                                                   },
-                                                   "_jsondump":json
-                                               });
-                                           }
-                                       }
-                                       return callback(rv);
-                                   },
-                                   error:function() { callback([]); }
-                                  });
+                        jQuery.ajax({
+                            url: 'http://' + location.hostname +
+                                '/video/meta/' + token[1],
+                            dataType: 'json',
+                            dataFilter: function(data, type) {
+                                ///removes 'json=' prefix and unescapes content
+                                return unescape(String(data).substr(5));
+                            },
+                            success: function(json, textStatus) {
+                                var rv = [];
+                                function deplus(str, arr) {
+                                    if (str) {
+                                        return (arr) ?
+                                            [str.replace(/\+/g,' ')] :
+                                            str.replace(/\+/g,' ');
+                                    }
+                                }
+                                if (json) {
+                                    if (json.tracks && json.tracks.length > 0 &&
+                                        json.tracks[0].chunks.length > 0
+                                       ) {
+                                        var t = json.tracks[0];
+                                        var i = 0; //ASSUME: all chunks refer to same video file?
+                                        var aspVid = {
+                                            'primary_type': 'video_rtmp',
+                                            'sources': {
+                                                'title': deplus(t.title),
+                                                'video_rtmp': t.chunks[i]
+                                                    .high.split('?')[0],
+                                                'video_rtmp_low': t.chunks[i]
+                                                    .low.split('?')[0]
+                                            },
+                                            'metadata': {},
+                                            '_jsondump': json
+                                        };
+                                        for (var a in t.metadata) {
+                                            if (t.metadata[a] &&
+                                                !/id$/.test(a)
+                                               ) {
+                                                aspVid.metadata[a] = [
+                                                    deplus(t.metadata[a])];
+                                            }
+                                        }
+                                        rv.push(aspVid);
+                                    } else if (
+                                        json.video && json.video.length > 0
+                                    ) {
+                                        var v = json.video[0];
+                                        rv.push({
+                                            'primary_type': 'video_rtmp',
+                                            'sources': {
+                                                'title': deplus(v.title),
+                                                'video_rtmp': v.high
+                                                    .split('?')[0],
+                                                'video_rtmp_low': v.low
+                                                    .split('?')[0]
+                                            },
+                                            'metadata': {
+                                                'Copyright': deplus(
+                                                    v.copyright,1) ||
+                                                    undefined,
+                                                'Publication Year': deplus(
+                                                    v.publicationyear, 1) ||
+                                                    undefined,
+                                                'Publisher': deplus(
+                                                    v.publisher,1) || undefined
+                                            },
+                                            '_jsondump': json
+                                        });
+                                    }
+                                }
+                                return callback(rv);
+                            },
+                            error: function() {
+                                callback([]);
+                            }
+                        });
                     });
                 }
             },
-            "artstor.org": {
-                find:function(callback) {
+            'artstor.org': {
+                find: function(callback) {
                     /*must have floating pane open to find image*/
                     MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                        var found_images = [];
-                        var floating_pane = jQuery(".MetaDataWidgetRoot");
-                        var selected_thumbs = jQuery(".thumbNailImageSelected");
-                        if (floating_pane.length) {
-                            var dom = floating_pane.get(0);
-                            found_images.push({
-                                "artstorId":dom.id.substr(3),/*after 'mdw'*/
-                                "sources":{},"metadata":{},"primary_type":'image_fpx',
-                                "html":dom
+                        var foundImages = [];
+                        var floatingPane = jQuery('.MetaDataWidgetRoot');
+                        var selectedThumbs = jQuery('.thumbNailImageSelected');
+                        if (floatingPane.length) {
+                            var dom = floatingPane.get(0);
+                            foundImages.push({
+                                'artstorId': dom.id.substr(3),/*after 'mdw'*/
+                                'sources': {},
+                                'metadata': {},
+                                'primary_type': 'image_fpx',
+                                'html': dom
                             });
-                        } else if (selected_thumbs.length) {
-                            selected_thumbs.each(function() {
-                                found_images.push({
-                                    "artstorId":dijit.byId(String(this.id).split('_')[0]).objectId,
-                                    "sources":{},"metadata":{},"primary_type":'image_fpx',
-                                    "html":this
+                        } else if (selectedThumbs.length) {
+                            selectedThumbs.each(function() {
+                                foundImages.push({
+                                    'artstorId': dijit.byId(
+                                        String(this.id).split('_')[0]
+                                    ).objectId,
+                                    'sources': {},
+                                    'metadata': {},
+                                    'primary_type': 'image_fpx',
+                                    'html': this
                                 });
                             });
                         } else {
-                            return callback([],"Try selecting one or more images by clicking on a thumbnail.");
+                            return callback(
+                                [],
+                                'Try selecting one or more images by ' +
+                                    'clicking on a thumbnail.');
                         }
-                        var done = found_images.length * 2; //# of queries
-                        var obj_final = function() {
-                            return callback(found_images);
+                        var done = foundImages.length * 2; //# of queries
+                        var objFinal = function() {
+                            return callback(foundImages);
                         };
                         var getArtStorData = function(obj) {
-                            jQuery
-                                .ajax({url:"http://"+location.hostname+"/library/secure/imagefpx/"+obj.artstorId+"/103/5",
-                                       dataType:'json',
-                                       success:function(fpxdata,textStatus) {
-                                           var f = fpxdata[0];
-                                           obj.sources.fsiviewer = "http://viewer2.artstor.org/erez3/fsi4/fsi.swf";
-                                           obj.sources.image_fpxid = obj.artstorId;
-                                           obj.sources["image_fpxid-metadata"] = "w"+f.width+"h"+f.height;
-                                           if (--done===0) obj_final();
-                                       },
-                                       error:function(){
-                                           if (--done===0) obj_final();
-                                       }
-                                      });
-                            jQuery
-                                .ajax({url:"http://"+location.hostname+"/library/secure/metadata/"+obj.artstorId,
-                                       dataType:'json',
-                                       success:function(metadata,textStatus) {
-                                           var img_link = metadata.imageUrl.match(/size\d\/(.*)\.\w+$/);
-                                           obj.sources.title = metadata.title;
-                                           obj.sources.thumb = "http://library.artstor.org"+metadata.imageUrl;
-                                           var m = metadata.metaData;
-                                           for (var i=0;i<m.length;i++) {
-                                               ///so multiple values are still OK
-                                               if (m[i].fieldName in obj.metadata) {
-                                                   obj.metadata[m[i].fieldName].push(m[i].fieldValue);
-                                               } else {
-                                                   obj.metadata[m[i].fieldName] = [m[i].fieldValue];
-                                               }
-                                           }
-                                           if (--done===0) obj_final();
-                                       },
-                                       error:function(){
-                                           if (--done===0) obj_final();
-                                       }
-                                      });
+                            jQuery.ajax({
+                                url: 'http://' + location.hostname +
+                                    '/library/secure/imagefpx/' +
+                                    obj.artstorId + '/103/5',
+                                dataType: 'json',
+                                success: function(fpxdata, textStatus) {
+                                    var f = fpxdata[0];
+                                    obj.sources.fsiviewer =
+                                        'http://viewer2.artstor.org/' +
+                                        'erez3/fsi4/fsi.swf';
+                                    obj.sources.image_fpxid = obj.artstorId;
+                                    obj.sources['image_fpxid-metadata'] =
+                                        'w' + f.width + 'h' + f.height;
+                                    if (--done === 0) {
+                                        objFinal();
+                                    }
+                                },
+                                error: function() {
+                                    if (--done === 0) {
+                                        objFinal();
+                                    }
+                                }
+                            });
+                            jQuery.ajax({
+                                url: 'http://' + location.hostname +
+                                    '/library/secure/metadata/' +
+                                    obj.artstorId,
+                                dataType: 'json',
+                                success: function(metadata, textStatus) {
+                                    var imgLink = metadata.imageUrl.match(
+                                            /size\d\/(.*)\.\w+$/);
+                                    obj.sources.title = metadata.title;
+                                    obj.sources.thumb =
+                                        'http://library.artstor.org' +
+                                        metadata.imageUrl;
+                                    var m = metadata.metaData;
+                                    for (var i = 0; i < m.length; i++) {
+                                        ///so multiple values are still OK
+                                        if (m[i].fieldName in obj.metadata) {
+                                            obj.metadata[m[i].fieldName].push(
+                                                m[i].fieldValue);
+                                        } else {
+                                            obj.metadata[m[i].fieldName] =
+                                                [m[i].fieldValue];
+                                        }
+                                    }
+                                    if (--done === 0) {
+                                        objFinal();
+                                    }
+                                },
+                                error: function() {
+                                    if (--done === 0) {
+                                        objFinal();
+                                    }
+                                }
+                            });
                         };
-                        for (var i=0;i<found_images.length;i++) {
-                            getArtStorData(found_images[i]);
+                        for (var i = 0; i < foundImages.length; i++) {
+                            getArtStorData(foundImages[i]);
                         }
                     });
                 }
             },
-            "blakearchive.org": {
-                find:function(callback) {
+            'blakearchive.org': {
+                find: function(callback) {
                     MediathreadCollect.run_with_jquery(function(jQ) {
                         var SB = MediathreadCollect;
-                        var obj = {'sources':{"title":document.title},'metadata':{}};
-                        var opt_urls;
+                        var obj = {
+                            'sources': {
+                                'title': document.title
+                            },
+                            'metadata': {}
+                        };
+                        var optUrls;
                         try {
-                            opt_urls = document.forms.form.elements.site.options;
-                        } catch(e) {
+                            optUrls = document.forms.form.elements.site.options;
+                        } catch (e) {
                             return callback([]);
                         }
                         var abs = SB.absolute_url;
-                        for (var i=0;i<opt_urls.length;i++) {
-                            var o = opt_urls[i];
+                        for (var i = 0; i < optUrls.length; i++) {
+                            var o = optUrls[i];
                             if (/Image/.test(o.text)) {
                                 obj.sources.image = abs(o.value,document);
                             } else if (/Transcription/.test(o.text)) {
-                                obj.sources.transcript_url = abs(o.value,document);
-                                obj.metadata.Transcript = [abs(o.value,document)];
+                                obj.sources.transcript_url =
+                                    abs(o.value,document);
+                                obj.metadata.Transcript =
+                                    [abs(o.value,document)];
                             }
                         }
                         if (obj.sources.image) {
-                            jQ('a').filter(function(){
-                                return /Copy\s+Information/.test(this.innerHTML);
-                            }).each(function(){
+                            jQ('a').filter(function() {
+                                return /Copy\s+Information/.test(
+                                    this.innerHTML);
+                            }).each(function() {
                                 obj.metadata.Metadata = [
                                     abs(String(this.href)
                                         .replace(/javascript:\w+\(\'/,'')
@@ -380,11 +442,11 @@
                             });
                             SB.getImageDimensions(
                                 obj.sources.image,
-                                function onload(img,dims)
-                                {
-                                    obj.sources["image-metadata"] = dims;
+                                function onload(img, dims) {
+                                    obj.sources['image-metadata'] = dims;
                                     callback([obj]);
-                                },function error(){
+                                },
+                                function error() {
                                     callback([]);//perhaps overly extreme?
                                 });
                         }
@@ -392,213 +454,306 @@
                 }
             },
             // first version of this added by Eddie 10/28/11:
-            "classpop.ccnmtl.columbia.edu": {
-                find:function(callback) {
+            'classpop.ccnmtl.columbia.edu': {
+                find: function(callback) {
                     MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                        if (jQuery ('#currently_playing').length > 0) {
+                        if (jQuery('#currently_playing').length > 0) {
 
                             // the YouTube id is passed up via a postMessage
                             // from the inner iframe and displayed in
-                            // a special "currently playing" div
-                            var tmp = jQuery ('#currently_playing').html();
-                            var v_match =  ["video_id=" + tmp,  tmp];
+                            // a special 'currently playing' div
+                            var tmp = jQuery('#currently_playing').html();
+                            var vMatch =  ['video_id=' + tmp,  tmp];
 
                             // not sure we need this as of right now: to start out with.
                             // i'm just using an empty div.
-                            var video_dom_object = jQuery ("<div></div>");
+                            var videoDomObject = jQuery('<div></div>');
 
-                            MediathreadCollect.assethandler.objects_and_embeds.players
-                                .youtube.asset(
-                                    video_dom_object,
-                                    v_match,
+                            MediathreadCollect.assethandler.
+                                objects_and_embeds.players.youtube.asset(
+                                    videoDomObject,
+                                    vMatch,
                                     {
-                                        'window':window,
-                                        'document':document
+                                        'window': window,
+                                        'document': document
                                     },
                                     0,
-                                    function(ind,rv){ callback([rv]); }
-                                );
-                        }
-                        else {
+                                    function(ind, rv) {
+                                        callback([rv]);
+                                    });
+                        } else {
                             callback([]);
                         }
                     });//end run_with_jquery for classpop.ccnmtl.columbia.edu
                 },
-                decorate:function(objs) {
+                decorate: function(objs) {
                 }
             },
-            "dropbox.com": {
-                find:function(callback) {
+            'dropbox.com': {
+                find: function(callback) {
                     MediathreadCollect.run_with_jquery(function(jQ) {
-                        var save_link = document.getElementById('gallery_full_size');
-                        if (save_link) {
-                            var regex = String(save_link.href).match(/dropbox.com\/s\/[^\/]+\/([^?]+)/);
+                        var saveLink = document.getElementById(
+                            'gallery_full_size');
+                        if (saveLink) {
+                            var regex = String(saveLink.href).match(
+                                    /dropbox.com\/s\/[^\/]+\/([^?]+)/);
                             if (regex) {
-                                var img = document.createElement("img");
-                                img.src = save_link;
-                                jQ(img).bind('load',function() {
+                                var img = document.createElement('img');
+                                img.src = saveLink;
+                                jQ(img).bind('load', function() {
                                     callback([{
-                                        primary_type:'image',
-                                        sources:{
-                                            'title':regex[1],
-                                            'image':img.src,
-                                            'url':String(document.location),
-                                            'image-metadata':"w"+img.width+"h"+img.height
+                                        primary_type: 'image',
+                                        sources: {
+                                            'title': regex[1],
+                                            'image': img.src,
+                                            'url': String(document.location),
+                                            'image-metadata': 'w' + img.width +
+                                                'h' + img.height
                                         }
                                     }]);
                                 });
-                            } else callback([]);
-
-                        } else callback([]);
+                            } else {
+                                callback([]);
+                            }
+                        } else {
+                            callback([]);
+                        }
                     });
                 }
             },
-            "flickr.com": {
-                find:function(callback) {
+            'flickr.com': {
+                find: function(callback) {
                     MediathreadCollect.run_with_jquery(function(jQuery) {
                         var apikey = MediathreadCollect.options.flickr_apikey;
                         // expected:/photos/<userid>/<imageid>/
-                        var bits = document.location.pathname.split("/");
+                        var bits = document.location.pathname.split('/');
                         var imageId = bits[3];
                         window.imageId = imageId;
-                        if(typeof imageId === 'undefined'){
+                        if (typeof imageId === 'undefined') {
                             return callback([]);
                         }
 
-                        if (imageId.length < 1 || imageId.search(/\d{1,12}/) < 0)
+                        if (imageId.length < 1 ||
+                            imageId.search(/\d{1,12}/) < 0
+                           ) {
                             return callback([]);
+                        }
 
                         // See jsonp docs for $.getJSON:
                         // http://api.jquery.com/jquery.getjson/
-                        var baseUrl = "https://api.flickr.com/services/rest/?format=json&api_key=" +
-                            apikey+"&photo_id="+imageId+
-                            ((MediathreadCollect.options.cross_origin) ? '&nojsoncallback=1' : '&jsoncallback=?');
-                        jQuery.getJSON(baseUrl + "&method=flickr.photos.getInfo",function(getInfoData) {
-                            if (typeof getInfoData.photo === 'undefined' || getInfoData.photo.media=="video") {
-                                /*video is unsupported*/
-                                return callback([]);
-                            }
-                            jQuery.getJSON(baseUrl + "&method=flickr.photos.getSizes",
-                                           function(getSizesData) {
-                                               var w=0,
-                                                   h=0,
-                                                   img_url='',
-                                                   thumb_url='';
-                                               jQuery.each(getSizesData.sizes.size, function(i,item) {
-                                                   if (parseInt(item.width) > w) {
-                                                       w = parseInt(item.width);
-                                                       h = item.height;
-                                                       img_url = item.source;
-                                                   }
-                                                   if (item.label == "Thumbnail") {
-                                                       thumb_url = item.source;
-                                                   }
-                                               });
-                                               var img;
-                                               jQuery('img').each(function() {
-                                                   if (RegExp("http://farm.*"+imageId).test(this.src)) {
-                                                       img = this;
-                                                   }
-                                               });
-                                               /* URL format http://farm{farm-id}.static.flickr.com/{server-id}/{id}_{secret}_[mtsb].jpg */
-                                               var sources = {
-                                                   "url": getInfoData.photo.urls.url[0]._content,
-                                                   "title": getInfoData.photo.title._content,
-                                                   "thumb": thumb_url,
-                                                   "image": img_url,
-                                                   "metadata-photostream": "http://www.flickr.com/photos/" + getInfoData.photo.owner.nsid, /* owner's photostream */
-                                                   "image-metadata":"w"+w+"h"+h,
-                                                   "metadata-owner":getInfoData.photo.owner.realname ||undefined
-                                               };
+                        var baseUrl = 'https://api.flickr.com/' +
+                            'services/rest/?format=json&api_key=' +
+                            apikey + '&photo_id=' + imageId +
+                            ((MediathreadCollect.options.cross_origin) ?
+                             '&nojsoncallback=1' : '&jsoncallback=?');
+                        jQuery.getJSON(
+                            baseUrl + '&method=flickr.photos.getInfo',
+                            function(getInfoData) {
+                                if (typeof getInfoData.photo === 'undefined' ||
+                                    getInfoData.photo.media == 'video'
+                                   ) {
+                                    /*video is unsupported*/
+                                    return callback([]);
+                                }
+                                jQuery.getJSON(
+                                    baseUrl + '&method=flickr.photos.getSizes',
+                                    function(getSizesData) {
+                                        var w = 0;
+                                        var h = 0;
+                                        var imgUrl = '';
+                                        var thumbUrl = '';
+                                        jQuery.each(
+                                            getSizesData.sizes.size,
+                                            function(i, item) {
+                                                if (parseInt(item.width) > w) {
+                                                    w = parseInt(item.width);
+                                                    h = item.height;
+                                                    imgUrl = item.source;
+                                                }
+                                                if (item.label == 'Thumbnail') {
+                                                    thumbUrl = item.source;
+                                                }
+                                            }
+                                        );
+                                        var img;
+                                        jQuery('img').each(function() {
+                                            if (
+                                                RegExp(
+                                                    'http://farm.*' + imageId)
+                                                    .test(this.src)
+                                            ) {
+                                                img = this;
+                                            }
+                                        });
+                                        // URL format:
+                                        // http://farm{farm-id}.static.flickr.com/{server-id}/
+                                        //     {id}_{secret}_[mtsb].jpg
+                                        var sources = {
+                                            'url': getInfoData.photo.urls.
+                                                url[0]._content,
+                                            'title': getInfoData.photo.title.
+                                                _content,
+                                            'thumb': thumbUrl,
+                                            'image': imgUrl,
+                                            // owner's photostream
+                                            'metadata-photostream':
+                                            'http://www.flickr.com/photos/' +
+                                                getInfoData.photo.owner.nsid,
+                                            'image-metadata': 'w' + w + 'h' + h,
+                                            'metadata-owner':
+                                            getInfoData.photo.owner.realname ||
+                                                undefined
+                                        };
 
-                                               return callback( [{html:img, primary_type:"image", sources:sources}] );
-                                           });
-                        });/*end jQuery.ajax*/
+                                        return callback([{
+                                            html: img,
+                                            primary_type: 'image',
+                                            sources: sources
+                                        }]);
+                                    });
+                            });/*end jQuery.ajax*/
                     });/*end run_with_jquery*/
                 },
-                decorate:function(objs) {
+                decorate: function(objs) {
                 }
             },
-            "mirc.sc.edu": {
-                find:function(callback){
+            'mirc.sc.edu': {
+                find: function(callback) {
                     MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                        var fp_rv;
-                        if(jQuery("a.usc-flowplayer > :first").is('img')){
-                            //This works inconsistently...so I'm going to put up a warning as a workaround
-                            // var fp = jQuery(".usc-flowplayer").flowplayer(0);
-                            // fp.load(); //bring up the flowplayer "object"
-                            alert("Please start playing the video you would like to collect.");
+                        var fpRv;
+                        if (jQuery('a.usc-flowplayer > :first').is('img')) {
+                            //This works inconsistently...so I'm going to put
+                            // up a warning as a workaround
+                            // var fp = jQuery('.usc-flowplayer').flowplayer(0);
+                            // fp.load(); //bring up the flowplayer 'object'
+                            alert('Please start playing the video you ' +
+                                  'would like to collect.');
                             return false;
                         }
 
-                        //if(jQuery("a.usc-flowplayer > :first").is('img')) jQuery("a.usc-flowplayer").trigger("click");
-                        var fp_id = jQuery("a.usc-flowplayer > :first ").attr("id");
-                        // console.log(jQuery("a.usc-flowplayer").flowplayer(0));
-                        var video = document.getElementById(fp_id);
+                        // if (jQuery('a.usc-flowplayer > :first').is('img'))
+                        //   jQuery('a.usc-flowplayer').trigger('click');
+                        var fpId = jQuery('a.usc-flowplayer > :first ')
+                            .attr('id');
+                        var video = document.getElementById(fpId);
                         if (video && video !== null) {
-                            var v_match = MediathreadCollect.assethandler.objects_and_embeds.players.flowplayer3.match(video); //the flowplayer version
-                            if (v_match && v_match !== null) {
-                                fp_rv = MediathreadCollect.assethandler.objects_and_embeds.players.flowplayer3.asset(video,v_match,{'window':window,'document':document});
+                            // flowplayer version
+                            var vMatch = MediathreadCollect.assethandler.
+                                objects_and_embeds.players.
+                                flowplayer3.match(video);
+                            if (vMatch && vMatch !== null) {
+                                fpRv = MediathreadCollect.assethandler.
+                                    objects_and_embeds.players.
+                                    flowplayer3.asset(
+                                        video,
+                                        vMatch,
+                                        {
+                                            'window': window,
+                                            'document': document
+                                        });
                             }
                         }
-                        // if(typeof(fp)!='undefined') fp.unload();
 
-                        fp_rv.metadata = {};
+                        fpRv.metadata = {};
                         var i;
 
-                        try { fp_rv.metadata.title = fp_rv.sources.title = [jQuery("#edit-title--2").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.title = '';}
-                        try { fp_rv.metadata.produced = [jQuery("#edit-production-date").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.produced = '';}
-                        try { fp_rv.metadata.description = [jQuery("#edit-description--2").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.description = '';}
-                        try { fp_rv.metadata.copyright = [jQuery("#edit-credits-preserved-by-rights").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.copyright = '';}
-                        try { fp_rv.metadata.temporal = [jQuery("#edit-tempo--2").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.temporal = '';}
-                        try { fp_rv.metadata.geographical = [jQuery("#edit-geo").text().split("\n")[2].trim()]; }
-                        catch (e) {fp_rv.metadata.geographical = '';}
                         try {
-                            var tags = jQuery("#edit-subjects").html().replace(/<label(.*)<\/label>/g, "").split(/(<br>)+/);
-                            for(i=tags.length-1; i>=0; i--)
-                                if (tags[i].trim() === '<br>' || tags[i].trim() === '') {
+                            fpRv.metadata.title = fpRv.sources.title =
+                                [jQuery('#edit-title--2').text().split('\n')[2].trim()];
+                        } catch (e) {
+                            fpRv.metadata.title = '';
+                        }
+                        try {
+                            fpRv.metadata.produced = [
+                                jQuery('#edit-production-date').text()
+                                    .split('\n')[2].trim()];
+                        } catch (e) {
+                            fpRv.metadata.produced = '';
+                        }
+                        try {
+                            fpRv.metadata.description = [
+                                jQuery('#edit-description--2').text()
+                                    .split('\n')[2].trim()];
+                        } catch (e) {
+                            fpRv.metadata.description = '';
+                        }
+                        try {
+                            fpRv.metadata.copyright = [
+                                jQuery('#edit-credits-preserved-by-rights')
+                                    .text()
+                                    .split('\n')[2].trim()];
+                        } catch (e) {
+                            fpRv.metadata.copyright = '';
+                        }
+                        try {
+                            fpRv.metadata.temporal = [
+                                jQuery('#edit-tempo--2').text()
+                                    .split('\n')[2].trim()];
+                        } catch (e) {
+                            fpRv.metadata.temporal = '';
+                        }
+                        try {
+                            fpRv.metadata.geographical = [
+                                jQuery('#edit-geo').text()
+                                    .split('\n')[2].trim()];
+                        } catch (e) {
+                            fpRv.metadata.geographical = '';
+                        }
+                        try {
+                            var tags = jQuery('#edit-subjects').html()
+                                .replace(/<label(.*)<\/label>/g, '')
+                                .split(/(<br>)+/);
+                            for (i = tags.length - 1; i >= 0; i--) {
+                                if (tags[i].trim() === '<br>' ||
+                                    tags[i].trim() === ''
+                                   ) {
                                     tags.splice(i, 1);
                                 } else {
-                                    tags[i]=tags[i].trim();
+                                    tags[i] = tags[i].trim();
                                 }
-                            fp_rv.metadata.subject = tags;
-                        } catch (e) {fp_rv.metadata.tags = [];}
+                            }
+                            fpRv.metadata.subject = tags;
+                        } catch (e) {
+                            fpRv.metadata.tags = [];
+                        }
                         try {
-                            var credits = jQuery("#edit-credits").text().split('Donor')[0].split('Credits')[1].split('.');
-                            for (i=credits.length-1; i>=0; i--) {
-                                if (credits[i].trim() === '<br>' || credits[i].trim() === '') {
+                            var credits = jQuery('#edit-credits').text()
+                                .split('Donor')[0].split('Credits')[1]
+                                .split('.');
+                            for (i = credits.length - 1; i >= 0; i--) {
+                                if (credits[i].trim() === '<br>' ||
+                                    credits[i].trim() === ''
+                                   ) {
                                     credits.splice(i, 1);
                                 } else {
                                     credits[i] = credits[i].trim();
                                 }
                             }
-                            fp_rv.metadata.credits = credits;
+                            fpRv.metadata.credits = credits;
                         } catch (e) {
-                            fp_rv.metadata.credits = [];
+                            fpRv.metadata.credits = [];
                         }
 
-                        fp_rv.sources.thumb="http://mirc.sc.edu/sites/all/modules/usc_mirc/images/playbuttonblack.jpg";
+                        fpRv.sources.thumb = 'http://mirc.sc.edu/sites/all/' +
+                            'modules/usc_mirc/images/playbuttonblack.jpg';
 
-                        return callback([fp_rv]);
+                        return callback([fpRv]);
                     });
                 },
-                decorate:function(objs){
+                decorate: function(objs) {
                 }
             },
-            "wikipedia.org":{
-                find:function(callback) {
+            'wikipedia.org': {
+                find: function(callback) {
                     var returnArray = [];
                     var patt = /data/;// regex pattern for data url
-                    MediathreadCollect.run_with_jquery(function(jQ){
-                        jQ('img').each(function(i){
+                    MediathreadCollect.run_with_jquery(function(jQ) {
+                        jQ('img').each(function(i) {
                             var obj = {};
                             var source = jQuery(this).attr('src');
-                            if (source.split('//').length < 3 && !patt.test(source)){
+                            if (source.split('//').length < 3 &&
+                                !patt.test(source)
+                               ) {
                                 source = 'http://' + source.split('//')[1];
                                 source = source.split('=')[0];
                                 obj.html = this;
@@ -606,25 +761,28 @@
                                 obj.sources.image =  source;
                                 obj.sources.title = jQuery(this).attr('alt');
                                 obj.sources.url = window.location.href;
-                                obj.primary_type = "image";
+                                obj.primary_type = 'image';
                                 obj.sources.thumb = source;
-                                obj.sources["image-metadata"] = 'w'+(this.width*2)+'h'+(this.height*2);
-                                returnArray[i]=obj;
+                                obj.sources['image-metadata'] = 'w' +
+                                    (this.width * 2) + 'h' + (this.height * 2);
+                                returnArray[i] = obj;
                             }
                         }); //end each
                     });
-                    return callback( returnArray );
+                    return callback(returnArray);
                 }
             },
-            "googleartproject.com":{
-                find:function(callback) {
+            'googleartproject.com': {
+                find: function(callback) {
                     var returnArray = [];
                     var patt = /data/;// regex pattern for data url
-                    MediathreadCollect.run_with_jquery(function(jQ){
-                        jQ('img').each(function(i){
+                    MediathreadCollect.run_with_jquery(function(jQ) {
+                        jQ('img').each(function(i) {
                             var obj = {};
                             var source = jQuery(this).attr('src');
-                            if (source.split('//').length < 3 && !patt.test(source)){
+                            if (source.split('//').length < 3 &&
+                                !patt.test(source)
+                               ) {
                                 source = 'http://' + source.split('//')[1];
                                 source = source.split('=')[0];
                                 obj.html = this;
@@ -632,49 +790,50 @@
                                 obj.sources.image =  source;
                                 obj.sources.title = jQuery(this).attr('alt');
                                 obj.sources.url = window.location.href;
-                                obj.primary_type = "image";
+                                obj.primary_type = 'image';
                                 obj.sources.thumb = source;
-                                obj.sources["image-metadata"] = 'w'+(this.width*2)+'h'+(this.height*2);
-                                returnArray[i]=obj;
+                                obj.sources['image-metadata'] = 'w' +
+                                    (this.width * 2) + 'h' + (this.height * 2);
+                                returnArray[i] = obj;
                             }
                         }); //end each
                     });
-                    return callback( returnArray );
+                    return callback(returnArray);
                 }
             },
-            "vital.ccnmtl.columbia.edu": {
-                allow_save_all:true,
-                find:function(callback) {
-                    if (! /materialsLib/.test(document.location.pathname)) {
+            'vital.ccnmtl.columbia.edu': {
+                allow_save_all: true,
+                find: function(callback) {
+                    if (!/materialsLib/.test(document.location.pathname)) {
                         callback([],'Go to the Course Library page and run the extension again');
                     }
                     MediathreadCollect.run_with_jquery(function(jQuery) {
                         var found_videos = [];
                         var course_library = jQuery('a.thumbnail');
                         var done = course_library.length;
-                        var obj_final = function() {
+                        var objFinal = function() {
                             return callback(found_videos);
                         };
                         course_library.each(function() {
                             var asset = {
-                                "html":this,
-                                "vitalId":String(this.href).match(/\&id=(\d+)/)[1],
-                                "sources":{'quicktime-metadata':"w320h240"},
-                                "metadata":{},"primary_type":"quicktime"
+                                'html': this,
+                                'vitalId': String(this.href).match(/\&id=(\d+)/)[1],
+                                'sources': {'quicktime-metadata': 'w320h240'},
+                                'metadata': {},'primary_type': 'quicktime'
                             };
                             jQuery.ajax({
-                                url:'basicAdmin.smvc?action=display&entity=material&id='+asset.vitalId,
-                                dataType:'text',
-                                success:function(edit_html) {
+                                url: 'basicAdmin.smvc?action=display&entity=material&id='+asset.vitalId,
+                                dataType: 'text',
+                                success: function(edit_html) {
                                     var split_html = edit_html.split('Video Categories:');
                                     ///Basic URLs and Title
                                     split_html[0].replace(
                                         new RegExp('<input[^>]+name="(\\w+)" value="([^"]+)"','mg'),
                                         function(full,name,val) {
                                             switch(name) {
-                                            case "title": asset.sources.title = val;break;
-                                            case "url": asset.sources.quicktime = val;break;
-                                            case "thumbUrl": asset.sources.thumb = val;break;
+                                            case 'title': asset.sources.title = val;break;
+                                            case 'url': asset.sources.quicktime = val;break;
+                                            case 'thumbUrl': asset.sources.thumb = val;break;
                                             }
                                         });
                                     ///don't procede if we didn't get the quicktime url
@@ -682,7 +841,7 @@
                                         ///TODO: VITAL Metadata
                                         //Topics = assignments
                                         ///Extra Metadata
-                                        if (split_html.length > 1 ) {
+                                        if (split_html.length > 1) {
                                             split_html[1].replace(
                                                 new RegExp('<b>([^<]+):</b>[\\s\\S]*?value="([^"]+)"[\\s\\S]*?value="([^"]+)"','mg'),
                                                 function(full,name,value_id,val) {
@@ -692,10 +851,14 @@
                                         ///PUSH
                                         found_videos.push(asset);
                                     }
-                                    if (--done===0) obj_final();
+                                    if (--done === 0) {
+                                        objFinal();
+                                    }
                                 },
-                                error:function() {
-                                    if (--done===0) obj_final();
+                                error: function() {
+                                    if (--done === 0) {
+                                        objFinal();
+                                    }
                                 }
                             });
 
@@ -704,26 +867,28 @@
                     });
                 }
             },
-            "learn.columbia.edu": {
+            'learn.columbia.edu': {
                 /*and www.mcah.columbia.edu */
-                find:function(callback) {
+                find: function(callback) {
                     MediathreadCollect.run_with_jquery(function(jQuery) {
                         var rv = [];
                         var abs = MediathreadCollect.absolute_url;
                         jQuery('table table table img').each(function() {
-                            var match_img = String(this.src).match(/arthum2\/mediafiles\/(\d+)\/(.*)$/);
-                            if (match_img) {
-                                var img = document.createElement("img");
-                                img.src = "http://www.mcah.columbia.edu/arthum2/mediafiles/1200/"+match_img[2];
-                                var img_data = {
-                                    'html':this,
-                                    'primary_type':'image',
-                                    'metadata':{},
-                                    'sources':{
-                                        "url":abs(this.getAttribute('onclick').match(/item.cgi[^\']+/)[0],document),
-                                        "thumb":this.src,
-                                        "image":img.src,
-                                        "image-metadata":"w"+img.width+"h"+img.height
+                            var matchImg =
+                                String(this.src).match(
+                                        /arthum2\/mediafiles\/(\d+)\/(.*)$/);
+                            if (matchImg) {
+                                var img = document.createElement('img');
+                                img.src = 'http://www.mcah.columbia.edu/arthum2/mediafiles/1200/'+matchImg[2];
+                                var imgData = {
+                                    'html': this,
+                                    'primary_type': 'image',
+                                    'metadata': {},
+                                    'sources': {
+                                        'url':abs(this.getAttribute('onclick').match(/item.cgi[^\']+/)[0],document),
+                                        'thumb': this.src,
+                                        'image': img.src,
+                                        'image-metadata': 'w' + img.width + 'h' + img.height
                                     }
                                 };
                                 if (typeof document.evaluate == 'function') {
@@ -739,17 +904,61 @@
                                         }
                                     };
                                     //xpath begins right after the tbody/tr[2]/
-                                    tryEval(img_data.sources,'title',cell+'/table[2]/tbody/tr[3]/td/table/tbody/tr/td');
-                                    tryEval(img_data.metadata,'creator',cell+'/table[1]/tbody/tr[3]/td[1]/table/tbody/tr/td',true);
-                                    tryEval(img_data.metadata,'date',cell+'/table[1]/tbody/tr[3]/td[3]/table/tbody/tr/td',true);
-                                    tryEval(img_data.metadata,'materials',cell+'/table[3]/tbody/tr[3]/td[1]/table/tbody/tr/td',true);
-                                    tryEval(img_data.metadata,'dimensions',cell+'/table[3]/tbody/tr[3]/td[3]/table/tbody/tr/td',true);
-                                    tryEval(img_data.metadata,'techniques',cell+'/table[4]/tbody/tr[3]/td[1]/table/tbody/tr/td',true);
-                                    tryEval(img_data.metadata,'repository',cell+'/table[5]/tbody/tr[3]/td[1]/table/tbody/tr/td',true);
-                                    tryEval(img_data.metadata,'city',cell+'/table[5]/tbody/tr[3]/td[3]/table/tbody/tr/td',true);
-                                    tryEval(img_data.metadata,'note',cell+'/table[6]/tbody/tr[3]/td/table/tbody/tr/td',true);
+                                    tryEval(
+                                        imgData.sources,
+                                        'title',
+                                        cell + '/table[2]/tbody/tr[3]/td/table/tbody/tr/td'
+                                    );
+                                    tryEval(
+                                        imgData.metadata,
+                                        'creator',
+                                        cell + '/table[1]/tbody/tr[3]/td[1]/table/tbody/tr/td',
+                                        true
+                                    );
+                                    tryEval(
+                                        imgData.metadata,
+                                        'date',
+                                        cell + '/table[1]/tbody/tr[3]/td[3]/table/tbody/tr/td',
+                                        true
+                                    );
+                                    tryEval(
+                                        imgData.metadata,
+                                        'materials',
+                                        cell + '/table[3]/tbody/tr[3]/td[1]/table/tbody/tr/td',
+                                        true
+                                    );
+                                    tryEval(
+                                        imgData.metadata,
+                                        'dimensions',
+                                        cell + '/table[3]/tbody/tr[3]/td[3]/table/tbody/tr/td',
+                                        true
+                                    );
+                                    tryEval(
+                                        imgData.metadata,
+                                        'techniques',
+                                        cell + '/table[4]/tbody/tr[3]/td[1]/table/tbody/tr/td',
+                                        true
+                                    );
+                                    tryEval(
+                                        imgData.metadata,
+                                        'repository',
+                                        cell + '/table[5]/tbody/tr[3]/td[1]/table/tbody/tr/td',
+                                        true
+                                    );
+                                    tryEval(
+                                        imgData.metadata,
+                                        'city',
+                                        cell + '/table[5]/tbody/tr[3]/td[3]/table/tbody/tr/td',
+                                        true
+                                    );
+                                    tryEval(
+                                        imgData.metadata,
+                                        'note',
+                                        cell + '/table[6]/tbody/tr[3]/td/table/tbody/tr/td',
+                                        true
+                                    );
                                 }
-                                rv.push(img_data);
+                                rv.push(imgData);
                             }
 
                         });
@@ -759,132 +968,133 @@
                             var p = document.location.pathname.split('/');
                             p.pop();
                             jQuery.ajax({
-                                url:p.join('/')+'/gallery.xml',
-                                dataType:'text',
-                                success:function(gallery_xml,textStatus,xhr) {
+                                url: p.join('/') + '/gallery.xml',
+                                dataType: 'text',
+                                success: function(gallery_xml,textStatus,xhr) {
                                     var gxml = MediathreadCollect.xml2dom(gallery_xml,xhr);
                                     var i_path = jQuery('simpleviewerGallery',gxml).attr('imagePath');
                                     var t_path = jQuery('simpleviewerGallery',gxml).attr('thumbPath');
                                     jQuery('image',gxml).each(function() {
                                         var filename = jQuery('filename',this).text();
                                         var image_data = {
-                                            "html":this,
-                                            "primary_type":'image',
-                                            "sources":{
-                                                "title":jQuery('caption',this).text(),
-                                                "image":abs(p.join('/')+'/'+i_path+filename,document),
-                                                "thumb":abs(p.join('/')+'/'+t_path+filename,document),
-                                                "url":document.location +'#'+ filename
+                                            'html': this,
+                                            'primary_type': 'image',
+                                            'sources': {
+                                                'title': jQuery('caption', this).text(),
+                                                'image': abs(p.join('/') + '/' + i_path + filename,document),
+                                                'thumb': abs(p.join('/') + '/' + t_path + filename,document),
+                                                'url': document.location + '#' + filename
                                             }
                                         };
-                                        var img = document.createElement("img");
+                                        var img = document.createElement('img');
                                         img.src = image_data.sources.image;
-                                        image_data.sources['image-metadata']="w"+img.width+"h"+img.height;
+                                        image_data.sources['image-metadata'] =
+                                            'w' + img.width + 'h' + img.height;
                                         rv.push(image_data);
                                         jQuery('#flashcontent').hide();
 
                                     });
                                     return callback(rv);
                                 },
-                                error:function(err,xhr){ return callback(rv); }
+                                error: function(err,xhr) { return callback(rv); }
                             });
                         }
                         if (done) return callback(rv);
                     });
                 }
             },
-            "vimeo.com": {
+            'vimeo.com': {
 
                 find: function(callback) {
                     MediathreadCollect.run_with_jquery(function _find(jQuery) {
                         var videos = jQuery('.video-wrapper');
                         if (videos.length < 1) {
-                            var message = "This Vimeo page does not contain videos accessible to the extension. Try clicking into a single video page.";
+                            var message = 'This Vimeo page does not contain videos accessible to the extension. Try clicking into a single video page.';
                             alert(message);
                             callback([]); // no items found
                         } else {
                             // parse vimeo id out of the fallback url
                             var video = videos[0];
-                            var parent = jQuery(video).parents("div.player")[0];
-                            var url = jQuery(parent).attr("data-fallback-url");
-                            var vimeoId = url.split("/")[4];
+                            var parent = jQuery(video).parents('div.player')[0];
+                            var url = jQuery(parent).attr('data-fallback-url');
+                            var vimeoId = url.split('/')[4];
 
                             MediathreadCollect.assethandler.objects_and_embeds.players
                                 .moogaloop.asset(video,
                                                  vimeoId,
-                                                 {'window':window,'document':document},
+                                                 {'window': window,'document': document},
                                                  0,
-                                                 function(ind,rv){ callback([rv]); });
+                                                 function(ind,rv) { callback([rv]); });
                         }
                     }); //end run_with_jquery for vimeo.com
                 },
-                decorate:function(objs) {
+                decorate: function(objs) {
                 }
             },
-            "youtube.com": {
-                find:function(callback) {
+            'youtube.com': {
+                find: function(callback) {
                     MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                        var video = document.getElementById("movie_player");
+                        var video = document.getElementById('movie_player');
                         if (video && video !== null) {
-                            var v_match = video.getAttribute('flashvars');
-                            if(v_match && v_match.split('cbr=')[1].match('IE&') !==null ){
+                            var vMatch = video.getAttribute('flashvars');
+                            if (vMatch && vMatch.split('cbr=')[1].match('IE&') !== null) {
                                 // this is an IE embed then
                                 window.IEVideo = video;
                                 jQuery(video).css('display','none');
                             }
-                            if (v_match) {
-                                v_match = v_match.match(/video_id=([^&]*)/);
+                            if (vMatch) {
+                                vMatch = vMatch.match(/video_id=([^&]*)/);
                             } else { //mostly for <OBJECT>
-                                v_match = document.location.search.match(/[?&]v=([^&]*)/);
+                                vMatch = document.location.search.match(/[?&]v=([^&]*)/);
                             }
-                            if(v_match===null && MediathreadCollect.getURLParameters('v')){
+                            if (vMatch===null && MediathreadCollect.getURLParameters('v')) {
                                 var vid = MediathreadCollect.getURLParameters('v');
-                                v_match = ['video_id=' + vid, vid];
+                                vMatch = ['video_id=' + vid, vid];
                             }
 
                             MediathreadCollect.assethandler.objects_and_embeds.players
                                 .youtube.asset(video,
-                                               v_match,
-                                               {'window':window,'document':document},0,
-                                               function(ind,rv){ callback([rv]); });
-                        } else if (document.getElementsByTagName("video").length > 0) {
-                            video = document.getElementsByTagName("video")[0];
-                            var videoId = jQuery(video).attr("data-youtube-id");
+                                               vMatch,
+                                               {'window': window,'document': document},0,
+                                               function(ind,rv) { callback([rv]); });
+                        } else if (document.getElementsByTagName('video').length > 0) {
+                            video = document.getElementsByTagName('video')[0];
+                            var videoId = jQuery(video).attr('data-youtube-id');
                             var faux_match = [null, videoId];
                             MediathreadCollect.assethandler.objects_and_embeds.players
                                 .youtube.asset(video,
                                                faux_match,
-                                               {'window':window,'document':document},0,
-                                               function(ind,rv){ callback([rv]); });
+                                               {'window': window,'document': document},0,
+                                               function(ind,rv) { callback([rv]); });
                         } else {
                             callback([]);
                         }
                     });//end run_with_jquery for youtube.com
                 },
-                decorate:function(objs) {
+                decorate: function(objs) {
                 }
             }
         },/*end hosthandler*/
-        "assethandler":{
+        'assethandler': {
             /* assumes jQuery is available */
-            "objects_and_embeds": {
-                players:{
-                    "realplayer":{
+            'objects_and_embeds': {
+                players: {
+                    'realplayer': {
                         /*NOTE: realplayer plugin works in non-IE only WITH <embed>
                           whereas in IE it only works with <object>
                           efforts to GetPosition() need to take this into consideration
                         */
-                        match:function(eo) {
+                        match: function(eo) {
                             return (('object'==eo.tagName.toLowerCase())?
-                                    (eo.classid=="clsid:CFCDAA03-8BE4-11cf-B84B-0020AFBBCCFA"&&'obj')||null:
+                                    (eo.classid=='clsid:CFCDAA03-8BE4-11cf-B84B-0020AFBBCCFA'&&'obj')||null:
                                     (String(eo.type) == 'audio/x-pn-realaudio-plugin' && 'emb') || null );
                         },
-                        asset:function(emb,match,context,index,optional_callback) {
+                        asset: function(emb,match,context,index,optional_callback) {
                             var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                             var abs = MediathreadCollect.absolute_url;
                             var rv = {
                                 html:emb,
-                                primary_type:"realplayer",
+                                primary_type: 'realplayer',
                                 sources: {}
                             };
                             if (match=='emb') {
@@ -899,36 +1109,36 @@
                             }
 
                             if (typeof emb.DoPlay != 'undefined') {
-                                rv.sources["realplayer-metadata"] = "w"+(
+                                rv.sources['realplayer-metadata'] = 'w' + (
                                     emb.GetClipWidth() || emb.offsetWidth
-                                )+"h"+(emb.GetClipHeight() || emb.offsetHeight);
+                                ) + 'h' + (emb.GetClipHeight() || emb.offsetHeight);
 
                                 rv.sources.title = emb.GetTitle() || undefined;
                                 if (rv.sources.title) {//let's try for the rest
                                     rv.metadata = {
-                                        "author":[ emb.GetAuthor() || undefined],
-                                        "copyright":[ emb.GetCopyright() || undefined]
+                                        'author' : [ emb.GetAuthor() || undefined],
+                                        'copyright' : [ emb.GetCopyright() || undefined]
                                     };
                                 }
                             } else {
-                                rv.sources["realplayer-metadata"] = "w"+emb.width+"h"+emb.height;
+                                rv.sources['realplayer-metadata'] = 'w' + emb.width + 'h' + emb.height;
                             }
 
                             return rv;
                         }
                     },/*end realplayer embeds*/
-                    "youtube":{
-                        match:function(emb) {
+                    'youtube': {
+                        match: function(emb) {
                             ///ONLY <EMBED>
                             return String(emb.src).match(/^http:\/\/www.youtube.com\/v\/([\w\-]*)/);
                         },
-                        asset:function(emb,match,context,index,optional_callback) {
+                        asset: function(emb,match,context,index,optional_callback) {
                             var apikey = MediathreadCollect.options.youtube_apikey;
 
                             var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
                             var VIDEO_ID;
                             if (match && match.length > 0) {
-                                VIDEO_ID = match[1]; //e.g. "LPHEvaNjdhw";
+                                VIDEO_ID = match[1]; //e.g. 'LPHEvaNjdhw';
                             } else {
                                 return {};
                             }
@@ -936,17 +1146,17 @@
                             var rv = {
                                 html: emb,
                                 wait: true,
-                                primary_type: "youtube",
-                                label: "youtube video",
+                                primary_type: 'youtube',
+                                label: 'youtube video',
                                 sources: {
-                                    "youtube": "http://www.youtube.com/v/"+VIDEO_ID+"?enablejsapi=1&fs=1",
-                                    "gapi": 'https://www.googleapis.com/youtube/v3/videos?id=' + VIDEO_ID
+                                    'youtube': 'http://www.youtube.com/v/' + VIDEO_ID + '?enablejsapi=1&fs=1',
+                                    'gapi': 'https://www.googleapis.com/youtube/v3/videos?id=' + VIDEO_ID
                                 }};
                             if (emb.getCurrentTime) {
                                 if (emb.getCurrentTime() > 0 && emb.getCurrentTime() < emb.getDuration())
-                                    rv.hash="start="+emb.getCurrentTime();
+                                    rv.hash='start=' + emb.getCurrentTime();
                             }
-                            var yt_callback = 'sherd_youtube_callback_'+index;
+                            var yt_callback = 'sherd_youtube_callback_' + index;
                             window[yt_callback] = function(yt_data, b, c) {
                                 console.log('yt_data', yt_data, b, c);
                                 if (yt_data.items.length > 0) {
@@ -955,14 +1165,14 @@
 
                                     var th = item.thumbnails.default;
                                     rv.sources.thumb = th.url;
-                                    rv.sources['thumb-metadata'] = "w"+th.width+"h"+th.height;
+                                    rv.sources['thumb-metadata'] = 'w' + th.width + 'h' + th.height;
 
                                     rv.metadata = {
                                         'Description': [item.description],
                                         'Channel': [item.channelTitle],
                                         'Published': [item.publishedAt]
                                     };
-                                    rv.disabled = ! yt_data.items[0].status.embeddable;
+                                    rv.disabled = !yt_data.items[0].status.embeddable;
                                 }
                                 optional_callback(index, rv);
                             };
@@ -970,7 +1180,7 @@
                             var ajax_options = {
                                 url: rv.sources.gapi + '&key=' + apikey + '&part=snippet,status&callback=' + yt_callback,
                                 dataType: 'script',
-                                error:function(){optional_callback(index);}
+                                error: function() {optional_callback(index);}
                             };
                             if (MediathreadCollect.options.cross_origin) {
                                 ajax_options.dataType = 'json';
@@ -985,11 +1195,11 @@
                             return rv;
                         }
                     },/*end youtube embeds*/
-                    "jwplayer5":{
-                        match:function(obj) {
+                    'jwplayer5': {
+                        match: function(obj) {
                             return ((typeof obj.getPlaylist==='function' && typeof obj.sendEvent==='function') || null);
                         },
-                        asset:function(obj,match,context) {
+                        asset: function(obj,match,context) {
                             var item, pl = obj.getPlaylist();
                             switch (pl.length) {
                             case 0: return {};
@@ -1002,7 +1212,7 @@
                                     return {};
                                 }
                             }
-                            var rv = {"html":obj,"primary_type":'video',"sources":{}},
+                            var rv = {'html':obj,'primary_type': 'video','sources': {}},
                                 c = obj.getConfig(),
                                 pcfg = obj.getPluginConfig('http');
                             if (item.type == 'rtmp') {
@@ -1020,17 +1230,17 @@
                                     item.file = 'mp4:' + item.file;
                                 }
 
-                                rv.sources.video_rtmp = item.streamer+'//'+item.file;
-                                rv.primary_type = "video_rtmp";
+                                rv.sources.video_rtmp = item.streamer+'//' + item.file;
+                                rv.primary_type = 'video_rtmp';
                             } else {
                                 var url = item.streamer+item.file;
                                 if (pcfg.startparam) {
-                                    rv.primary_type = "video_pseudo";
-                                    url += '?'+pcfg.startparam+'=${start}';
+                                    rv.primary_type = 'video_pseudo';
+                                    url += '?' + pcfg.startparam+'=${start}';
                                 }
                                 rv.sources[rv.primary_type] = url;
                             }
-                            rv.sources[rv.primary_type+'-metadata'] = "w"+c.width+"h"+c.height;
+                            rv.sources[rv.primary_type+'-metadata'] = 'w' + c.width + 'h' + c.height;
                             if (item.image) {
                                 rv.sources.thumb = MediathreadCollect.absolute_url(item.image,
                                                                                    context.document);
@@ -1041,8 +1251,8 @@
                             return rv;
                         }
                     },
-                    "flowplayer3":{
-                        match:function(obj) {
+                    'flowplayer3': {
+                        match: function(obj) {
                             if (obj.data) {
                                 return String(obj.data).match(/flowplayer[\.\-\w]+3[.\d]+\.swf/);
                             } else {//IE7 ?+
@@ -1051,7 +1261,7 @@
                                 return ((movie.length)?String(movie.get(0).value).match(/flowplayer-3[\.\d]+\.swf/):null);
                             }
                         },
-                        asset:function(obj,match,context) {
+                        asset: function(obj,match,context) {
                             /* TODO: 1. support audio
                              */
                             var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
@@ -1065,12 +1275,12 @@
                             var time = ($f && $f.getTime() ) || 0;
                             return this.queryasset(context,obj,cfg,clip,time, ($f && $f.id() || undefined) );
                         },
-                        queryasset:function(context,obj,cfg,clip,time,ref_id) {
+                        queryasset: function(context,obj,cfg,clip,time,ref_id) {
                             var sources = {};
                             var type = 'video';
                             var abs = MediathreadCollect.absolute_url;
                             if (cfg.playlist && ( !clip.url || cfg.playlist.length > 1)) {
-                                for (var i=0;i<cfg.playlist.length;i++) {
+                                for (var i = 0; i <cfg.playlist.length; i++) {
                                     var p = cfg.playlist[i];
                                     var url =  abs( ((typeof p=='string') ? p : p.url),
                                                     context.document,p.baseUrl);
@@ -1116,13 +1326,13 @@
                                 sources[primary_type] += unescape(cfg.plugins[clip.provider].queryString);
                             }
                             if (clip.width && clip.width >= obj.offsetWidth) {
-                                sources[primary_type+"-metadata"] = "w"+clip.width+"h"+clip.height;
+                                sources[primary_type+'-metadata'] = 'w' + clip.width + 'h' + clip.height;
                             } else {
-                                sources[primary_type+"-metadata"] = "w"+obj.offsetWidth+"h"+(obj.offsetHeight-25);
+                                sources[primary_type+'-metadata'] = 'w' + obj.offsetWidth + 'h' + (obj.offsetHeight-25);
                             }
 
                             var meta_obj = MediathreadCollect.flowclipMetaSearch(document);
-                            for(var k in meta_obj){
+                            for(var k in meta_obj) {
                                 sources[k] = meta_obj[k];
                             }
                             if (!sources.thumb) {
@@ -1133,30 +1343,30 @@
                                 sources.thumb = paramThumb;
                             }
                             return {
-                                "html":obj,
-                                "sources":sources,
-                                "label":"video",
-                                "primary_type":primary_type,
-                                "hash":"start="+Math.floor(time),
-                                "ref_id":ref_id //used for merging
+                                'html':obj,
+                                'sources':sources,
+                                'label': 'video',
+                                'primary_type':primary_type,
+                                'hash': 'start=' + Math.floor(time),
+                                'ref_id':ref_id //used for merging
                             };
                         }
                     },/*end flowplayer3*/
-                    "flvplayer_progressive":{///used at web.mit.edu/shakespeare/asia/
-                        match:function(emb) {
+                    'flvplayer_progressive': {///used at web.mit.edu/shakespeare/asia/
+                        match: function(emb) {
                             ///ONLY <EMBED>
                             return String(emb.src).match(/FLVPlayer_Progressive\.swf/);
                         },
-                        asset:function(emb,match,context) {
+                        asset: function(emb,match,context) {
                             var abs = MediathreadCollect.absolute_url;
                             var flashvars = emb.getAttribute('flashvars');
                             if (flashvars) {
                                 var stream = flashvars.match(/streamName=([^&]+)/);
                                 if (stream !== null) {
                                     return {
-                                        "html":emb,
-                                        "primary_type":'flv',
-                                        "sources":{
+                                        'html':emb,
+                                        'primary_type': 'flv',
+                                        'sources': {
                                             'flv':abs(stream[1],context.document)+'.flv'
                                         }
                                     };
@@ -1165,19 +1375,19 @@
                             return {};
                         }
                     },/*end flvplayer_progressive*/
-                    "kaltura": {
-                        match:function(objemb) {
+                    'kaltura': {
+                        match: function(objemb) {
                             var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                             var movie = jQ(objemb).children('param[name=movie],param[name=MOVIE]');
 
                             // kaltura & vimeo use the same classid, apparently vimeo was built off kaltura?
-                            return ((objemb.classid=="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" && movie.val().search('kaltura') > -1)||
+                            return ((objemb.classid=='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' && movie.val().search('kaltura') > -1)||
                                     (String(objemb.type).search('x-shockwave-flash') > -1 &&
                                      ((objemb.data && String(objemb.data).search('kaltura') > -1) ||
                                       (objemb.src && String(objemb.src).search('kaltura') > -1) ||
                                       (objemb.resource && String(objemb.resource).search('kaltura') > -1)))) || null;
                         },
-                        asset:function(objemb,match_rv,context,index,optional_callback) {
+                        asset: function(objemb,match_rv,context,index,optional_callback) {
                             var stream = objemb.data || objemb.src;
                             if (!stream) {
                                 var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
@@ -1190,22 +1400,22 @@
                             }
                             var rv = {
                                 html:objemb,
-                                primary_type:"kaltura",
-                                label:"kaltura video",
+                                primary_type: 'kaltura',
+                                label: 'kaltura video',
                                 sources: {
-                                    "kaltura": stream
+                                    'kaltura': stream
                                 }};
 
 
                             if (objemb.evaluate) {
-                                var currentTime = objemb.evaluate("{video.player.currentTime}");
+                                var currentTime = objemb.evaluate('{video.player.currentTime}');
                                 if (typeof currentTime !== 'undefined' && currentTime > 0)
-                                    rv.hash="start="+ currentTime;
+                                    rv.hash = 'start=' + currentTime;
 
                                 var entry = objemb.evaluate('{mediaProxy.entry}');
                                 rv.sources.title = entry.name;
                                 rv.sources.thumb = entry.thumbnailUrl;
-                                rv.sources["metadata-owner"] = entry.userId || undefined;
+                                rv.sources['metadata-owner'] = entry.userId || undefined;
                                 rv.sources.width = entry.width;
                                 rv.sources.height = entry.height;
                                 rv.sources.downloadUrl = entry.downloadUrl;
@@ -1214,25 +1424,25 @@
                             return rv;
                         }
                     },
-                    "quicktime":{
-                        match:function(objemb) {
-                            return (objemb.classid=="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" ||
+                    'quicktime': {
+                        match: function(objemb) {
+                            return (objemb.classid=='clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B' ||
                                     String(objemb.type).match(/quicktime/) !== null ||
                                     String(objemb.src).match(/\.(mov|m4v)$/) !== null
                                    ) || null;
                         },
-                        asset:function(objemb,match,context) {
+                        asset: function(objemb,match,context) {
                             var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                             var abs = MediathreadCollect.absolute_url;
                             var src = objemb.src || jQ(objemb).children('param[name=src],param[name=SRC]');
                             if (src.length) {
                                 src = (src.get) ? src.get(0).value : src;
                                 return {
-                                    "html":objemb,
-                                    "primary_type":'quicktime',
-                                    "sources":{
-                                        "quicktime":abs(src, context.document),
-                                        "quicktime-metadata":"w"+objemb.offsetWidth+"h"+objemb.offsetHeight
+                                    'html':objemb,
+                                    'primary_type': 'quicktime',
+                                    'sources': {
+                                        'quicktime': abs(src, context.document),
+                                        'quicktime-metadata': 'w' + objemb.offsetWidth + 'h' + objemb.offsetHeight
                                     }
                                 };
                             } else {
@@ -1240,17 +1450,17 @@
                             }
                         }
                     },
-                    "moogaloop": {
-                        match:function(objemb) {
+                    'moogaloop': {
+                        match: function(objemb) {
                             var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
                             var movie = jQ(objemb).children('param[name=movie],param[name=MOVIE]');
 
-                            return ((objemb.classid=="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" && movie.val().search('moogaloop') > -1) ||
+                            return ((objemb.classid=='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' && movie.val().search('moogaloop') > -1) ||
                                     (String(objemb.type).search('x-shockwave-flash') > -1 &&
                                      ((objemb.data && String(objemb.data).search('moogaloop.swf')) > -1 ||
                                       (objemb.src && String(objemb.src).search('moogaloop.swf') > -1)))) || null;
                         },
-                        asset:function(objemb,match_rv,context,index,optional_callback) {
+                        asset: function(objemb,match_rv,context,index,optional_callback) {
                             var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
 
                             var vimeoId;
@@ -1274,65 +1484,65 @@
                             var rv = {
                                 html:objemb,
                                 wait:true,
-                                primary_type:"vimeo",
-                                label:"vimeo video",
+                                primary_type: 'vimeo',
+                                label: 'vimeo video',
                                 sources: {
-                                    "url": "http://www.vimeo.com/" + vimeoId,
-                                    "vimeo":"http://www.vimeo.com/" + vimeoId
+                                    'url': 'http://www.vimeo.com/' + vimeoId,
+                                    'vimeo': 'http://www.vimeo.com/' + vimeoId
                                 }};
 
                             if (objemb.api_getCurrentTime) {
                                 if (objemb.api_getCurrentTime() > 0) {
-                                    rv.hash="start="+ objemb.api_getCurrentTime();
+                                    rv.hash='start=' + objemb.api_getCurrentTime();
                                 }
                             }
 
-                            var vm_callback = 'sherd_vimeo_callback_'+ index;
+                            var vm_callback = 'sherd_vimeo_callback_' + index;
                             window[vm_callback] = function(vm_data) {
                                 if (vm_data && vm_data.length > 0) {
                                     var info = vm_data[0];
                                     rv.sources.title = info.title;
                                     rv.sources.thumb = info.thumbnail_medium;
-                                    rv.sources["metadata-owner"] = info.user_name ||undefined;
+                                    rv.sources['metadata-owner'] = info.user_name ||undefined;
                                     rv.sources.width = info.width;
                                     rv.sources.height = info.height;
                                 }
                                 optional_callback(index,rv);
                             };
                             var ajax_options = {
-                                url: "https://www.vimeo.com/api/v2/video/" + vimeoId + ".json?callback=" + vm_callback,
+                                url: 'https://www.vimeo.com/api/v2/video/' + vimeoId + '.json?callback=' + vm_callback,
                                 dataType: 'script',
-                                error:function(){optional_callback(index);}
+                                error: function() {optional_callback(index);}
                             };
                             if (MediathreadCollect.options.cross_origin) {
                                 ajax_options.dataType = 'json';
                                 ajax_options.success = window[vm_callback];
-                                ajax_options.url = "https://www.vimeo.com/api/v2/video/" + vimeoId + ".json";
+                                ajax_options.url = 'https://www.vimeo.com/api/v2/video/' + vimeoId + '.json';
                             }
                             jQ.ajax(ajax_options);
                             return rv;
                         }
                     },
-                    "zoomify":{
-                        match:function(objemb) {
+                    'zoomify': {
+                        match: function(objemb) {
                             return (String(objemb.innerHTML).match(/zoomifyImagePath=([^&\"\']*)/) || String(objemb.flashvars).match(/zoomifyImagePath=([^&\"\']*)/));
                         },
-                        asset:function(objemb,match,context,index,optional_callback) {
+                        asset: function(objemb,match,context,index,optional_callback) {
                             var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                             var tile_root = MediathreadCollect.absolute_url(match[1],context.document);
                             tile_root = tile_root.replace(/\/$/,'');//chomp trailing /
-                            var img = document.createElement("img");
-                            img.src = tile_root+"/TileGroup0/0-0-0.jpg";
+                            var img = document.createElement('img');
+                            img.src = tile_root+'/TileGroup0/0-0-0.jpg';
                             var rv_zoomify = {
-                                "html":objemb,
-                                "primary_type":"image",
-                                "label":"Zoomify",
-                                "sources": {
-                                    "title":tile_root.split('/').pop(),//better guess than 0-0-0.jpg
-                                    "xyztile":tile_root + "/TileGroup0/${z}-${x}-${y}.jpg",
-                                    "thumb":img.src,
-                                    "image":img.src, /*nothing bigger available*/
-                                    "image-metadata":"w"+img.width+"h"+img.height
+                                'html':objemb,
+                                'primary_type': 'image',
+                                'label': 'Zoomify',
+                                'sources': {
+                                    'title':tile_root.split('/').pop(),//better guess than 0-0-0.jpg
+                                    'xyztile':tile_root + '/TileGroup0/${z}-${x}-${y}.jpg',
+                                    'thumb':img.src,
+                                    'image':img.src, /*nothing bigger available*/
+                                    'image-metadata': 'w' + img.width + 'h' + img.height
                                 },
                                 wait:true
                             };
@@ -1341,7 +1551,7 @@
                                 //Let's try it the hard way!
                                 var dim = {z:0,x:0,y:0,tilegrp:0};
                                 function walktiles(mode) {
-                                    var tile = document.createElement("img");
+                                    var tile = document.createElement('img');
                                     tile.onload = function() {
                                         switch(mode) {
                                         case 'z': ++dim.z;
@@ -1369,14 +1579,14 @@
                                             dim.mode = 'y';
                                             return walktiles('y');
                                         case 'y':
-                                            if (dim.mode!='tilegrp'){
+                                            if (dim.mode!='tilegrp') {
                                                 ++dim.tilegrp;
                                                 dim.mode='y';
                                                 return walktiles('tilegrp');
                                             } else {
                                                 --dim.y;
-                                                rv_zoomify.sources["xyztile-metadata"] = (
-                                                    "w"+(dim.width*dim.x)+"h"+(dim.height*dim.y));
+                                                rv_zoomify.sources['xyztile-metadata'] = (
+                                                    'w' + (dim.width*dim.x) + 'h' + (dim.height*dim.y));
                                                 rv_zoomify._data_collection = 'Hackish tile walk';
                                                 return optional_callback(index,rv_zoomify);
                                             }
@@ -1386,35 +1596,37 @@
                                             return walktiles(m);
                                         }
                                     };
-                                    tile.src = tile_root+'/TileGroup'+dim.tilegrp+'/'+dim.z+'-'+dim.x+'-'+dim.y+'.jpg';
+                                    tile.src = tile_root + '/TileGroup' +
+                                        dim.tilegrp+'/' + dim.z + '-' +
+                                        dim.x + '-' + dim.y + '.jpg';
                                 }
                                 walktiles('z');
                             };
                             try {
                                 jQuery.ajax({
-                                    url:tile_root+"/ImageProperties.xml",
-                                    dataType:'text',
-                                    success:function(dir) {
-                                        /*was for url = tile_root+"/TileGroup0/" parsing:
-                                          var zooms = dir.split("\">").reverse()[3].match(/\d+/);
+                                    url:tile_root+'/ImageProperties.xml',
+                                    dataType: 'text',
+                                    success: function(dir) {
+                                        /*was for url = tile_root+'/TileGroup0/' parsing:
+                                          var zooms = dir.split('">').reverse()[3].match(/\d+/);
                                           var exp = Math.pow(2,zooms);
-                                          sources["xyztile-metadata"] = "w"+(img.width*exp)+"h"+(img.height*exp);
+                                          sources['xyztile-metadata'] = 'w' + (img.width*exp) + 'h' +(img.height*exp);
                                         */
                                         var sizes = dir.match(/WIDTH=\"(\d+)\"\s+HEIGHT=\"(\d+)\"/);
-                                        rv_zoomify.sources["xyztile-metadata"] = "w"+(sizes[1])+"h"+(sizes[2]);
+                                        rv_zoomify.sources['xyztile-metadata'] = 'w' + (sizes[1]) + 'h' + (sizes[2]);
                                         rv_zoomify._data_collection = 'ImageProperties.xml';
                                         optional_callback(index,rv_zoomify);
                                     },
                                     error:hard_way
                                 });
-                            } catch(ie_security_error) {
+                            } catch (ie_security_error) {
                                 hard_way();
                             }
                             return rv_zoomify;
                         }
                     }
                 },
-                find:function(callback,context) {
+                find: function(callback,context) {
                     var self = this;
                     var result = [];
                     var waiting = 0;
@@ -1436,22 +1648,22 @@
                             }
                         }
                     }
-                    var embs = context.document.getElementsByTagName("embed");
-                    var objs = context.document.getElementsByTagName("object");
-                    for (var i=0;i<embs.length;i++) {
+                    var embs = context.document.getElementsByTagName('embed');
+                    var objs = context.document.getElementsByTagName('object');
+                    for (var i = 0; i < embs.length; i++) {
                         matchNsniff(embs[i]);
                     }
-                    for (i=0;i<objs.length;i++) {
+                    for (i = 0; i <objs.length; i++) {
                         matchNsniff(objs[i]);
                     }
-                    if (waiting===0) {
+                    if (waiting === 0) {
                         callback(result);
                     }
                 }
             },/* end objects assethandler */
-            "video_tag": {
-                find:function(callback,context) {
-                    var videos = context.document.getElementsByTagName("video");
+            'video_tag': {
+                find: function(callback,context) {
+                    var videos = context.document.getElementsByTagName('video');
                     var result = [];
                     var codecs = /[.\/](ogv|ogg|webm|mp4)/i;
                     var addSource = function(source,rv,video) {
@@ -1460,7 +1672,7 @@
                         var mtype = String(video.type).match(codecs);
                         if (mtype) {
                             vid_type = mtype[1].toLowerCase();
-                            if (video.canPlayType(video.type)=="probably")
+                            if (video.canPlayType(video.type)=='probably')
                                 rv.primary_type = vid_type;
                         } else if (mtype == String(source.src).match(codecs)) {
                             vid_type = mtype[1].toLowerCase().replace('ogv','ogg');
@@ -1468,14 +1680,14 @@
                         if (rv.primary_type == 'video')
                             rv.primary_type = vid_type;
                         rv.sources[vid_type] = source.src;
-                        rv.sources[vid_type+'-metadata'] = "w"+video.videoWidth+"h"+video.videoHeight;
+                        rv.sources[vid_type+'-metadata'] = 'w' + video.videoWidth + 'h' + video.videoHeight;
                     };
-                    for (var i=0;i<videos.length;i++) {
+                    for (var i = 0; i <videos.length; i++) {
                         var rv = {
-                            "html":videos[i],
-                            "label": "video",
-                            "primary_type":"video",
-                            "sources": {}
+                            'html':videos[i],
+                            'label': 'video',
+                            'primary_type': 'video',
+                            'sources': {}
                         };
                         if (videos[i].poster) {
                             rv.sources.poster = videos[i].poster;
@@ -1490,61 +1702,61 @@
                     callback(result);
                 }
             },/* end image assethandler */
-            "audio": {
-                find:function(callback,context) {
-                    if(!jQuery){
+            'audio': {
+                find: function(callback,context) {
+                    if (!jQuery) {
                         jQuery = window.MediathreadCollectOptions.jQuery;
                     }
                     // test if we are on the asset itself, relying on
                     // the browser (support) handling the mp3 file
                     if (/.mp3$/.test(document.location)) {
                         callback([{
-                            "html":document.documentElement,
-                            "primary_type":"mp3",
-                            "sources": {
-                                "mp3": String(document.location)
+                            'html': document.documentElement,
+                            'primary_type': 'mp3',
+                            'sources': {
+                                'mp3': String(document.location)
                             }
                         }]);
                     }else{//this must be a listing of audio files somewhere
                         // on the page.
-                        window.MediathreadCollect.snd_asset_2_django = function(mp3, type){
-                            mp3.each(function(i){
+                        window.MediathreadCollect.snd_asset_2_django = function(mp3, type) {
+                            mp3.each(function(i) {
                                 callback([{
-                                    "html":document.documentElement,
-                                    "primary_type":"mp3",
-                                    "sources": {
-                                        "mp3": mp3[i][type]
+                                    'html': document.documentElement,
+                                    'primary_type': 'mp3',
+                                    'sources': {
+                                        'mp3': mp3[i][type]
                                     }
                                 }]);
                             });
                         };
                         var mp3, type;
-                        if(jQuery('*[href$="mp3"]').length){// check for href
+                        if (jQuery('*[href$="mp3"]').length) {// check for href
                             mp3 = jQuery('*[href$="mp3"]');
                             type = 'href';
-                        }else if(jQuery('*[src$="mp3"]').length){// check for src
+                        }else if (jQuery('*[src$="mp3"]').length) {// check for src
                             mp3 = jQuery('*[src$="mp3"]');
                             type = 'src';
                         }//end else if
-                        if (typeof mp3 !== 'undefined'){
+                        if (typeof mp3 !== 'undefined') {
                             window.MediathreadCollect.snd_asset_2_django(mp3, type);
                         }//end if
                     }//end else
                 }//end find
             },
-            "iframe.postMessage":{
-                find:function(callback,context) {
+            'iframe.postMessage': {
+                find: function(callback,context) {
                     if (!window.postMessage) return callback([]);
-                    var frms = context.document.getElementsByTagName("iframe");
+                    var frms = context.document.getElementsByTagName('iframe');
                     var result = [];
                     var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
-                    MediathreadCollect.connect(context.window,'message',function(evt) {
+                    MediathreadCollect.connect(context.window,'message', function(evt) {
                         try {
                             var id, d = jQ.parseJSON(evt.data);
                             if ((id = String(d.id).match(/^sherd(\d+)/)) && d.info) {
                                 var i = d.info;
                                 switch(i.player) {
-                                case "flowplayer":
+                                case 'flowplayer':
                                     var fp = (MediathreadCollect.assethandler.objects_and_embeds.players
                                               .flowplayer3.queryasset(context,frms[parseInt(id[1],10)],i.config, i.clip, i.time, i.id));
                                     return callback([fp]);
@@ -1552,30 +1764,30 @@
                                     return callback([]);
                                 }
                             }
-                        } catch(e) {/*parse error*/}
+                        } catch (e) {/*parse error*/}
                     });
-                    for (var i=0;i<frms.length;i++) {
+                    for (var i = 0; i <frms.length; i++) {
                         try {
-                            frms[i].contentWindow.postMessage('{"event":"info","id":"sherd'+i+'"}','*');
-                        } catch(e) {/*pass: probably security error*/}
+                            frms[i].contentWindow.postMessage('{"event":"info","id":"sherd' + i + '"}', '*');
+                        } catch (e) {/*pass: probably security error*/}
                     }
                 }
             },
-            "iframe.youtube": {
-                find:function(callback, context) {
-                    var frms = context.document.getElementsByTagName("iframe");
+            'iframe.youtube': {
+                find: function(callback, context) {
+                    var frms = context.document.getElementsByTagName('iframe');
                     var result = [];
                     var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
                     var cb = function(ind, rv) {
                         callback([rv]);
                     };
                     for (var i = 0; i < frms.length; i++) {
-                        var v_match = String(frms[i].src).match(/^http:\/\/www.youtube.com\/embed\/([\w\-]*)/);
-                        if (v_match && v_match.length > 1) {
+                        var vMatch = String(frms[i].src).match(/^http:\/\/www.youtube.com\/embed\/([\w\-]*)/);
+                        if (vMatch && vMatch.length > 1) {
                             MediathreadCollect.assethandler.objects_and_embeds.players
                                 .youtube.asset(
                                     frms[i],
-                                    v_match,
+                                    vMatch,
                                     {
                                         'window': window,
                                         'document': document
@@ -1587,9 +1799,9 @@
                     }
                 }
             },
-            "image": {
+            'image': {
                 find: function(callback,context) {
-                    var imgs = context.document.getElementsByTagName("img");
+                    var imgs = context.document.getElementsByTagName('img');
                     var result = [];
                     var zoomify_urls = {};
                     var done = 0;
@@ -1615,24 +1827,25 @@
                             continue;
                         }
                         /*recreate the <img> so we get the real width/height */
-                        var image_ind = document.createElement("img");
+                        var image_ind = document.createElement('img');
                         image_ind.src = image.src;
                         if (image_ind.width === 0) {
                             //for if it doesn't load immediately
-                            //cheating: TODO - jQ(image_ind).bind('load',function() { /*see dropbox.com above*/ });
+                            //cheating: TODO - jQ(image_ind).bind('load',
+                            //    function() { /*see dropbox.com above*/ });
                             image_ind = image;
                         }
                         if (image_ind.width >= 400 ||
                             image_ind.height >= 400
                            ) {
                             result.push({
-                                "html": image,
-                                "primary_type": "image",
-                                "sources": {
-                                    "title": image.title || undefined,
-                                    "image": image.src,
-                                    "image-metadata": "w" + image_ind.width +
-                                        "h" + image_ind.height
+                                'html': image,
+                                'primary_type': 'image',
+                                'sources': {
+                                    'title': image.title || undefined,
+                                    'image': image.src,
+                                    'image-metadata': 'w' + image_ind.width +
+                                        'h' + image_ind.height
                                 }
                             });
                         } else {
@@ -1647,32 +1860,32 @@
                                     continue;
                                 } else {
                                     zoomify_urls[tile_root] = 1;
-                                    var img = document.createElement("img");
-                                    img.src = tile_root + "/TileGroup0/0-0-0.jpg";
+                                    var img = document.createElement('img');
+                                    img.src = tile_root + '/TileGroup0/0-0-0.jpg';
                                     var zoomify = {
-                                        "html": image,
-                                        "primary_type": "image",
-                                        "sources": {
-                                            "title": tile_root.split('/').pop(), //better guess than 0-0-0.jpg
-                                            "xyztile": tile_root + "/TileGroup0/${z}-${x}-${y}.jpg",
-                                            "thumb": img.src,
-                                            "image": img.src, /*nothing bigger available*/
-                                            "image-metadata": "w" + img.width + "h" + img.height
+                                        'html': image,
+                                        'primary_type': 'image',
+                                        'sources': {
+                                            'title': tile_root.split('/').pop(), //better guess than 0-0-0.jpg
+                                            'xyztile': tile_root + '/TileGroup0/${z}-${x}-${y}.jpg',
+                                            'thumb': img.src,
+                                            'image': img.src, /*nothing bigger available*/
+                                            'image-metadata': 'w' + img.width + 'h' + img.height
                                         }
                                     };
                                     result.push(zoomify);
                                     done++;
                                     /*Get width/height from zoomify's XML file
-                                      img_root+"/source/"+img_key+"/"+img_key+"/ImageProperties.xml"
+                                      img_root + '/source/' + img_key + '/' + img_key + '/ImageProperties.xml'
                                     */
                                     jQ.get(
-                                        tile_root + "/ImageProperties.xml",
+                                        tile_root + '/ImageProperties.xml',
                                         null,
                                         /* jshint ignore:start */
                                         function(dir) {
                                             var sizes = dir.match(/WIDTH=\"(\d+)\"\s+HEIGHT=\"(\d+)\"/);
                                             zoomify.sources['xyztile-metadata'] =
-                                                "w" + sizes[1] + "h" + sizes[2];
+                                                'w' + sizes[1] + 'h' + sizes[2];
                                             if (--done === 0) {
                                                 callback(result);
                                             }
@@ -1691,20 +1904,20 @@
                     }
                 }
             },/* end image assethandler */
-            "mediathread": {
+            'mediathread': {
                 ///the better we get on more generic things, the more redundant this will be
                 ///BUT it might have more metadata
-                find:function(callback) {
+                find: function(callback) {
                     var result = [];
                     var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
-                    jQ('div.asset-links').each(function(){
+                    jQ('div.asset-links').each(function() {
                         var top = this;
-                        var res0 = {html:top, sources:{}};
+                        var res0 = {html:top, sources: {}};
                         jQ('a.assetsource',top).each(function() {
-                            var reg = String(this.getAttribute("class")).match(/assetlabel-(\w+)/);
+                            var reg = String(this.getAttribute('class')).match(/assetlabel-(\w+)/);
                             if (reg !== null) {
                                 ///use getAttribute rather than href, to avoid urlencodings
-                                res0.sources[reg[1]] = this.getAttribute("href");
+                                res0.sources[reg[1]] = this.getAttribute('href');
                                 if (/asset-primary/.test(this.className))
                                     res0.primary_type = reg[1];
                                 if (this.title)
@@ -1716,35 +1929,35 @@
                     return callback(result);
                 }
             },/* end mediathread assethandler */
-            "unAPI": {/// http://unapi.info/specs/
+            'unAPI': {/// http://unapi.info/specs/
                 page_resource:true,
-                find:function(callback,context) {
+                find: function(callback,context) {
                     var self = this;
                     var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                     var unapi = jQ('abbr.unapi-id');
                     ///must find one, or it's not a page resource, and we won't know what asset to connect to
                     if (unapi.length == 1) {
                         var server = false;
-                        jQ("link").each(function(){if (this.rel=='unapi-server') server = this.href;});
+                        jQ('link').each(function() {if (this.rel=='unapi-server') server = this.href;});
                         if (server) {
                             ///start out only supporting pbcore
                             var format = '?format=pbcore';
-                            var request_url = server+format+'&id='+unapi.attr('title');
+                            var request_url = server + format + '&id=' + unapi.attr('title');
                             jQ.ajax({
-                                "url":request_url,
-                                "dataType":"text",
-                                success:function(pbcore_xml,textStatus,xhr) {
+                                'url':request_url,
+                                'dataType': 'text',
+                                success: function(pbcore_xml,textStatus,xhr) {
                                     var rv = {
-                                        "page_resource":true,
-                                        "html":unapi.get(0),
-                                        "primary_type":"pbcore",
-                                        "sources":{
+                                        'page_resource':true,
+                                        'html':unapi.get(0),
+                                        'primary_type': 'pbcore',
+                                        'sources': {
                                             'pbcore':request_url
                                         },
-                                        "metadata":{'subject':[]}
+                                        'metadata': {'subject':[]}
                                     };
                                     var pb = MediathreadCollect.xml2dom(pbcore_xml,xhr);
-                                    if (! jQ('PBCoreDescriptionDocument',pb).length) {
+                                    if (jQ('PBCoreDescriptionDocument',pb).length === 0) {
                                         return callback([]);
                                     }
                                     jQ('title',pb).each(function() {
@@ -1761,11 +1974,11 @@
                                     });
                                     jQ('contributor',pb).each(function() {
                                         var role = jQ('contributorRole',this.parentNode).text();
-                                        rv.metadata['Contributor:'+role] = [this.firstChild.data];
+                                        rv.metadata['Contributor:' + role] = [this.firstChild.data];
                                     });
                                     jQ('coverage',pb).each(function() {
                                         var type = jQ('coverageType',this.parentNode).text();
-                                        rv.metadata['Coverage:'+type] = [this.firstChild.data];
+                                        rv.metadata['Coverage:' + type] = [this.firstChild.data];
                                     });
                                     jQ('rightsSummary',pb).each(function() {
                                         rv.metadata.Copyrights = [this.firstChild.data];
@@ -1780,21 +1993,21 @@
                                     ///TODO: should we get video metadata (betacam, aspect ratio)?
                                     callback([rv]);
                                 },
-                                error:function(){
+                                error: function() {
                                     //attempt to scrape manually
                                     var rv;
-                                    if(console){
+                                    if (console) {
                                         console.log('trying to scrape manually, something went wrong with the unAPI call');
                                         // if Openvault
-                                        if(request_url.indexOf('openvault')>0){
+                                        if (request_url.indexOf('openvault')>0) {
                                             rv = {
-                                                "page_resource":true,
-                                                "html":document,
-                                                "primary_type":"pbcore",
-                                                "sources":{
-                                                    'pbcore':window.location.href
+                                                'page_resource':true,
+                                                'html': document,
+                                                'primary_type': 'pbcore',
+                                                'sources': {
+                                                    'pbcore': window.location.href
                                                 },
-                                                "metadata":{'subject':[]}
+                                                'metadata': {'subject':[]}
                                             };
                                             rv.metadata.Description = [jQ('.blacklight-dc_description_t .value').text()];
                                             rv.metadata.Subject = [jQ('.blacklight-topic_cv .value').text()];
@@ -1802,7 +2015,7 @@
                                             rv.metadata.Publisher = ['WGBH Educational Foundation'];
                                         }
                                     }
-                                    if(rv){
+                                    if (rv) {
                                         callback([rv]);
                                     }else{
                                         callback([]);
@@ -1815,60 +2028,63 @@
                     return callback([]);
                 }
             },/* end unAPI assethandler */
-            "oEmbed.json": {/// http://www.oembed.com/
+            'oEmbed.json': {/// http://www.oembed.com/
                 page_resource:true,
-                find:function(callback,context) {
+                find: function(callback,context) {
                     var self = this;
                     var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
                     var oembed_link = false;
-                    jQ("link").each(function(){
+                    jQ('link').each(function() {
                         //jQuery 1.0 compatible
                         if (this.type == 'application/json+oembed') oembed_link = this;
                     });
                     if (oembed_link) {
                         var result = {
-                            "html":oembed_link,
-                            "sources":{},
-                            "metadata":{},
-                            "page_resource":true
+                            'html':oembed_link,
+                            'sources': {},
+                            'metadata': {},
+                            'page_resource':true
                         };
                         jQ.ajax({
-                            "url":result.html.href,
-                            "dataType":'json',
-                            success:function(json,textStatus) {
+                            'url':result.html.href,
+                            'dataType': 'json',
+                            success: function(json,textStatus) {
                                 if (json.ref_id) {
                                     result.ref_id = json.ref_id;
                                 }
                                 if (json.url) {
                                     switch(json.type) {
-                                    case "photo":
-                                    case "image":
-                                        result.primary_type = "image";
+                                    case 'photo':
+                                    case 'image':
+                                        result.primary_type = 'image';
                                         result.sources.image = json.url;
                                         ///extension: openlayers tiling protocol
                                         if (json.xyztile) {
                                             var xyz = json.xyztile;
                                             result.sources.xyztile = xyz.url;
-                                            result.sources["xyztile-metadata"] = "w"+xyz.width+"h"+xyz.height;
+                                            result.sources['xyztile-metadata'] =
+                                                'w' + xyz.width + 'h' + xyz.height;
                                         }
                                         break;
-                                    case "video":
-                                        result.primary_type = "video";
+                                    case 'video':
+                                        result.primary_type = 'video';
                                         if (/\.pseudostreaming-/.test(json.html))
-                                            result.primary_type = "video_pseudo";
+                                            result.primary_type = 'video_pseudo';
                                         else if (/\rtmp/.test(json.html))
-                                            result.primary_type = "video_rtmp";
+                                            result.primary_type = 'video_rtmp';
                                         result.sources[result.primary_type] = json.url;
                                         break;
                                     default:
                                         return callback([]);
                                     }
                                     result.sources[result.primary_type+'-metadata'] =
-                                        "w"+json.width+"h"+json.height;
+                                        'w' + json.width + 'h' + json.height;
                                 }
                                 if (json.thumbnail_url) {
                                     result.sources.thumb = json.thumbnail_url;
-                                    result.sources["thumb-metadata"]="w"+json.thumbnail_width+"h"+json.thumbnail_height;
+                                    result.sources['thumb-metadata'] =
+                                        'w' + json.thumbnail_width +
+                                        'h' + json.thumbnail_height;
                                 }
                                 if (json.title) {
                                     result.sources.title = json.title;
@@ -1881,7 +2097,7 @@
                                 }
                                 callback([result]);
                             },
-                            error:function(e) {callback([]);}
+                            error: function(e) {callback([]);}
                         });
                     } else {
                         callback([]);
@@ -1889,7 +2105,7 @@
                 }
             }/* end oEmbed.json assethandler */
         },/*end assethandler*/
-        "gethosthandler":function() {
+        'gethosthandler': function() {
             var hosthandler = MediathreadCollect.hosthandler;
             hosthandler['mcah.columbia.edu'] = hosthandler['learn.columbia.edu'];
             for (var host in hosthandler) {
@@ -1900,20 +2116,20 @@
                 }
             }
         },/*gethosthandler*/
-        "obj2url": function(host_url,obj) {
+        'obj2url': function(host_url,obj) {
             /*excluding metadata because too short for GET string*/
             if (!obj.sources.url) obj.sources.url = String(document.location);
             var destination =  host_url;
             for (var a in obj.sources) {
-                if (typeof obj.sources[a] =="undefined") continue;
-                destination += ( a+"="+escape(obj.sources[a]) +"&" );
+                if (typeof obj.sources[a] =='undefined') continue;
+                destination += (a + '=' + escape(obj.sources[a]) + '&');
             }
             if (obj.hash) {
-                destination += "#"+obj.hash;
+                destination += '#' + obj.hash;
             }
             return destination;
         },/*obj2url*/
-        "obj2form": function(host_url,obj,doc,target, index) {
+        'obj2form': function(host_url,obj,doc,target, index) {
             var M = window.MediathreadCollect;
             doc = doc||document;
             target = target||'_top';
@@ -1921,7 +2137,7 @@
             if (!obj.sources.url) obj.sources.url = String(doc.location)+ (index ? '#'+obj.sources[obj.primary_type].split('#')[0].split('/').pop() : '');
             var destination =  host_url;
             if (obj.hash) {
-                destination += "#"+obj.hash;
+                destination += '#'+obj.hash;
             }
             var form = M.elt(doc,'form','',{},[
                 M.elt(doc,'div','sherd-asset-wrap',{})
@@ -1935,15 +2151,15 @@
             M.forms[form_api](obj,form,ready,doc);
             return form;
         },/*obj2form*/
-        "addField": function(name,value,form,doc) {
-            var span = doc.createElement("span");
-            var item = doc.createElement("input");
-            if (name=="title") {
-                item.type = "text";
+        'addField': function(name,value,form,doc) {
+            var span = doc.createElement('span');
+            var item = doc.createElement('input');
+            if (name=='title') {
+                item.type = 'text';
                 //IE7 doesn't allow setAttribute here, mysteriously
-                item.className = "sherd-form-title";
+                item.className = 'sherd-form-title';
             } else {
-                item.type = "hidden";
+                item.type = 'hidden';
             }
             item.name = name;
             ///Ffox bug: this must go after item.type=hidden or not set correctly
@@ -1952,14 +2168,14 @@
             form.appendChild(item);
             return item;
         },/*addField*/
-        "forms": {
-            "mediathread": function(obj,form,ready,doc) {
+        'forms': {
+            'mediathread': function(obj,form,ready,doc) {
                 var M = window.MediathreadCollect;
                 /* just auto-save immediately
                  * this also allows us to send larger amounts of metadata
                  */
                 for (var a in obj.sources) {
-                    if (typeof obj.sources[a] =="undefined") continue;
+                    if (typeof obj.sources[a] =='undefined') continue;
                     M.addField(a, obj.sources[a],form,doc);
                 }
                 if (!obj.sources.title) {
@@ -1968,14 +2184,14 @@
                 }
                 if (ready && obj.metadata) {
                     for (a in obj.metadata) {
-                        for (var i=0;i<obj.metadata[a].length;i++) {
-                            M.addField("metadata-"+a, obj.metadata[a][i],form,doc);
+                        for (var i = 0; i <obj.metadata[a].length; i++) {
+                            M.addField('metadata-'+a, obj.metadata[a][i],form,doc);
                         }
                     }
                 }
-                M.addField("asset-source", "bookmarklet",form,doc);
+                M.addField('asset-source', 'bookmarklet',form,doc);
             },/*mediathread_form*/
-            "imagemat":function(obj,form,ready,doc) {
+            'imagemat': function(obj,form,ready,doc) {
                 var M = window.MediathreadCollect;
                 if (obj.sources.title) {
                     var span = doc.createElement('span');
@@ -2001,7 +2217,7 @@
                     doc);
             }/*imagemat_form*/
         },
-        "runners": {
+        'runners': {
             jump: function(host_url, jump_now) {
                 var final_url = host_url;
                 var M = MediathreadCollect;
@@ -2048,41 +2264,44 @@
                     });
                 }
                 /*ffox 3.6+ and all other browsers:*/
-                if (document.readyState != "complete") {
+                if (document.readyState != 'complete') {
                     /*future, auto-embed use-case.
                       When we do this, we need to support ffox 3.5-
                     */
-                    M.l = M.connect(window,"load",go);
+                    M.l = M.connect(window,'load',go);
                 } else {/*using as bookmarklet*/
                     go('onclick');
                 }
             }
         },/*runners*/
-        "connect":function (dom,event,func) {
+        'connect': function (dom, event, func) {
             try {
-                return ((dom.addEventListener)? dom.addEventListener(event,func,false) : dom.attachEvent("on"+event,func));
-            } catch(e) {/*dom is null in firefox?*/}
+                return (
+                    (dom.addEventListener) ?
+                        dom.addEventListener(event, func, false) :
+                        dom.attachEvent('on' + event, func));
+            } catch (e) {/*dom is null in firefox?*/}
         },/*connect*/
-        "hasClass":function (elem,cls) {
-            return (" " + (elem.className || elem.getAttribute("class")) + " ").indexOf(cls) > -1;
+        'hasClass': function (elem,cls) {
+            return (' ' + (elem.className || elem.getAttribute('class')) + ' ').indexOf(cls) > -1;
         },
-        "hasBody":function(doc) {
+        'hasBody': function(doc) {
             return (doc.body && 'body'==doc.body.tagName.toLowerCase());
         },
-        "clean":function(str) {
+        'clean': function(str) {
             return str.replace(/^\s+/,'').replace(/\s+$/,'').replace(/\s+/,' ');
         },
-        "getImageDimensions": function(src, callback, onerror) {
+        'getImageDimensions': function(src, callback, onerror) {
             //
-            var img = document.createElement("img");
+            var img = document.createElement('img');
             img.onload = function() {
-                callback(img,"w"+img.width+"h"+img.height);
+                callback(img,'w' + img.width + 'h' + img.height);
             };
             img.onerror = onerror;
             img.src = src;
             return img;
         },
-        "mergeMetadata": function(result, metadata) {
+        'mergeMetadata': function(result, metadata) {
             if (!metadata) return;
             if (!result.metadata) {
                 result.metadata = metadata;
@@ -2098,7 +2317,7 @@
             }
             return metadata;
         },
-        "metadataSearch":function(result, doc) {
+        'metadataSearch': function(result, doc) {
             /*searches for neighboring metadata in microdata and some ad-hoc microformats */
             var M = MediathreadCollect;
             if (!M.mergeMetadata(result,M.metadataTableSearch(result.html, doc))) {
@@ -2108,8 +2327,8 @@
             if (meta) {
                 //move appopriate keys to result.sources
                 var s = {
-                    "title":meta.title || meta.title,
-                    "thumb":meta.thumb || meta.Thumb || meta.Thumbnail || meta.thumbnail
+                    'title':meta.title || meta.title,
+                    'thumb':meta.thumb || meta.Thumb || meta.Thumbnail || meta.thumbnail
                 };
                 for (var a in s) {
                     if (s[a]) {
@@ -2118,7 +2337,7 @@
                 }
             }
         },
-        "microdataSearch": function(elem, doc) {
+        'microdataSearch': function(elem, doc) {
             var item;
             var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
             jQ(elem).parents('[itemscope]').each(function() {
@@ -2134,17 +2353,17 @@
                         var p = this.getAttribute('itemprop');
                         props[p] = props[p] || [];
                         switch(String(this.tagName).toLowerCase()) {
-                        case "a":
-                        case "link":
-                        case "area":
+                        case 'a':
+                        case 'link':
+                        case 'area':
                             props[p].push(abs(this.href, doc));
                             break;
-                        case "audio":
-                        case "embed":
-                        case "iframe":
-                        case "img":
-                        case "source":
-                        case "video":
+                        case 'audio':
+                        case 'embed':
+                        case 'iframe':
+                        case 'img':
+                        case 'source':
+                        case 'video':
                             props[p].push(abs(this.src, doc));
                             break;
                         default:
@@ -2156,7 +2375,7 @@
                 }
             }
         },
-        "metadataTableSearch":function(elem, doc) {
+        'metadataTableSearch': function(elem, doc) {
             /*If asset is in a table and the next row has the word 'Metadata' */
             var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
             if ('td'===elem.parentNode.tagName.toLowerCase()) {
@@ -2182,33 +2401,33 @@
                 }
             }
         },
-        "flowclipMetaSearch": function(doc){
-            if (jQuery){
+        'flowclipMetaSearch': function(doc) {
+            if (jQuery) {
                 var metaData = {};
                 var metaDataElms = jQuery('*[itemprop]', document);
-                if (typeof metaDataElms !== 'undefined'){
-                    metaDataElms.each(function(){
+                if (typeof metaDataElms !== 'undefined') {
+                    metaDataElms.each(function() {
                         var itemProp = jQuery(this).attr('itemprop');
                         var val = jQuery(this).text();
-                        if(jQuery(this).attr('itemref')){
+                        if (jQuery(this).attr('itemref')) {
                             var metaId = jQuery(this).attr('itemref');
-                            if(typeof metaData['metadata-'+itemProp] === 'undefined') {
+                            if (typeof metaData['metadata-'+itemProp] === 'undefined') {
                                 metaData['metadata-'+itemProp] = {};
                             }
-                            metaListItem = jQuery("#"+metaId).text();
+                            metaListItem = jQuery('#'+metaId).text();
                             metaData['metadata-'+itemProp][metaId] = metaListItem;
                         }
-                        if(itemProp === "title"){
+                        if (itemProp === 'title') {
                             metaData[itemProp] = val;
-                        }else if(typeof metaData['metadata-'+itemProp] !== "object"){
+                        }else if (typeof metaData['metadata-'+itemProp] !== 'object') {
                             metaData['metadata-' + itemProp] = val;
                         }
                     });
-                    for(var data in metaData){
-                        if(typeof metaData[data]== "object"){
+                    for(var data in metaData) {
+                        if (typeof metaData[data] == 'object') {
                             var flatMetaData = '';
-                            for(var str in metaData[data]){
-                                if(flatMetaData === ''){
+                            for(var str in metaData[data]) {
+                                if (flatMetaData === '') {
                                     flatMetaData = metaData[data][str];
                                 }else{
                                     flatMetaData += ', '+ metaData[data][str];
@@ -2221,12 +2440,12 @@
                 }// end meta_data_elms !== undefined
             }// end if (jQuery)
         },
-        "xml2dom":function (str,xhr) {
+        'xml2dom': function (str,xhr) {
             if (window.DOMParser) {
                 var p = new DOMParser();
                 return p.parseFromString(str,'text/xml');
             } else if (window.ActiveXObject) {
-                var xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+                var xmlDoc=new ActiveXObject('Microsoft.XMLDOM');
                 xmlDoc.loadXML(str);
                 return xmlDoc;
             } else {
@@ -2235,7 +2454,7 @@
                 return div;
             }
         },
-        "find_by_attr":function (jq,tag,attr,val,par) {
+        'find_by_attr': function (jq,tag,attr,val,par) {
             if (/^1.0/.test(jq.prototype.jquery)) {
                 return jq(tag,par).filter(function(elt) {
                     return (elt.getAttribute && elt.getAttribute(attr) == val);
@@ -2244,7 +2463,7 @@
                 return jq(tag+'['+attr+'='+val+']',par);
             }
         },
-        "absolute_url":function (maybe_local_url, doc, maybe_suffix) {
+        'absolute_url': function (maybe_local_url, doc, maybe_suffix) {
             maybe_local_url = (maybe_suffix || '') + maybe_local_url;
             if (/:\/\//.test(maybe_local_url)) {
                 return maybe_local_url;
@@ -2263,7 +2482,7 @@
                 }
             }
         },
-        "elt":function(doc,tag,className,style,children) {
+        'elt': function(doc,tag,className,style,children) {
             ///we use this to be even more careful than jquery for contexts like doc.contentType='video/m4v' in firefox
             var setStyle = function(e,style) {
                 //BROKEN IN IE: http://www.peterbe.com/plog/setAttribute-style-IE
@@ -2271,7 +2490,7 @@
                 var bToUpperCase = function(a, b) {
                     return b.toUpperCase();
                 };
-                for (var i=0;i<css.length;i++) {
+                for (var i = 0; i <css.length; i++) {
                     var kv = css[i].split(':');
                     if (kv[0] && kv.length===2) {
                         e.style[
@@ -2293,7 +2512,7 @@
                 }
             }
             if (children) {
-                for (var i=0;i<children.length;i++) {
+                for (var i = 0; i <children.length; i++) {
                     var c = children[i];
                     if (typeof c == 'string') {
                         t.appendChild(doc.createTextNode(c));
@@ -2307,7 +2526,7 @@
         /**************
    Finder finds assets in a document (and all sub-frames)
         *************/
-        "Finder" : function() {
+        'Finder' : function() {
             var self = this;
             var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
 
@@ -2319,10 +2538,10 @@
             this.asset_keys = {};
 
             this.ASYNC = {
-                remove:function(asset){},
-                display:function(asset,index){},
-                finish:function(){},
-                best_frame:function(frame){}
+                remove: function(asset) {},
+                display: function(asset,index) {},
+                finish: function() {},
+                best_frame: function(frame) {}
             };
 
             this.bestFrame = function() {
@@ -2341,12 +2560,12 @@
                     self.findGeneralAssets();
 
                 }
-                if(self.assets_found.length === 0 && MediathreadCollect.user_ready()){
+                if (self.assets_found.length === 0 && MediathreadCollect.user_ready()) {
                     self.noAssetMessage();
                 }
             };
 
-            this.noAssetMessage = function(){
+            this.noAssetMessage = function() {
                 var closeBtn = jQ('<div class="no-asset-close-btn">X</div>');
                 var messageBox = jQ('<div class="no-asset-alert">Sorry, no supported assets were found on this page. Try going to an asset page if you are on a list/search page. <br/><br/> If there is a video on the page, press play and then try again.</div>');
                 var winWidth = jQ(window).width();
@@ -2358,11 +2577,11 @@
                     top: (winHeight / 2) - 100 + 'px'
                 });
 
-                closeBtn.click(function(){
+                closeBtn.click(function() {
                     jQ('.sherd-analyzer').remove();
                 });
                 //double check no asset on page
-                if(jQ('.sherd-asset li').length === 0 ){
+                if (jQ('.sherd-asset li').length === 0 ) {
                     jQ('.sherd-analyzer').append(messageBox);
                     messageBox.prepend(closeBtn);
                 }
@@ -2386,10 +2605,10 @@
                     for (h in MediathreadCollect.assethandler) {
                         try {///DEBUG
                             handlers[h].find.call(handlers[h],self.collectAssets,context);
-                        } catch(e) {
+                        } catch (e) {
                             ++self.handler_count;
                             MediathreadCollect.error = e;
-                            alert("Extension Error in "+h+": "+e.message);
+                            alert('Extension Error in '+h+': '+e.message);
                         }
                     }
                 });
@@ -2443,12 +2662,12 @@
                 if (asset.primary_type) {
                     return this.redundantInGroup(asset, asset.primary_type);
                 } else {
-                    throw Error("asset does not have a primary type.");
+                    throw Error('asset does not have a primary type.');
                 }
             };
             this.collectAssets = function(assets,errors) {
                 self.assets_found = self.assets_found.concat(assets);
-                for (var i=0;i<assets.length;i++) {
+                for (var i = 0; i < assets.length; i++) {
                     self.no_assets_yet = false;
                     if (assets[i].page_resource) ++self.page_resource_count;
                     var after_merge = self.mergeRedundant(assets[i]);
@@ -2468,10 +2687,10 @@
             };
             this.walkFrames = function() {
                 var rv = {all:[]};
-                rv.all.unshift({'frame':window,
-                                'document':document,
-                                'window':window,
-                                'hasBody':MediathreadCollect.hasBody(document)});
+                rv.all.unshift({'frame': window,
+                                'document': document,
+                                'window': window,
+                                'hasBody': MediathreadCollect.hasBody(document)});
                 var max =((rv.all[0].hasBody) ? document.body.offsetWidth*document.body.offsetHeight: 0);
                 rv.best = ((max)? rv.all[0] : null);
                 function _walk(index,domElement) {
@@ -2479,9 +2698,9 @@
                         var doc = this.contentDocument||this.contentWindow.document;
                         doc.getElementsByTagName('frame');//if this fails, security issue
                         var context = {
-                            frame:this,document:doc,
-                            window:this.contentWindow,
-                            hasBody:MediathreadCollect.hasBody(doc)
+                            frame: this,document:doc,
+                            window: this.contentWindow,
+                            hasBody: MediathreadCollect.hasBody(doc)
                         };
                         rv.all.push(context);
                         var area = context.hasBody * this.offsetWidth * this.offsetHeight;
@@ -2489,7 +2708,7 @@
                             rv.best = context;
                         }
                         jQ('frame,iframe',doc).each(_walk);
-                    } catch(e) {/*probably security error*/}
+                    } catch (e) {/*probably security error*/}
                 }
                 jQ('frame,iframe').each(_walk);
                 return rv;
@@ -2498,27 +2717,27 @@
         },/*****************
      END Finder
           *****************/
-        "Interface" : function (host_url, options) {
+        'Interface' : function (host_url, options) {
             var M = MediathreadCollect;
             this.options = {
                 login_url:null,
-                tab_label:"Analyze in Mediathread",
-                not_logged_in_message:"You are not logged in to Mediathread.",
-                login_to_course_message:"login to your Mediathread course",
-                link_text_for_existing_asset:"Link in Mediathread",
+                tab_label: 'Analyze in Mediathread',
+                not_logged_in_message: 'You are not logged in to Mediathread.',
+                login_to_course_message: 'login to your Mediathread course',
+                link_text_for_existing_asset: 'Link in Mediathread',
                 target:((M.hasBody(document))? document.body : null),
-                postTarget:'_top',
+                postTarget: '_top',
                 top:100,
-                side:"left",
+                side: 'left',
                 fixed:true,
-                message_no_assets:'Sorry, no supported assets were found on this page. Try going to an asset page if you are on a list/search page.  If there is a video on the page, press play and then try again.',
-                message_no_assets_short:'No Items',
-                message_disabled_asset:'This item cannot be embedded on external sites.',
-                widget_name:'the extension'
-            }; if (options) for (var a in options) {this.options[a]=options[a];}
+                message_no_assets: 'Sorry, no supported assets were found on this page. Try going to an asset page if you are on a list/search page.  If there is a video on the page, press play and then try again.',
+                message_no_assets_short: 'No Items',
+                message_disabled_asset: 'This item cannot be embedded on external sites.',
+                widget_name: 'the extension'
+            }; if (options) for (var a in options) {this.options[a] = options[a];}
             //bring in options from MediathreadCollectOptions
-            for (var b in this.options) {if (M.options[b]) this.options[b]=M.options[b];}
-            var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
+            for (var b in this.options) {if (M.options[b]) this.options[b] = M.options[b];}
+            var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
 
             var o = this.options;
             var self = this;
@@ -2536,12 +2755,12 @@
                 self.windowStatus = true;
                 if (comp.window) {
                     comp.window.style.top = self.visibleY(comp.window)+'px';
-                    comp.window.style.display = "block";
-                    comp.tab.style.display = "none";
+                    comp.window.style.display = 'block';
+                    comp.tab.style.display = 'none';
                     jQ(comp.ul).empty();
                     if (!MediathreadCollect.user_ready()) {
                         jQ(comp.h2).empty().get(0).appendChild(document.createTextNode('Login required'));
-                        o.login_url = o.login_url || host_url.split("/",3).join("/");
+                        o.login_url = o.login_url || host_url.split('/',3).join('/');
                         jQ(comp.message).empty().append(
                             self.elt(null,'span','',{},
                                      [o.not_logged_in_message,
@@ -2549,8 +2768,8 @@
                                       'Please ',
                                       self.elt(null,'a','',{
                                           href:o.login_url,
-                                          target:'_blank',
-                                          style:'color:#8C3B2E;'
+                                          target: '_blank',
+                                          style: 'color:#8C3B2E;'
                                       },[o.login_to_course_message]),
                                       ', and then click the '+o.widget_name+' again to import items.'
                                      ]));
@@ -2576,7 +2795,7 @@
                         jQ('.sherd-window').appendTo(messageDiv);
                         messageDiv.fadeIn(1000);
 
-                        messageDiv.click(function(){
+                        messageDiv.click(function() {
                             jQ('.sherd-analyzer').remove();
                         });
                     } else {
@@ -2601,8 +2820,8 @@
                 if (exists.length) {
                     comp.top = exists.empty().get(0);
                 } else {
-                    comp.top = target.ownerDocument.createElement("div");
-                    comp.top.setAttribute("class","sherd-analyzer");
+                    comp.top = target.ownerDocument.createElement('div');
+                    comp.top.setAttribute('class','sherd-analyzer');
                     target.appendChild(comp.top);
                 }
                 var pageYOffset = self.visibleY(target)+o.top;
@@ -2616,34 +2835,34 @@
                     self.elt(doc,'div','sherd-window','',
                              [
                                  self.elt(doc,'div','sherd-window-inner','',[
-                                     self.elt(doc,'button','sherd-close btn-primary',"",['X']),
-                                     //self.elt(doc,'button','sherd-move',"float:right;",['Move']),
-                                     self.elt(doc,'button','sherd-collection btn-primary',"",['Go to Collection']),
+                                     self.elt(doc,'button','sherd-close btn-primary','',['X']),
+                                     //self.elt(doc,'button','sherd-move','float:right;',['Move']),
+                                     self.elt(doc,'button','sherd-collection btn-primary','',['Go to Collection']),
                                      self.elt(doc,'h2','','',['Select "Analyze Now" to edit one item immediately, or "Send to Collection" to send an item and keep collecting on this page.']),
-                                     self.elt(doc,'p','sherd-message',"",['Searching for items....']),
-                                     self.elt(doc,'ul','sherd-asset',"")
+                                     self.elt(doc,'p','sherd-message','',['Searching for items....']),
+                                     self.elt(doc,'ul','sherd-asset','')
                                  ])
                              ])
                 );
 
                 comp.tab = comp.top.firstChild;
                 comp.window = comp.top.lastChild;
-                comp.ul = comp.top.getElementsByTagName("ul")[0];
-                comp.h2 = comp.top.getElementsByTagName("h2")[0];
-                comp.close = comp.top.getElementsByTagName("button")[0];
-                comp.collection = comp.top.getElementsByTagName("button")[1];
-                comp.message = comp.top.getElementsByTagName("p")[0];
+                comp.ul = comp.top.getElementsByTagName('ul')[0];
+                comp.h2 = comp.top.getElementsByTagName('h2')[0];
+                comp.close = comp.top.getElementsByTagName('button')[0];
+                comp.collection = comp.top.getElementsByTagName('button')[1];
+                comp.message = comp.top.getElementsByTagName('p')[0];
 
-                M.connect(comp.tab, "click", this.onclick);
-                M.connect(comp.collection, "click", function(evt) {
+                M.connect(comp.tab, 'click', this.onclick);
+                M.connect(comp.collection, 'click', function(evt) {
                     hostURL = MediathreadCollectOptions.host_url;
                     var url = self.unHttpsTheLink(hostURL.split('/save/?')[0]);
                     window.location.replace(url + '/asset/');
                 });
-                M.connect(comp.close, "click", function(evt) {
+                M.connect(comp.close, 'click', function(evt) {
                     jQ('.sherd-analyzer').remove();
-                    comp.window.style.display = "none";
-                    if(window.IEVideo){
+                    comp.window.style.display = 'none';
+                    if (window.IEVideo) {
                         jQ(window.IEVideo).css('display','block');
                     }
                     if (MediathreadCollect.options.decorate) {
@@ -2680,19 +2899,19 @@
             this.removeAsset = function(asset) {
                 jQ('#'+asset.html_id).remove();
             };
-            this.unHttpsTheLink = function(url){
+            this.unHttpsTheLink = function(url) {
                 newUrl = 'http://' + url.split('://')[1];
                 return newUrl;
             };
             this.displayAsset = function(asset,index) {
                 var assetUrl = asset.sources[asset.primary_type];
-                if (typeof assetUrl !== 'undefined'){
+                if (typeof assetUrl !== 'undefined') {
                     // make sure to strip out any url params
                     asset.sources[asset.primary_type] = assetUrl.split('?')[0];
                 }
                 if (!asset) return;
                 var doc = comp.ul.ownerDocument;
-                var li = doc.createElement("li");
+                var li = doc.createElement('li');
                 var jump_url = M.obj2url(host_url, asset);
                 var form = M.obj2form(host_url, asset, doc, o.postTarget, index);
                 li.id = asset.html_id;
@@ -2701,31 +2920,31 @@
                 var img = asset.sources.thumb || asset.sources.image;
                 var newAsset;
                 if (img) {
-                    newAsset = self.elt(null,'img','sherd-image',{src:img,style:'max-width:215px;max-height:150px',height:null});
+                    newAsset = self.elt(null,'img','sherd-image',{src:img,style: 'max-width:215px;max-height:150px',height:null});
                     jQ(form.firstChild).empty().append(newAsset);
                 }else{
 
                     asset.sources.thumb = host_url.split('save')[0] + 'media/img/nothumb_video.png';
-                    newAsset = self.elt(null,'img','sherd-video',{src:asset.sources.thumb,style:'max-width:215px;max-height:150px',height:null});
+                    newAsset = self.elt(null,'img','sherd-video',{src:asset.sources.thumb,style: 'max-width:215px;max-height:150px',height:null});
                     jQ(form.firstChild).empty().append(newAsset);
 
                 }
                 if (asset.disabled) {
                     form.lastChild.innerHTML = o.message_disabled_asset;
-                } else if (MediathreadCollect.user_ready()){
-                    form.submitButton = self.elt(null,'input','analyze btn-primary',{type:'button',value:'Open in Mediathread'});
-                    form.submitButton2 = self.elt(null,'input','cont btn-primary',{type:'button',value:'Collect'});
-                    if(!window.IEVideo){
+                } else if (MediathreadCollect.user_ready()) {
+                    form.submitButton = self.elt(null,'input','analyze btn-primary',{type: 'button',value: 'Open in Mediathread'});
+                    form.submitButton2 = self.elt(null,'input','cont btn-primary',{type: 'button',value: 'Collect'});
+                    if (!window.IEVideo) {
                         //the continue button is not working in IE right now
                         jQ(form).append(form.submitButton2);
                     }
                     jQ(form).append(form.submitButton);
-                    jQ(form.submitButton).click(function(){
+                    jQ(form.submitButton).click(function() {
                         var action = self.unHttpsTheLink(jQ(this).parent().attr('action'));
                         jQ(this).parent().attr('action', action);
                         jQ(this).parent().submit();
                     });
-                    jQ(form.submitButton2).click(function(){
+                    jQ(form.submitButton2).click(function() {
                         window.button_asset = jQ(this);
                         /* A pop up window solution... */
                         var bucketWrap = jQ('<div id="bucket-wrap"/>');
@@ -2733,11 +2952,11 @@
                         jQ('input.analyze', bucket).remove();
                         jQ('input.cont', bucket).remove();
                         var bucket_window = window.open(
-                            "",
-                            "Mediathread",
-                            "resizable,scrollbars=no,status=1,href=no,location=no,menubar=no,width=650,height=350,top=200,left=300"
+                            '',
+                            'Mediathread',
+                            'resizable,scrollbars=no,status=1,href=no,location=no,menubar=no,width=650,height=350,top=200,left=300'
                         );
-                        if(jQ('.sherd-image',bucket_window.document).length > 0){
+                        if (jQ('.sherd-image',bucket_window.document).length > 0) {
                             // make sure the bucket dies not already exists, if so
                             // remove it.
                             jQ('#bucket-wrap',bucket_window.document).remove();
@@ -2749,10 +2968,10 @@
                         jQ(bucket).append('<br/><span class ="help-text">Clicking "Save" will add this item to your Mediathread collection and return you to collecting.<span/>');
                         jQ(bucketWrap).prepend('<h2>Add this item to your Mediathread collection</h2>');
                         jQ('body',bucket_window.document).append(bucketWrap);
-                        jQ('#submit-cancel',bucket_window.document).click(function(){
+                        jQ('#submit-cancel',bucket_window.document).click(function() {
                             bucket_window.close();
                         });
-                        jQ('#submit-input',bucket_window.document).click(function(){
+                        jQ('#submit-input',bucket_window.document).click(function() {
                             jQ(this).parent().submit();
                             var sherdOverlay = jQ('.sherd-window-inner',document);
                             var alertSavedMarginLeft = (jQ('.sherd-window-inner',document).width()/2) - (535*0.5);
@@ -2766,24 +2985,24 @@
                                 'left': alertSavedMarginLeft + 'px'
 
                             });
-                            alertClose.click(function(){
+                            alertClose.click(function() {
                                 jQ(this).parent().remove();
                             });
                             alertSaved.prepend(alertClose);
                             sherdOverlay.append(alertSaved);
-                            alertSaved.fadeIn(500, function(){
+                            alertSaved.fadeIn(500, function() {
                                 var btn = window.button_asset;
                                 btn.attr('value', 'Collected');
                                 btn.off();
                                 btn.css({
-                                    background:'#999',
-                                    color:'#333'
+                                    background: '#999',
+                                    color: '#333'
                                 });
                             });
                         });// end #submit-input' click
 
                         // style and add listeners onto the popup window
-                        bucket_window.document.title = "Mediathread";//force the title of the popup
+                        bucket_window.document.title = 'Mediathread';//force the title of the popup
                         var body = jQ('body',bucket_window.document);
                         var title = body.find('.sherd-form-title');
                         var submitBtn = body.find('.btn-primary');
@@ -2791,39 +3010,39 @@
                         var helpText = body.find('.help-text');
 
                         bucket.css({
-                            'background':"#fff",
+                            'background': '#fff',
                             'text-align': 'center'
                         });
                         header.css({
-                            'font-family':'arial',
+                            'font-family': 'arial',
                             'font-weight': '100',
                             'font-size': '18px',
                             'color': '#323232',
-                            'text-align':'center'
+                            'text-align': 'center'
                         });
 
                         title.focus();
                         title.css({
-                            color:'#999',
-                            width:'350px',
-                            height:'35px',
-                            fontSize:'14px',
-                            margin:'10px 0',
-                            '-moz-appearance':'none',
-                            '-webkit-appearance':'none'
+                            color: '#999',
+                            width: '350px',
+                            height: '35px',
+                            fontSize: '14px',
+                            margin: '10px 0',
+                            '-moz-appearance': 'none',
+                            '-webkit-appearance': 'none'
                         });
                         submitBtn.css({
-                            'font-size':'14px',
-                            'font-weight':'normal',
-                            'color':'#2f2f2f',
-                            'padding':'5px 15px',
-                            'margin':'0px 12px 12px',
-                            'border':'solid 1px',
-                            'border-radius':'4px',
-                            '-moz-border-radius':'4px',
-                            '-webkit-border-radius':'4px',
-                            'background-color':'#efefef',
-                            '*background-color':'#efefef',
+                            'font-size': '14px',
+                            'font-weight': 'normal',
+                            'color': '#2f2f2f',
+                            'padding': '5px 15px',
+                            'margin': '0px 12px 12px',
+                            'border': 'solid 1px',
+                            'border-radius': '4px',
+                            '-moz-border-radius': '4px',
+                            '-webkit-border-radius': '4px',
+                            'background-color': '#efefef',
+                            '*background-color': '#efefef',
                             'background-image': [
                                 '-moz-linear-gradient(top, #fcfcfc, #efefef)',
                                 '-webkit-gradient(linear, 0 0, 0 100%, from(#fcfcfc), to(#efefef))',
@@ -2831,7 +3050,7 @@
                                 '-o-linear-gradient(top, #fcfcfc, #efefef)',
                                 'linear-gradient(to bottom, #fcfcfc, #efefef)'
                             ],
-                            'background-repeat':'repeat-x',
+                            'background-repeat': 'repeat-x',
                             'border-color': [
                                 '#0044cc #0044cc #002a80',
                                 'rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)'
@@ -2840,10 +3059,10 @@
                                 'progid:DXImageTransform.Microsoft.gradient(startColorstr="#ff0088cc", endColorstr="#ff0044cc", GradientType=0)',
                                 'progid:DXImageTransform.Microsoft.gradient(enabled=false)'
                             ],
-                            'cursor':'pointer',
-                            'display':'inline-block'
+                            'cursor': 'pointer',
+                            'display': 'inline-block'
                         });
-                        submitBtn.hover(function(){
+                        submitBtn.hover(function() {
                             jQ(this).css({
                                 'background-image': [
                                     '-moz-linear-gradient(top, #efefef, #fcfcfc)',
@@ -2853,7 +3072,7 @@
                                     'linear-gradient(to bottom, #efefef, #fcfcfc)'
                                 ]
                             });
-                        }, function(){
+                        }, function() {
                             jQ(this).css({
                                 'background-image': [
                                     '-moz-linear-gradient(top, #fcfcfc, #efefef)',
@@ -2866,7 +3085,7 @@
                         });
 
                         helpText.css({
-                            'color':'#666',
+                            'color': '#666',
                             'font-size': '12px',
                             'font-family': 'arial',
                         });
@@ -2884,7 +3103,7 @@
             this.finishedCollecting = function(results) {
                 //alert(results)
                 if (comp.message) {
-                    comp.message ="";/*erase searching message*/
+                    comp.message ='';/*erase searching message*/
                     if (!results.found) {
                         jQ(comp.h2).text(o.message_no_assets_short);
                         jQ(comp.ul).html(self.elt(comp.ul.ownerDocument,'li','','',[o.message_no_assets]));
@@ -2894,7 +3113,7 @@
             this.showAssets = function(assets) {
                 self.showWindow();
                 self.clearAssets();
-                for (var i=0;assets.length>i;i++) {
+                for (var i = 0; assets.length > i; i++) {
                     self.displayAsset(assets[i]);
                 }
                 if (assets.length > 1 && o.allow_save_all) {
@@ -2936,7 +3155,7 @@
                         }
                     };
                 if (window.postMessage) {
-                    jQ(window).bind('message',function(jevt) {
+                    jQ(window).bind('message', function(jevt) {
                         //eh, let's not use this after all
                         var evt = jevt.originalEvent;
                         if (host_url.indexOf(evt.origin) === -1 )
@@ -2988,7 +3207,7 @@
 
         }, /*END Interface*/
         getURLParameters: function(name) {
-            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[null,""])[1].replace(/\+/g, '%20'))||null;
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[null,''])[1].replace(/\+/g, '%20'))||null;
         }
     };/*MediathreadCollect (root)*/
 
