@@ -4,10 +4,7 @@
   This is the main file for Mediathread Collect extension code.
 
   DEPENDENCIES:
-  Large parts of this file now depend on jQuery.  This must be
-  embedded by the actual extension, preferably before this file, but
-  if not, it can be loaded, and then call
-  MediathreadCollect.onJQuery(jQuery)
+  This file depends on jQuery.
 
   ARCHITECTURE:
   Everything lives within two namespaces: window.MediathreadCollect and
@@ -183,14 +180,6 @@ window.MediathreadCollect = {
     'user_status': {
         ready: false
     },
-    run_with_jquery: function(func) {
-        var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
-        if (jQ) {
-            func(jQ);
-        } else {
-            MediathreadCollectOptions.onJQuery = func;
-        }
-    },
     user_ready: function() {
         // FIXME :P
         return true;
@@ -224,534 +213,520 @@ window.MediathreadCollect = {
         /*Try to keep them ALPHABETICAL by 'brand' */
         'alexanderstreet.com': {
             find: function(callback) {
-                MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                    var token = document.documentElement.innerHTML.match(
-                            /token=([^&\"\']+)/);
-                    if (!token) {
-                        return callback([]);
-                    }
-                    jQuery.ajax({
-                        url: 'http://' + location.hostname +
-                            '/video/meta/' + token[1],
-                        dataType: 'json',
-                        dataFilter: function(data, type) {
-                            ///removes 'json=' prefix and unescapes content
-                            return unescape(String(data).substr(5));
-                        },
-                        success: function(json, textStatus) {
-                            var rv = [];
-                            function deplus(str, arr) {
-                                if (str) {
-                                    return (arr) ?
-                                        [str.replace(/\+/g,' ')] :
-                                        str.replace(/\+/g,' ');
-                                }
+                var token = document.documentElement.innerHTML.match(
+                        /token=([^&\"\']+)/);
+                if (!token) {
+                    return callback([]);
+                }
+                $.ajax({
+                    url: 'http://' + location.hostname +
+                        '/video/meta/' + token[1],
+                    dataType: 'json',
+                    dataFilter: function(data, type) {
+                        ///removes 'json=' prefix and unescapes content
+                        return unescape(String(data).substr(5));
+                    },
+                    success: function(json, textStatus) {
+                        var rv = [];
+                        function deplus(str, arr) {
+                            if (str) {
+                                return (arr) ?
+                                    [str.replace(/\+/g,' ')] :
+                                    str.replace(/\+/g,' ');
                             }
-                            if (json) {
-                                if (json.tracks && json.tracks.length > 0 &&
-                                    json.tracks[0].chunks.length > 0
-                                   ) {
-                                    var t = json.tracks[0];
-                                    // ASSUME: all chunks refer to same
-                                    // video file?
-                                    var i = 0;
-                                    var aspVid = {
-                                        'primary_type': 'video_rtmp',
-                                        'sources': {
-                                            'title': deplus(t.title),
-                                            'video_rtmp': t.chunks[i]
-                                                .high.split('?')[0],
-                                            'video_rtmp_low': t.chunks[i]
-                                                .low.split('?')[0]
-                                        },
-                                        'metadata': {},
-                                        '_jsondump': json
-                                    };
-                                    for (var a in t.metadata) {
-                                        if (t.metadata[a] &&
-                                            !/id$/.test(a)
-                                           ) {
-                                            aspVid.metadata[a] = [
-                                                deplus(t.metadata[a])];
-                                        }
-                                    }
-                                    rv.push(aspVid);
-                                } else if (
-                                    json.video && json.video.length > 0
-                                ) {
-                                    var v = json.video[0];
-                                    rv.push({
-                                        'primary_type': 'video_rtmp',
-                                        'sources': {
-                                            'title': deplus(v.title),
-                                            'video_rtmp': v.high
-                                                .split('?')[0],
-                                            'video_rtmp_low': v.low
-                                                .split('?')[0]
-                                        },
-                                        'metadata': {
-                                            'Copyright': deplus(
-                                                v.copyright,1) ||
-                                                undefined,
-                                            'Publication Year': deplus(
-                                                v.publicationyear, 1) ||
-                                                undefined,
-                                            'Publisher': deplus(
-                                                v.publisher,1) || undefined
-                                        },
-                                        '_jsondump': json
-                                    });
-                                }
-                            }
-                            return callback(rv);
-                        },
-                        error: function() {
-                            callback([]);
                         }
-                    });
+                        if (json) {
+                            if (json.tracks && json.tracks.length > 0 &&
+                                json.tracks[0].chunks.length > 0
+                               ) {
+                                var t = json.tracks[0];
+                                // ASSUME: all chunks refer to same
+                                // video file?
+                                var i = 0;
+                                var aspVid = {
+                                    'primary_type': 'video_rtmp',
+                                    'sources': {
+                                        'title': deplus(t.title),
+                                        'video_rtmp': t.chunks[i]
+                                            .high.split('?')[0],
+                                        'video_rtmp_low': t.chunks[i]
+                                            .low.split('?')[0]
+                                    },
+                                    'metadata': {},
+                                    '_jsondump': json
+                                };
+                                for (var a in t.metadata) {
+                                    if (t.metadata[a] &&
+                                        !/id$/.test(a)
+                                       ) {
+                                        aspVid.metadata[a] = [
+                                            deplus(t.metadata[a])];
+                                    }
+                                }
+                                rv.push(aspVid);
+                            } else if (
+                                json.video && json.video.length > 0
+                            ) {
+                                var v = json.video[0];
+                                rv.push({
+                                    'primary_type': 'video_rtmp',
+                                    'sources': {
+                                        'title': deplus(v.title),
+                                        'video_rtmp': v.high
+                                            .split('?')[0],
+                                        'video_rtmp_low': v.low
+                                            .split('?')[0]
+                                    },
+                                    'metadata': {
+                                        'Copyright': deplus(
+                                            v.copyright,1) ||
+                                            undefined,
+                                        'Publication Year': deplus(
+                                            v.publicationyear, 1) ||
+                                            undefined,
+                                        'Publisher': deplus(
+                                            v.publisher,1) || undefined
+                                    },
+                                    '_jsondump': json
+                                });
+                            }
+                        }
+                        return callback(rv);
+                    },
+                    error: function() {
+                        callback([]);
+                    }
                 });
             }
         },
         'artstor.org': {
             find: function(callback) {
                 /*must have floating pane open to find image*/
-                MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                    var foundImages = [];
-                    var floatingPane = jQuery('.MetaDataWidgetRoot');
-                    var selectedThumbs = jQuery('.thumbNailImageSelected');
-                    if (floatingPane.length) {
-                        var dom = floatingPane.get(0);
+                var foundImages = [];
+                var floatingPane = $('.MetaDataWidgetRoot');
+                var selectedThumbs = $('.thumbNailImageSelected');
+                if (floatingPane.length) {
+                    var dom = floatingPane.get(0);
+                    foundImages.push({
+                        'artstorId': dom.id.substr(3),/*after 'mdw'*/
+                        'sources': {},
+                        'metadata': {},
+                        'primary_type': 'image_fpx',
+                        'html': dom
+                    });
+                } else if (selectedThumbs.length) {
+                    selectedThumbs.each(function() {
                         foundImages.push({
-                            'artstorId': dom.id.substr(3),/*after 'mdw'*/
+                            'artstorId': dijit.byId(
+                                String(this.id).split('_')[0]
+                            ).objectId,
                             'sources': {},
                             'metadata': {},
                             'primary_type': 'image_fpx',
-                            'html': dom
+                            'html': this
                         });
-                    } else if (selectedThumbs.length) {
-                        selectedThumbs.each(function() {
-                            foundImages.push({
-                                'artstorId': dijit.byId(
-                                    String(this.id).split('_')[0]
-                                ).objectId,
-                                'sources': {},
-                                'metadata': {},
-                                'primary_type': 'image_fpx',
-                                'html': this
-                            });
-                        });
-                    } else {
-                        return callback(
-                            [],
-                            'Try selecting one or more images by ' +
-                                'clicking on a thumbnail.');
-                    }
-                    var done = foundImages.length * 2; //# of queries
-                    var objFinal = function() {
-                        return callback(foundImages);
-                    };
-                    var getArtStorData = function(obj) {
-                        jQuery.ajax({
-                            url: 'http://' + location.hostname +
-                                '/library/secure/imagefpx/' +
-                                obj.artstorId + '/103/5',
-                            dataType: 'json',
-                            success: function(fpxdata, textStatus) {
-                                var f = fpxdata[0];
-                                obj.sources.fsiviewer =
-                                    'http://viewer2.artstor.org/' +
-                                    'erez3/fsi4/fsi.swf';
-                                obj.sources.image_fpxid = obj.artstorId;
-                                obj.sources['image_fpxid-metadata'] =
-                                    'w' + f.width + 'h' + f.height;
-                                if (--done === 0) {
-                                    objFinal();
-                                }
-                            },
-                            error: function() {
-                                if (--done === 0) {
-                                    objFinal();
+                    });
+                } else {
+                    return callback(
+                        [],
+                        'Try selecting one or more images by ' +
+                            'clicking on a thumbnail.');
+                }
+                var done = foundImages.length * 2; //# of queries
+                var objFinal = function() {
+                    return callback(foundImages);
+                };
+                var getArtStorData = function(obj) {
+                    $.ajax({
+                        url: 'http://' + location.hostname +
+                            '/library/secure/imagefpx/' +
+                            obj.artstorId + '/103/5',
+                        dataType: 'json',
+                        success: function(fpxdata, textStatus) {
+                            var f = fpxdata[0];
+                            obj.sources.fsiviewer =
+                                'http://viewer2.artstor.org/' +
+                                'erez3/fsi4/fsi.swf';
+                            obj.sources.image_fpxid = obj.artstorId;
+                            obj.sources['image_fpxid-metadata'] =
+                                'w' + f.width + 'h' + f.height;
+                            if (--done === 0) {
+                                objFinal();
+                            }
+                        },
+                        error: function() {
+                            if (--done === 0) {
+                                objFinal();
+                            }
+                        }
+                    });
+                    $.ajax({
+                        url: 'http://' + location.hostname +
+                            '/library/secure/metadata/' +
+                            obj.artstorId,
+                        dataType: 'json',
+                        success: function(metadata, textStatus) {
+                            var imgLink = metadata.imageUrl.match(
+                                    /size\d\/(.*)\.\w+$/);
+                            obj.sources.title = metadata.title;
+                            obj.sources.thumb =
+                                'http://library.artstor.org' +
+                                metadata.imageUrl;
+                            var m = metadata.metaData;
+                            for (var i = 0; i < m.length; i++) {
+                                ///so multiple values are still OK
+                                if (m[i].fieldName in obj.metadata) {
+                                    obj.metadata[m[i].fieldName].push(
+                                        m[i].fieldValue);
+                                } else {
+                                    obj.metadata[m[i].fieldName] =
+                                        [m[i].fieldValue];
                                 }
                             }
-                        });
-                        jQuery.ajax({
-                            url: 'http://' + location.hostname +
-                                '/library/secure/metadata/' +
-                                obj.artstorId,
-                            dataType: 'json',
-                            success: function(metadata, textStatus) {
-                                var imgLink = metadata.imageUrl.match(
-                                        /size\d\/(.*)\.\w+$/);
-                                obj.sources.title = metadata.title;
-                                obj.sources.thumb =
-                                    'http://library.artstor.org' +
-                                    metadata.imageUrl;
-                                var m = metadata.metaData;
-                                for (var i = 0; i < m.length; i++) {
-                                    ///so multiple values are still OK
-                                    if (m[i].fieldName in obj.metadata) {
-                                        obj.metadata[m[i].fieldName].push(
-                                            m[i].fieldValue);
-                                    } else {
-                                        obj.metadata[m[i].fieldName] =
-                                            [m[i].fieldValue];
-                                    }
-                                }
-                                if (--done === 0) {
-                                    objFinal();
-                                }
-                            },
-                            error: function() {
-                                if (--done === 0) {
-                                    objFinal();
-                                }
+                            if (--done === 0) {
+                                objFinal();
                             }
-                        });
-                    };
-                    for (var i = 0; i < foundImages.length; i++) {
-                        getArtStorData(foundImages[i]);
-                    }
-                });
+                        },
+                        error: function() {
+                            if (--done === 0) {
+                                objFinal();
+                            }
+                        }
+                    });
+                };
+                for (var i = 0; i < foundImages.length; i++) {
+                    getArtStorData(foundImages[i]);
+                }
             }
         },
         'blakearchive.org': {
             find: function(callback) {
-                MediathreadCollect.run_with_jquery(function(jQ) {
-                    var SB = MediathreadCollect;
-                    var obj = {
-                        'sources': {
-                            'title': document.title
+                var SB = MediathreadCollect;
+                var obj = {
+                    'sources': {
+                        'title': document.title
+                    },
+                    'metadata': {}
+                };
+                var optUrls;
+                try {
+                    optUrls = document.forms.form.elements.site.options;
+                } catch (e) {
+                    return callback([]);
+                }
+                var abs = SB.absolute_url;
+                for (var i = 0; i < optUrls.length; i++) {
+                    var o = optUrls[i];
+                    if (/Image/.test(o.text)) {
+                        obj.sources.image = abs(o.value,document);
+                    } else if (/Transcription/.test(o.text)) {
+                        obj.sources.transcript_url =
+                            abs(o.value,document);
+                        obj.metadata.Transcript =
+                            [abs(o.value,document)];
+                    }
+                }
+                if (obj.sources.image) {
+                    $('a').filter(function() {
+                        return /Copy\s+Information/.test(
+                            this.innerHTML);
+                    }).each(function() {
+                        obj.metadata.Metadata = [
+                            abs(String(this.href)
+                                .replace(/javascript:\w+\(\'/,'')
+                                .replace(/\'\)$/,''),
+                                document)
+                        ];
+                    });
+                    SB.getImageDimensions(
+                        obj.sources.image,
+                        function onload(img, dims) {
+                            obj.sources['image-metadata'] = dims;
+                            callback([obj]);
                         },
-                        'metadata': {}
-                    };
-                    var optUrls;
-                    try {
-                        optUrls = document.forms.form.elements.site.options;
-                    } catch (e) {
-                        return callback([]);
-                    }
-                    var abs = SB.absolute_url;
-                    for (var i = 0; i < optUrls.length; i++) {
-                        var o = optUrls[i];
-                        if (/Image/.test(o.text)) {
-                            obj.sources.image = abs(o.value,document);
-                        } else if (/Transcription/.test(o.text)) {
-                            obj.sources.transcript_url =
-                                abs(o.value,document);
-                            obj.metadata.Transcript =
-                                [abs(o.value,document)];
-                        }
-                    }
-                    if (obj.sources.image) {
-                        jQ('a').filter(function() {
-                            return /Copy\s+Information/.test(
-                                this.innerHTML);
-                        }).each(function() {
-                            obj.metadata.Metadata = [
-                                abs(String(this.href)
-                                    .replace(/javascript:\w+\(\'/,'')
-                                    .replace(/\'\)$/,''),
-                                    document)
-                            ];
+                        function error() {
+                            callback([]);//perhaps overly extreme?
                         });
-                        SB.getImageDimensions(
-                            obj.sources.image,
-                            function onload(img, dims) {
-                                obj.sources['image-metadata'] = dims;
-                                callback([obj]);
-                            },
-                            function error() {
-                                callback([]);//perhaps overly extreme?
-                            });
-                    }
-                });
+                }
             }
         },
         // first version of this added by Eddie 10/28/11:
         'classpop.ccnmtl.columbia.edu': {
             find: function(callback) {
-                MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                    if (jQuery('#currently_playing').length > 0) {
+                if ($('#currently_playing').length > 0) {
 
-                        // the YouTube id is passed up via a postMessage
-                        // from the inner iframe and displayed in
-                        // a special 'currently playing' div
-                        var tmp = jQuery('#currently_playing').html();
-                        var vMatch =  ['video_id=' + tmp,  tmp];
+                    // the YouTube id is passed up via a postMessage
+                    // from the inner iframe and displayed in
+                    // a special 'currently playing' div
+                    var tmp = $('#currently_playing').html();
+                    var vMatch =  ['video_id=' + tmp,  tmp];
 
-                        // not sure we need this as of right now: to
-                        // start out with. i'm just using an empty div.
-                        var videoDomObject = jQuery('<div></div>');
+                    // not sure we need this as of right now: to
+                    // start out with. i'm just using an empty div.
+                    var videoDomObject = $('<div></div>');
 
-                        MediathreadCollect.assethandler.
-                            objects_and_embeds.players.youtube.asset(
-                                videoDomObject,
-                                vMatch,
-                                {
-                                    'window': window,
-                                    'document': document
-                                },
-                                0,
-                                function(ind, rv) {
-                                    callback([rv]);
-                                });
-                    } else {
-                        callback([]);
-                    }
-                });//end run_with_jquery for classpop.ccnmtl.columbia.edu
+                    MediathreadCollect.assethandler.
+                        objects_and_embeds.players.youtube.asset(
+                            videoDomObject,
+                            vMatch,
+                            {
+                                'window': window,
+                                'document': document
+                            },
+                            0,
+                            function(ind, rv) {
+                                callback([rv]);
+                            });
+                } else {
+                    callback([]);
+                }
             },
             decorate: function(objs) {
             }
         },
         'dropbox.com': {
             find: function(callback) {
-                MediathreadCollect.run_with_jquery(function(jQ) {
-                    var saveLink = document.getElementById(
-                        'gallery_full_size');
-                    if (saveLink) {
-                        var regex = String(saveLink.href).match(
-                                /dropbox.com\/s\/[^\/]+\/([^?]+)/);
-                        if (regex) {
-                            var img = document.createElement('img');
-                            img.src = saveLink;
-                            jQ(img).bind('load', function() {
-                                callback([{
-                                    primary_type: 'image',
-                                    sources: {
-                                        'title': regex[1],
-                                        'image': img.src,
-                                        'url': String(document.location),
-                                        'image-metadata': 'w' + img.width +
-                                            'h' + img.height
-                                    }
-                                }]);
-                            });
-                        } else {
-                            callback([]);
-                        }
+                var saveLink = document.getElementById(
+                    'gallery_full_size');
+                if (saveLink) {
+                    var regex = String(saveLink.href).match(
+                            /dropbox.com\/s\/[^\/]+\/([^?]+)/);
+                    if (regex) {
+                        var img = document.createElement('img');
+                        img.src = saveLink;
+                        $(img).bind('load', function() {
+                            callback([{
+                                primary_type: 'image',
+                                sources: {
+                                    'title': regex[1],
+                                    'image': img.src,
+                                    'url': String(document.location),
+                                    'image-metadata': 'w' + img.width +
+                                        'h' + img.height
+                                }
+                            }]);
+                        });
                     } else {
                         callback([]);
                     }
-                });
+                } else {
+                    callback([]);
+                }
             }
         },
         'flickr.com': {
             find: function(callback) {
-                MediathreadCollect.run_with_jquery(function(jQuery) {
-                    var apikey = MediathreadCollect.options.flickr_apikey;
-                    // expected:/photos/<userid>/<imageid>/
-                    var bits = document.location.pathname.split('/');
-                    var imageId = bits[3];
-                    window.imageId = imageId;
-                    if (typeof imageId === 'undefined') {
-                        return callback([]);
-                    }
+                var apikey = MediathreadCollect.options.flickr_apikey;
+                // expected:/photos/<userid>/<imageid>/
+                var bits = document.location.pathname.split('/');
+                var imageId = bits[3];
+                window.imageId = imageId;
+                if (typeof imageId === 'undefined') {
+                    return callback([]);
+                }
 
-                    if (imageId.length < 1 ||
-                        imageId.search(/\d{1,12}/) < 0
-                       ) {
-                        return callback([]);
-                    }
+                if (imageId.length < 1 ||
+                    imageId.search(/\d{1,12}/) < 0
+                   ) {
+                    return callback([]);
+                }
 
-                    // See jsonp docs for $.getJSON:
-                    // http://api.jquery.com/jquery.getjson/
-                    var baseUrl = 'https://api.flickr.com/' +
-                        'services/rest/?format=json&api_key=' +
-                        apikey + '&photo_id=' + imageId +
-                        ((MediathreadCollect.options.cross_origin) ?
-                         '&nojsoncallback=1' : '&jsoncallback=?');
-                    jQuery.getJSON(
-                        baseUrl + '&method=flickr.photos.getInfo',
-                        function(getInfoData) {
-                            if (typeof getInfoData.photo === 'undefined' ||
-                                getInfoData.photo.media == 'video'
-                               ) {
-                                /*video is unsupported*/
-                                return callback([]);
-                            }
-                            jQuery.getJSON(
-                                baseUrl + '&method=flickr.photos.getSizes',
-                                function(getSizesData) {
-                                    var w = 0;
-                                    var h = 0;
-                                    var imgUrl = '';
-                                    var thumbUrl = '';
-                                    jQuery.each(
-                                        getSizesData.sizes.size,
-                                        function(i, item) {
-                                            if (parseInt(item.width) > w) {
-                                                w = parseInt(item.width);
-                                                h = item.height;
-                                                imgUrl = item.source;
-                                            }
-                                            if (item.label == 'Thumbnail') {
-                                                thumbUrl = item.source;
-                                            }
+                // See jsonp docs for $.getJSON:
+                // http://api.jquery.com/jquery.getjson/
+                var baseUrl = 'https://api.flickr.com/' +
+                    'services/rest/?format=json&api_key=' +
+                    apikey + '&photo_id=' + imageId +
+                    ((MediathreadCollect.options.cross_origin) ?
+                     '&nojsoncallback=1' : '&jsoncallback=?');
+                $.getJSON(
+                    baseUrl + '&method=flickr.photos.getInfo',
+                    function(getInfoData) {
+                        if (typeof getInfoData.photo === 'undefined' ||
+                            getInfoData.photo.media == 'video'
+                           ) {
+                            /*video is unsupported*/
+                            return callback([]);
+                        }
+                        $.getJSON(
+                            baseUrl + '&method=flickr.photos.getSizes',
+                            function(getSizesData) {
+                                var w = 0;
+                                var h = 0;
+                                var imgUrl = '';
+                                var thumbUrl = '';
+                                $.each(
+                                    getSizesData.sizes.size,
+                                    function(i, item) {
+                                        if (parseInt(item.width) > w) {
+                                            w = parseInt(item.width);
+                                            h = item.height;
+                                            imgUrl = item.source;
                                         }
-                                    );
-                                    var img;
-                                    jQuery('img').each(function() {
-                                        if (
-                                            RegExp(
-                                                'http://farm.*' + imageId)
-                                                .test(this.src)
-                                        ) {
-                                            img = this;
+                                        if (item.label == 'Thumbnail') {
+                                            thumbUrl = item.source;
                                         }
-                                    });
-                                    // URL format:
-                                    // http://farm{farm-id}.static.flickr.com/{server-id}/
-                                    //     {id}_{secret}_[mtsb].jpg
-                                    var sources = {
-                                        'url': getInfoData.photo.urls.
-                                            url[0]._content,
-                                        'title': getInfoData.photo.title.
-                                            _content,
-                                        'thumb': thumbUrl,
-                                        'image': imgUrl,
-                                        // owner's photostream
-                                        'metadata-photostream':
-                                        'http://www.flickr.com/photos/' +
-                                            getInfoData.photo.owner.nsid,
-                                        'image-metadata': 'w' + w + 'h' + h,
-                                        'metadata-owner':
-                                        getInfoData.photo.owner.realname ||
-                                            undefined
-                                    };
-
-                                    return callback([{
-                                        html: img,
-                                        primary_type: 'image',
-                                        sources: sources
-                                    }]);
+                                    }
+                                );
+                                var img;
+                                $('img').each(function() {
+                                    if (
+                                        RegExp(
+                                            'http://farm.*' + imageId)
+                                            .test(this.src)
+                                    ) {
+                                        img = this;
+                                    }
                                 });
-                        });/*end jQuery.ajax*/
-                });/*end run_with_jquery*/
+                                // URL format:
+                                // http://farm{farm-id}.static.flickr.com/{server-id}/
+                                //     {id}_{secret}_[mtsb].jpg
+                                var sources = {
+                                    'url': getInfoData.photo.urls.
+                                        url[0]._content,
+                                    'title': getInfoData.photo.title.
+                                        _content,
+                                    'thumb': thumbUrl,
+                                    'image': imgUrl,
+                                    // owner's photostream
+                                    'metadata-photostream':
+                                    'http://www.flickr.com/photos/' +
+                                        getInfoData.photo.owner.nsid,
+                                    'image-metadata': 'w' + w + 'h' + h,
+                                    'metadata-owner':
+                                    getInfoData.photo.owner.realname ||
+                                        undefined
+                                };
+
+                                return callback([{
+                                    html: img,
+                                    primary_type: 'image',
+                                    sources: sources
+                                }]);
+                            });
+                    });/*end $.ajax*/
             },
             decorate: function(objs) {
             }
         },
         'mirc.sc.edu': {
             find: function(callback) {
-                MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                    var fpRv;
-                    if (jQuery('a.usc-flowplayer > :first').is('img')) {
-                        //This works inconsistently...so I'm going to put
-                        // up a warning as a workaround
-                        // var fp = jQuery('.usc-flowplayer').flowplayer(0);
-                        // fp.load(); //bring up the flowplayer 'object'
-                        alert('Please start playing the video you ' +
-                              'would like to collect.');
-                        return false;
-                    }
+                var fpRv;
+                if ($('a.usc-flowplayer > :first').is('img')) {
+                    //This works inconsistently...so I'm going to put
+                    // up a warning as a workaround
+                    // var fp = $('.usc-flowplayer').flowplayer(0);
+                    // fp.load(); //bring up the flowplayer 'object'
+                    alert('Please start playing the video you ' +
+                          'would like to collect.');
+                    return false;
+                }
 
-                    var fpId = jQuery('a.usc-flowplayer > :first ')
-                        .attr('id');
-                    var video = document.getElementById(fpId);
-                    if (video && video !== null) {
-                        // flowplayer version
-                        var vMatch = MediathreadCollect.assethandler.
+                var fpId = $('a.usc-flowplayer > :first ')
+                    .attr('id');
+                var video = document.getElementById(fpId);
+                if (video && video !== null) {
+                    // flowplayer version
+                    var vMatch = MediathreadCollect.assethandler.
+                        objects_and_embeds.players.
+                        flowplayer3.match(video);
+                    if (vMatch && vMatch !== null) {
+                        fpRv = MediathreadCollect.assethandler.
                             objects_and_embeds.players.
-                            flowplayer3.match(video);
-                        if (vMatch && vMatch !== null) {
-                            fpRv = MediathreadCollect.assethandler.
-                                objects_and_embeds.players.
-                                flowplayer3.asset(
-                                    video,
-                                    vMatch,
-                                    {
-                                        'window': window,
-                                        'document': document
-                                    });
+                            flowplayer3.asset(
+                                video,
+                                vMatch,
+                                {
+                                    'window': window,
+                                    'document': document
+                                });
+                    }
+                }
+
+                fpRv.metadata = {};
+                var i;
+
+                try {
+                    fpRv.metadata.title = fpRv.sources.title = [
+                        $('#edit-title--2').text()
+                            .split('\n')[2].trim()];
+                } catch (e) {
+                    fpRv.metadata.title = '';
+                }
+                try {
+                    fpRv.metadata.produced = [
+                        $('#edit-production-date').text()
+                            .split('\n')[2].trim()];
+                } catch (e) {
+                    fpRv.metadata.produced = '';
+                }
+                try {
+                    fpRv.metadata.description = [
+                        $('#edit-description--2').text()
+                            .split('\n')[2].trim()];
+                } catch (e) {
+                    fpRv.metadata.description = '';
+                }
+                try {
+                    fpRv.metadata.copyright = [
+                        $('#edit-credits-preserved-by-rights')
+                            .text()
+                            .split('\n')[2].trim()];
+                } catch (e) {
+                    fpRv.metadata.copyright = '';
+                }
+                try {
+                    fpRv.metadata.temporal = [
+                        $('#edit-tempo--2').text()
+                            .split('\n')[2].trim()];
+                } catch (e) {
+                    fpRv.metadata.temporal = '';
+                }
+                try {
+                    fpRv.metadata.geographical = [
+                        $('#edit-geo').text()
+                            .split('\n')[2].trim()];
+                } catch (e) {
+                    fpRv.metadata.geographical = '';
+                }
+                try {
+                    var tags = $('#edit-subjects').html()
+                        .replace(/<label(.*)<\/label>/g, '')
+                        .split(/(<br>)+/);
+                    for (i = tags.length - 1; i >= 0; i--) {
+                        if (tags[i].trim() === '<br>' ||
+                            tags[i].trim() === ''
+                           ) {
+                            tags.splice(i, 1);
+                        } else {
+                            tags[i] = tags[i].trim();
                         }
                     }
-
-                    fpRv.metadata = {};
-                    var i;
-
-                    try {
-                        fpRv.metadata.title = fpRv.sources.title = [
-                            jQuery('#edit-title--2').text()
-                                .split('\n')[2].trim()];
-                    } catch (e) {
-                        fpRv.metadata.title = '';
-                    }
-                    try {
-                        fpRv.metadata.produced = [
-                            jQuery('#edit-production-date').text()
-                                .split('\n')[2].trim()];
-                    } catch (e) {
-                        fpRv.metadata.produced = '';
-                    }
-                    try {
-                        fpRv.metadata.description = [
-                            jQuery('#edit-description--2').text()
-                                .split('\n')[2].trim()];
-                    } catch (e) {
-                        fpRv.metadata.description = '';
-                    }
-                    try {
-                        fpRv.metadata.copyright = [
-                            jQuery('#edit-credits-preserved-by-rights')
-                                .text()
-                                .split('\n')[2].trim()];
-                    } catch (e) {
-                        fpRv.metadata.copyright = '';
-                    }
-                    try {
-                        fpRv.metadata.temporal = [
-                            jQuery('#edit-tempo--2').text()
-                                .split('\n')[2].trim()];
-                    } catch (e) {
-                        fpRv.metadata.temporal = '';
-                    }
-                    try {
-                        fpRv.metadata.geographical = [
-                            jQuery('#edit-geo').text()
-                                .split('\n')[2].trim()];
-                    } catch (e) {
-                        fpRv.metadata.geographical = '';
-                    }
-                    try {
-                        var tags = jQuery('#edit-subjects').html()
-                            .replace(/<label(.*)<\/label>/g, '')
-                            .split(/(<br>)+/);
-                        for (i = tags.length - 1; i >= 0; i--) {
-                            if (tags[i].trim() === '<br>' ||
-                                tags[i].trim() === ''
-                               ) {
-                                tags.splice(i, 1);
-                            } else {
-                                tags[i] = tags[i].trim();
-                            }
+                    fpRv.metadata.subject = tags;
+                } catch (e) {
+                    fpRv.metadata.tags = [];
+                }
+                try {
+                    var credits = $('#edit-credits').text()
+                        .split('Donor')[0].split('Credits')[1]
+                        .split('.');
+                    for (i = credits.length - 1; i >= 0; i--) {
+                        if (credits[i].trim() === '<br>' ||
+                            credits[i].trim() === ''
+                           ) {
+                            credits.splice(i, 1);
+                        } else {
+                            credits[i] = credits[i].trim();
                         }
-                        fpRv.metadata.subject = tags;
-                    } catch (e) {
-                        fpRv.metadata.tags = [];
                     }
-                    try {
-                        var credits = jQuery('#edit-credits').text()
-                            .split('Donor')[0].split('Credits')[1]
-                            .split('.');
-                        for (i = credits.length - 1; i >= 0; i--) {
-                            if (credits[i].trim() === '<br>' ||
-                                credits[i].trim() === ''
-                               ) {
-                                credits.splice(i, 1);
-                            } else {
-                                credits[i] = credits[i].trim();
-                            }
-                        }
-                        fpRv.metadata.credits = credits;
-                    } catch (e) {
-                        fpRv.metadata.credits = [];
-                    }
+                    fpRv.metadata.credits = credits;
+                } catch (e) {
+                    fpRv.metadata.credits = [];
+                }
 
-                    fpRv.sources.thumb = 'http://mirc.sc.edu/sites/all/' +
-                        'modules/usc_mirc/images/playbuttonblack.jpg';
+                fpRv.sources.thumb = 'http://mirc.sc.edu/sites/all/' +
+                    'modules/usc_mirc/images/playbuttonblack.jpg';
 
-                    return callback([fpRv]);
-                });
+                return callback([fpRv]);
             },
             decorate: function(objs) {
             }
@@ -760,28 +735,26 @@ window.MediathreadCollect = {
             find: function(callback) {
                 var returnArray = [];
                 var patt = /data/;// regex pattern for data url
-                MediathreadCollect.run_with_jquery(function(jQ) {
-                    jQ('img').each(function(i) {
-                        var obj = {};
-                        var source = jQuery(this).attr('src');
-                        if (source.split('//').length < 3 &&
-                            !patt.test(source)
-                           ) {
-                            source = 'http://' + source.split('//')[1];
-                            source = source.split('=')[0];
-                            obj.html = this;
-                            obj.sources = {};
-                            obj.sources.image =  source;
-                            obj.sources.title = jQuery(this).attr('alt');
-                            obj.sources.url = window.location.href;
-                            obj.primary_type = 'image';
-                            obj.sources.thumb = source;
-                            obj.sources['image-metadata'] = 'w' +
-                                (this.width * 2) + 'h' + (this.height * 2);
-                            returnArray[i] = obj;
-                        }
-                    }); //end each
-                });
+                $('img').each(function(i) {
+                    var obj = {};
+                    var source = $(this).attr('src');
+                    if (source.split('//').length < 3 &&
+                        !patt.test(source)
+                       ) {
+                        source = 'http://' + source.split('//')[1];
+                        source = source.split('=')[0];
+                        obj.html = this;
+                        obj.sources = {};
+                        obj.sources.image =  source;
+                        obj.sources.title = $(this).attr('alt');
+                        obj.sources.url = window.location.href;
+                        obj.primary_type = 'image';
+                        obj.sources.thumb = source;
+                        obj.sources['image-metadata'] = 'w' +
+                            (this.width * 2) + 'h' + (this.height * 2);
+                        returnArray[i] = obj;
+                    }
+                }); //end each
                 return callback(returnArray);
             }
         },
@@ -789,27 +762,25 @@ window.MediathreadCollect = {
             find: function(callback) {
                 var returnArray = [];
                 var patt = /data/;// regex pattern for data url
-                MediathreadCollect.run_with_jquery(function(jQ) {
-                    jQ('img').each(function(i) {
-                        var obj = {};
-                        var source = jQuery(this).attr('src');
-                        if (source.split('//').length < 3 &&
-                            !patt.test(source)
-                           ) {
-                            source = 'http://' + source.split('//')[1];
-                            source = source.split('=')[0];
-                            obj.html = this;
-                            obj.sources = {};
-                            obj.sources.image =  source;
-                            obj.sources.title = jQuery(this).attr('alt');
-                            obj.sources.url = window.location.href;
-                            obj.primary_type = 'image';
-                            obj.sources.thumb = source;
-                            obj.sources['image-metadata'] = 'w' +
-                                (this.width * 2) + 'h' + (this.height * 2);
-                            returnArray[i] = obj;
-                        }
-                    }); //end each
+                $('img').each(function(i) {
+                    var obj = {};
+                    var source = $(this).attr('src');
+                    if (source.split('//').length < 3 &&
+                        !patt.test(source)
+                       ) {
+                        source = 'http://' + source.split('//')[1];
+                        source = source.split('=')[0];
+                        obj.html = this;
+                        obj.sources = {};
+                        obj.sources.image =  source;
+                        obj.sources.title = $(this).attr('alt');
+                        obj.sources.url = window.location.href;
+                        obj.primary_type = 'image';
+                        obj.sources.thumb = source;
+                        obj.sources['image-metadata'] = 'w' +
+                            (this.width * 2) + 'h' + (this.height * 2);
+                        returnArray[i] = obj;
+                    }
                 });
                 return callback(returnArray);
             }
@@ -823,87 +794,85 @@ window.MediathreadCollect = {
                         'Go to the Course Library page and ' +
                             'run the extension again');
                 }
-                MediathreadCollect.run_with_jquery(function(jQuery) {
-                    var foundVideos = [];
-                    var courseLibrary = jQuery('a.thumbnail');
-                    var done = courseLibrary.length;
-                    var objFinal = function() {
-                        return callback(foundVideos);
+                var foundVideos = [];
+                var courseLibrary = $('a.thumbnail');
+                var done = courseLibrary.length;
+                var objFinal = function() {
+                    return callback(foundVideos);
+                };
+                courseLibrary.each(function() {
+                    var asset = {
+                        'html': this,
+                        'vitalId': String(
+                            this.href).match(/\&id=(\d+)/)[1],
+                        'sources': {
+                            'quicktime-metadata': 'w320h240'
+                        },
+                        'metadata': {},
+                        'primary_type': 'quicktime'
                     };
-                    courseLibrary.each(function() {
-                        var asset = {
-                            'html': this,
-                            'vitalId': String(
-                                this.href).match(/\&id=(\d+)/)[1],
-                            'sources': {
-                                'quicktime-metadata': 'w320h240'
-                            },
-                            'metadata': {},
-                            'primary_type': 'quicktime'
-                        };
-                        jQuery.ajax({
-                            url: 'basicAdmin.smvc?' +
-                                'action=display&entity=material&id=' +
-                                asset.vitalId,
-                            dataType: 'text',
-                            success: function(editHtml) {
-                                var splitHtml = editHtml.split(
-                                    'Video Categories:');
-                                ///Basic URLs and Title
-                                splitHtml[0].replace(
-                                    new RegExp(
-                                        '<input[^>]+name="(\\w+)" ' +
-                                            'value="([^"]+)"',
-                                        'mg'),
-                                    function(full, name, val) {
-                                        switch (name) {
-                                        case 'title':
-                                            asset.sources.title = val;
-                                            break;
-                                        case 'url':
-                                            asset.sources.quicktime = val;
-                                            break;
-                                        case 'thumbUrl':
-                                            asset.sources.thumb = val;
-                                            break;
-                                        }
-                                    });
-                                // don't procede if we didn't get the
-                                // quicktime url
-                                if (asset.sources.quicktime) {
-                                    ///TODO: VITAL Metadata
-                                    //Topics = assignments
-                                    ///Extra Metadata
-                                    if (splitHtml.length > 1) {
-                                        var re =
-                                            '<b>([^<]+):</b>[\\s\\S]*?' +
-                                            'value="([^"]+)"[\\s\\S]*?' +
-                                            'value="([^"]+)"';
-                                        splitHtml[1].replace(
-                                            new RegExp(re, 'mg'),
-                                            function(
-                                                full,
-                                                name,
-                                                valueId,
-                                                val
-                                            ) {
-                                                asset.metadata[name] =
-                                                    [val];
-                                            });
+                    $.ajax({
+                        url: 'basicAdmin.smvc?' +
+                            'action=display&entity=material&id=' +
+                            asset.vitalId,
+                        dataType: 'text',
+                        success: function(editHtml) {
+                            var splitHtml = editHtml.split(
+                                'Video Categories:');
+                            ///Basic URLs and Title
+                            splitHtml[0].replace(
+                                new RegExp(
+                                    '<input[^>]+name="(\\w+)" ' +
+                                        'value="([^"]+)"',
+                                    'mg'),
+                                function(full, name, val) {
+                                    switch (name) {
+                                    case 'title':
+                                        asset.sources.title = val;
+                                        break;
+                                    case 'url':
+                                        asset.sources.quicktime = val;
+                                        break;
+                                    case 'thumbUrl':
+                                        asset.sources.thumb = val;
+                                        break;
                                     }
-                                    ///PUSH
-                                    foundVideos.push(asset);
+                                });
+                            // don't procede if we didn't get the
+                            // quicktime url
+                            if (asset.sources.quicktime) {
+                                ///TODO: VITAL Metadata
+                                //Topics = assignments
+                                ///Extra Metadata
+                                if (splitHtml.length > 1) {
+                                    var re =
+                                        '<b>([^<]+):</b>[\\s\\S]*?' +
+                                        'value="([^"]+)"[\\s\\S]*?' +
+                                        'value="([^"]+)"';
+                                    splitHtml[1].replace(
+                                        new RegExp(re, 'mg'),
+                                        function(
+                                            full,
+                                            name,
+                                            valueId,
+                                            val
+                                        ) {
+                                            asset.metadata[name] =
+                                                [val];
+                                        });
                                 }
-                                if (--done === 0) {
-                                    objFinal();
-                                }
-                            },
-                            error: function() {
-                                if (--done === 0) {
-                                    objFinal();
-                                }
+                                ///PUSH
+                                foundVideos.push(asset);
                             }
-                        });
+                            if (--done === 0) {
+                                objFinal();
+                            }
+                        },
+                        error: function() {
+                            if (--done === 0) {
+                                objFinal();
+                            }
+                        }
                     });
                 });
             }
@@ -911,289 +880,282 @@ window.MediathreadCollect = {
         'learn.columbia.edu': {
             /*and www.mcah.columbia.edu */
             find: function(callback) {
-                MediathreadCollect.run_with_jquery(function(jQuery) {
-                    var rv = [];
-                    var abs = MediathreadCollect.absolute_url;
-                    jQuery('table table table img').each(function() {
-                        var matchImg =
-                            String(this.src).match(
-                                    /arthum2\/mediafiles\/(\d+)\/(.*)$/);
-                        if (matchImg) {
-                            var img = document.createElement('img');
-                            img.src = 'http://www.mcah.columbia.edu/' +
-                                'arthum2/mediafiles/1200/' +
-                                matchImg[2];
-                            var imgData = {
-                                'html': this,
-                                'primary_type': 'image',
-                                'metadata': {},
-                                'sources': {
-                                    'url': abs(
-                                        this.getAttribute('onclick')
-                                            .match(/item.cgi[^\']+/)[0],
-                                        document),
-                                    'thumb': this.src,
-                                    'image': img.src,
-                                    'image-metadata': 'w' + img.width +
-                                        'h' + img.height
+                var rv = [];
+                var abs = MediathreadCollect.absolute_url;
+                $('table table table img').each(function() {
+                    var matchImg =
+                        String(this.src).match(
+                                /arthum2\/mediafiles\/(\d+)\/(.*)$/);
+                    if (matchImg) {
+                        var img = document.createElement('img');
+                        img.src = 'http://www.mcah.columbia.edu/' +
+                            'arthum2/mediafiles/1200/' +
+                            matchImg[2];
+                        var imgData = {
+                            'html': this,
+                            'primary_type': 'image',
+                            'metadata': {},
+                            'sources': {
+                                'url': abs(
+                                    this.getAttribute('onclick')
+                                        .match(/item.cgi[^\']+/)[0],
+                                    document),
+                                'thumb': this.src,
+                                'image': img.src,
+                                'image-metadata': 'w' + img.width +
+                                    'h' + img.height
+                            }
+                        };
+                        if (typeof document.evaluate == 'function') {
+                            // only do metadata if we can do XPath,
+                            // otherwise, it's insane
+                            var ancestor = $(this).parents()
+                                .get(9);
+                            // td[5] for gallery searches,
+                            // td[3] for image portfolios
+                            var cell =
+                                ($(ancestor)
+                                 .children('td').length === 5) ?
+                                'td[5]' : 'td[3]';
+                            var tryEval = function(
+                                obj,
+                                name,
+                                xpath,
+                                inArray
+                            ) {
+                                var res = document.evaluate(
+                                    xpath,
+                                    ancestor,
+                                    null,
+                                    XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+                                    null).snapshotItem(0);
+                                if (res) {
+                                    var v = res.textContent.replace(/\s+/,
+                                                                    ' ');
+                                    obj[name] = ((inArray) ? [v] : v);
                                 }
                             };
-                            if (typeof document.evaluate == 'function') {
-                                // only do metadata if we can do XPath,
-                                // otherwise, it's insane
-                                var ancestor = jQuery(this).parents()
-                                    .get(9);
-                                // td[5] for gallery searches,
-                                // td[3] for image portfolios
-                                var cell =
-                                    (jQuery(ancestor)
-                                     .children('td').length === 5) ?
-                                    'td[5]' : 'td[3]';
-                                var tryEval = function(
-                                    obj,
-                                    name,
-                                    xpath,
-                                    inArray
-                                ) {
-                                    var res = document.evaluate(
-                                        xpath,
-                                        ancestor,
-                                        null,
-                                        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-                                        null).snapshotItem(0);
-                                    if (res) {
-                                        var v = res.textContent.replace(/\s+/,
-                                                                        ' ');
-                                        obj[name] = ((inArray) ? [v] : v);
+                            //xpath begins right after the tbody/tr[2]/
+                            tryEval(
+                                imgData.sources,
+                                'title',
+                                cell + '/table[2]/tbody/' +
+                                    'tr[3]/td/table/tbody/tr/td'
+                            );
+                            tryEval(
+                                imgData.metadata,
+                                'creator',
+                                cell + '/table[1]/tbody/' +
+                                    'tr[3]/td[1]/table/tbody/tr/td',
+                                true
+                            );
+                            tryEval(
+                                imgData.metadata,
+                                'date',
+                                cell + '/table[1]/tbody/' +
+                                    'tr[3]/td[3]/table/tbody/tr/td',
+                                true
+                            );
+                            tryEval(
+                                imgData.metadata,
+                                'materials',
+                                cell + '/table[3]/tbody/' +
+                                    'tr[3]/td[1]/table/tbody/tr/td',
+                                true
+                            );
+                            tryEval(
+                                imgData.metadata,
+                                'dimensions',
+                                cell + '/table[3]/tbody/' +
+                                    'tr[3]/td[3]/table/tbody/tr/td',
+                                true
+                            );
+                            tryEval(
+                                imgData.metadata,
+                                'techniques',
+                                cell + '/table[4]/tbody/' +
+                                    'tr[3]/td[1]/table/tbody/tr/td',
+                                true
+                            );
+                            tryEval(
+                                imgData.metadata,
+                                'repository',
+                                cell + '/table[5]/tbody/' +
+                                    'tr[3]/td[1]/table/tbody/tr/td',
+                                true
+                            );
+                            tryEval(
+                                imgData.metadata,
+                                'city',
+                                cell + '/table[5]/tbody/' +
+                                    'tr[3]/td[3]/table/tbody/tr/td',
+                                true
+                            );
+                            tryEval(
+                                imgData.metadata,
+                                'note',
+                                cell + '/table[6]/tbody/' +
+                                    'tr[3]/td/table/tbody/tr/td',
+                                true
+                            );
+                        }
+                        rv.push(imgData);
+                    }
+
+                });
+                var done = 1;
+                if ($('#flashcontent embed').length) {
+                    done = 0;
+                    var p = document.location.pathname.split('/');
+                    p.pop();
+                    $.ajax({
+                        url: p.join('/') + '/gallery.xml',
+                        dataType: 'text',
+                        success: function(galleryXml, textStatus, xhr) {
+                            var gxml = MediathreadCollect.xml2dom(
+                                galleryXml,
+                                xhr);
+                            var iPath = $(
+                                'simpleviewerGallery', gxml)
+                                .attr('imagePath');
+                            var tPath = $(
+                                'simpleviewerGallery', gxml)
+                                .attr('thumbPath');
+                            $('image', gxml).each(function() {
+                                var filename = $(
+                                    'filename', this).text();
+                                var imageData = {
+                                    'html': this,
+                                    'primary_type': 'image',
+                                    'sources': {
+                                        'title': $('caption', this)
+                                            .text(),
+                                        'image': abs(
+                                            p.join('/') + '/' +
+                                                iPath + filename,document),
+                                        'thumb': abs(
+                                            p.join('/') + '/' +
+                                                tPath + filename,document),
+                                        'url': document.location + '#' +
+                                            filename
                                     }
                                 };
-                                //xpath begins right after the tbody/tr[2]/
-                                tryEval(
-                                    imgData.sources,
-                                    'title',
-                                    cell + '/table[2]/tbody/' +
-                                        'tr[3]/td/table/tbody/tr/td'
-                                );
-                                tryEval(
-                                    imgData.metadata,
-                                    'creator',
-                                    cell + '/table[1]/tbody/' +
-                                        'tr[3]/td[1]/table/tbody/tr/td',
-                                    true
-                                );
-                                tryEval(
-                                    imgData.metadata,
-                                    'date',
-                                    cell + '/table[1]/tbody/' +
-                                        'tr[3]/td[3]/table/tbody/tr/td',
-                                    true
-                                );
-                                tryEval(
-                                    imgData.metadata,
-                                    'materials',
-                                    cell + '/table[3]/tbody/' +
-                                        'tr[3]/td[1]/table/tbody/tr/td',
-                                    true
-                                );
-                                tryEval(
-                                    imgData.metadata,
-                                    'dimensions',
-                                    cell + '/table[3]/tbody/' +
-                                        'tr[3]/td[3]/table/tbody/tr/td',
-                                    true
-                                );
-                                tryEval(
-                                    imgData.metadata,
-                                    'techniques',
-                                    cell + '/table[4]/tbody/' +
-                                        'tr[3]/td[1]/table/tbody/tr/td',
-                                    true
-                                );
-                                tryEval(
-                                    imgData.metadata,
-                                    'repository',
-                                    cell + '/table[5]/tbody/' +
-                                        'tr[3]/td[1]/table/tbody/tr/td',
-                                    true
-                                );
-                                tryEval(
-                                    imgData.metadata,
-                                    'city',
-                                    cell + '/table[5]/tbody/' +
-                                        'tr[3]/td[3]/table/tbody/tr/td',
-                                    true
-                                );
-                                tryEval(
-                                    imgData.metadata,
-                                    'note',
-                                    cell + '/table[6]/tbody/' +
-                                        'tr[3]/td/table/tbody/tr/td',
-                                    true
-                                );
-                            }
-                            rv.push(imgData);
+                                var img = document.createElement('img');
+                                img.src = imageData.sources.image;
+                                imageData.sources['image-metadata'] =
+                                    'w' + img.width + 'h' + img.height;
+                                rv.push(imageData);
+                                $('#flashcontent').hide();
+
+                            });
+                            return callback(rv);
+                        },
+                        error: function(err, xhr) {
+                            return callback(rv);
                         }
-
                     });
-                    var done = 1;
-                    if (jQuery('#flashcontent embed').length) {
-                        done = 0;
-                        var p = document.location.pathname.split('/');
-                        p.pop();
-                        jQuery.ajax({
-                            url: p.join('/') + '/gallery.xml',
-                            dataType: 'text',
-                            success: function(galleryXml, textStatus, xhr) {
-                                var gxml = MediathreadCollect.xml2dom(
-                                    galleryXml,
-                                    xhr);
-                                var iPath = jQuery(
-                                    'simpleviewerGallery', gxml)
-                                    .attr('imagePath');
-                                var tPath = jQuery(
-                                    'simpleviewerGallery', gxml)
-                                    .attr('thumbPath');
-                                jQuery('image', gxml).each(function() {
-                                    var filename = jQuery(
-                                        'filename', this).text();
-                                    var imageData = {
-                                        'html': this,
-                                        'primary_type': 'image',
-                                        'sources': {
-                                            'title': jQuery('caption', this)
-                                                .text(),
-                                            'image': abs(
-                                                p.join('/') + '/' +
-                                                    iPath + filename,document),
-                                            'thumb': abs(
-                                                p.join('/') + '/' +
-                                                    tPath + filename,document),
-                                            'url': document.location + '#' +
-                                                filename
-                                        }
-                                    };
-                                    var img = document.createElement('img');
-                                    img.src = imageData.sources.image;
-                                    imageData.sources['image-metadata'] =
-                                        'w' + img.width + 'h' + img.height;
-                                    rv.push(imageData);
-                                    jQuery('#flashcontent').hide();
-
-                                });
-                                return callback(rv);
-                            },
-                            error: function(err, xhr) {
-                                return callback(rv);
-                            }
-                        });
-                    }
-                    if (done) {
-                        return callback(rv);
-                    }
-                });
+                }
+                if (done) {
+                    return callback(rv);
+                }
             }
         },
         'vimeo.com': {
             find: function(callback) {
-                MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                    var videos = jQuery('.video-wrapper');
-                    if (videos.length < 1) {
-                        var message = 'This Vimeo page does not contain ' +
-                            'videos accessible to the extension. Try ' +
-                            'clicking into a single video page.';
-                        alert(message);
-                        callback([]); // no items found
-                    } else {
-                        // parse vimeo id out of the fallback url
-                        var video = videos[0];
-                        var parent = jQuery(video).parents('div.player')[0];
-                        var url = jQuery(parent).attr('data-fallback-url');
-                        var vimeoId = url.split('/')[4];
+                var videos = $('.video-wrapper');
+                if (videos.length < 1) {
+                    var message = 'This Vimeo page does not contain ' +
+                        'videos accessible to the extension. Try ' +
+                        'clicking into a single video page.';
+                    alert(message);
+                    callback([]); // no items found
+                } else {
+                    // parse vimeo id out of the fallback url
+                    var video = videos[0];
+                    var parent = $(video).parents('div.player')[0];
+                    var url = $(parent).attr('data-fallback-url');
+                    var vimeoId = url.split('/')[4];
 
-                        MediathreadCollect.assethandler.objects_and_embeds
-                            .players.moogaloop.asset(
-                                video,
-                                vimeoId,
-                                {
-                                    'window': window,
-                                    'document': document
-                                },
-                                0,
-                                function(ind, rv) {
-                                    callback([rv]);
-                                });
-                    }
-                }); //end run_with_jquery for vimeo.com
+                    MediathreadCollect.assethandler.objects_and_embeds
+                        .players.moogaloop.asset(
+                            video,
+                            vimeoId,
+                            {
+                                'window': window,
+                                'document': document
+                            },
+                            0,
+                            function(ind, rv) {
+                                callback([rv]);
+                            });
+                }
             },
             decorate: function(objs) {
             }
         },
         'youtube.com': {
             find: function(callback) {
-                MediathreadCollect.run_with_jquery(function _find(jQuery) {
-                    var video = document.getElementById('movie_player');
-                    if (video && video !== null) {
-                        var vMatch = video.getAttribute('flashvars');
-                        if (vMatch &&
-                            vMatch.split('cbr=')[1].match('IE&') !== null
-                           ) {
-                            // this is an IE embed then
-                            window.IEVideo = video;
-                            jQuery(video).css('display','none');
-                        }
-                        if (vMatch) {
-                            vMatch = vMatch.match(/video_id=([^&]*)/);
-                        } else { //mostly for <OBJECT>
-                            vMatch = document.location.search
-                                .match(/[?&]v=([^&]*)/);
-                        }
-                        if (vMatch === null &&
-                            MediathreadCollect.getURLParameters('v')) {
-                            var vid = MediathreadCollect.getURLParameters('v');
-                            vMatch = ['video_id=' + vid, vid];
-                        }
-
-                        MediathreadCollect.assethandler.objects_and_embeds
-                            .players.youtube.asset(
-                                video,
-                                vMatch,
-                                {
-                                    'window': window,
-                                    'document': document
-                                },
-                                0,
-                                function(ind, rv) {
-                                    callback([rv]);
-                                });
-                    } else if (
-                        document.getElementsByTagName('video').length > 0
-                    ) {
-                        video = document.getElementsByTagName('video')[0];
-                        var videoId = jQuery(video).attr('data-youtube-id');
-                        var fauxMatch = [null, videoId];
-                        MediathreadCollect.assethandler.objects_and_embeds
-                            .players.youtube.asset(
-                                video,
-                                fauxMatch,
-                                {
-                                    'window': window,
-                                    'document': document
-                                },
-                                0,
-                                function(ind, rv) {
-                                    callback([rv]);
-                                });
-                    } else {
-                        callback([]);
+                var video = document.getElementById('movie_player');
+                if (video && video !== null) {
+                    var vMatch = video.getAttribute('flashvars');
+                    if (vMatch &&
+                        vMatch.split('cbr=')[1].match('IE&') !== null
+                       ) {
+                        // this is an IE embed then
+                        window.IEVideo = video;
+                        $(video).css('display','none');
                     }
-                });//end run_with_jquery for youtube.com
+                    if (vMatch) {
+                        vMatch = vMatch.match(/video_id=([^&]*)/);
+                    } else { //mostly for <OBJECT>
+                        vMatch = document.location.search
+                            .match(/[?&]v=([^&]*)/);
+                    }
+                    if (vMatch === null &&
+                        MediathreadCollect.getURLParameters('v')) {
+                        var vid = MediathreadCollect.getURLParameters('v');
+                        vMatch = ['video_id=' + vid, vid];
+                    }
+
+                    MediathreadCollect.assethandler.objects_and_embeds
+                        .players.youtube.asset(
+                            video,
+                            vMatch,
+                            {
+                                'window': window,
+                                'document': document
+                            },
+                            0,
+                            function(ind, rv) {
+                                callback([rv]);
+                            });
+                } else if (
+                    document.getElementsByTagName('video').length > 0
+                ) {
+                    video = document.getElementsByTagName('video')[0];
+                    var videoId = $(video).attr('data-youtube-id');
+                    var fauxMatch = [null, videoId];
+                    MediathreadCollect.assethandler.objects_and_embeds
+                        .players.youtube.asset(
+                            video,
+                            fauxMatch,
+                            {
+                                'window': window,
+                                'document': document
+                            },
+                            0,
+                            function(ind, rv) {
+                                callback([rv]);
+                            });
+                } else {
+                    callback([]);
+                }
             },
             decorate: function(objs) {
             }
         }
     },/*end hosthandler*/
     'assethandler': {
-        /* assumes jQuery is available */
         'objects_and_embeds': {
             players: {
                 'realplayer': {
@@ -1214,9 +1176,6 @@ window.MediathreadCollect = {
                     },
                     asset: function(emb, match, context, index,
                                     optionalCallback) {
-                        var jQ =
-                            (window.MediathreadCollectOptions.jQuery ||
-                             window.jQuery);
                         var abs = MediathreadCollect.absolute_url;
                         var rv = {
                             html: emb,
@@ -1227,7 +1186,7 @@ window.MediathreadCollect = {
                             rv.sources.realplayer = abs(
                                 emb.src, context.document);
                         } else if (match === 'obj') {
-                            var src = jQ('param[name=src],param[name=SRC]',emb);
+                            var src = $('param[name=src],param[name=SRC]',emb);
                             if (src.length) {
                                 rv.sources.realplayer = abs(src.get(0).value,
                                                             context.document);
@@ -1267,8 +1226,6 @@ window.MediathreadCollect = {
                                     index, optionalCallback) {
                         var apikey = MediathreadCollect.options.youtube_apikey;
 
-                        var jQ = (window.MediathreadCollectOptions.jQuery ||
-                                  window.jQuery);
                         var VIDEO_ID;
                         if (match && match.length > 0) {
                             VIDEO_ID = match[1]; //e.g. 'LPHEvaNjdhw';
@@ -1297,7 +1254,10 @@ window.MediathreadCollect = {
                         var ytCallback = 'sherd_youtube_callback_' + index;
                         window[ytCallback] = function(ytData, b, c) {
                             console.log('ytData', ytData, b, c);
-                            if (ytData.items.length > 0) {
+                            if (
+                                $.type(ytData.items) === 'array' &&
+                                    ytData.items.length > 0
+                            ) {
                                 var item = ytData.items[0].snippet;
                                 rv.sources.title = item.title;
 
@@ -1330,11 +1290,11 @@ window.MediathreadCollect = {
                             ajaxOptions.url = rv.sources.gdata +
                                 '?v=2&alt=json';
                         }
-                        jQ.ajax(ajaxOptions);
+                        $.ajax(ajaxOptions);
                         // YT is declaring maximum z-index for Safari and it
                         // cannot be overriden via CSS
                         // we need to redeclare it
-                        jQ('#masthead-positioner').css('z-index', '999');
+                        $('#masthead-positioner').css('z-index', '999');
                         return rv;
                     }
                 },/*end youtube embeds*/
@@ -1416,11 +1376,8 @@ window.MediathreadCollect = {
                             return String(obj.data)
                                 .match(/flowplayer[\.\-\w]+3[.\d]+\.swf/);
                         } else {//IE7 ?+
-                            var jQ =
-                                (window.MediathreadCollectOptions.jQuery ||
-                                 window.jQuery);
                             var movie = MediathreadCollect.find_by_attr(
-                                jQ, 'param', 'name', 'movie', obj);
+                                $, 'param', 'name', 'movie', obj);
                             return (
                                 (movie.length) ?
                                     String(movie.get(0).value)
@@ -1431,14 +1388,12 @@ window.MediathreadCollect = {
                     asset: function(obj, match, context) {
                         /* TODO: 1. support audio
                          */
-                        var jQ = (window.MediathreadCollectOptions.jQuery ||
-                                  window.jQuery);
                         var $f = (context.window.$f && context.window.$f(
                             obj.parentNode));
 
                         //config=
                         var cfg = (($f) ? $f.getConfig() :
-                                   jQ.parseJSON(jQ('param[name=flashvars]')
+                                   $.parseJSON($('param[name=flashvars]')
                                                 .get(0).value.substr(7)));
 
                         //getClip() works if someone's already clicked Play
@@ -1531,7 +1486,7 @@ window.MediathreadCollect = {
                         }
                         if (!sources.thumb) {
                             var paramConfig =
-                                jQuery('*[name=flashvars]')[0].value
+                                $('*[name=flashvars]')[0].value
                                 .split('config=')[1];
                             paramConfig = JSON.parse(paramConfig);
                             var paramObj = paramConfig;
@@ -1578,9 +1533,7 @@ window.MediathreadCollect = {
                 },/*end flvplayer_progressive*/
                 'kaltura': {
                     match: function(objemb) {
-                        var jQ = (window.MediathreadCollectOptions.jQuery ||
-                                  window.jQuery);
-                        var movie = jQ(objemb).children(
+                        var movie = $(objemb).children(
                             'param[name=movie],param[name=MOVIE]');
 
                         // kaltura & vimeo use the same classid,
@@ -1603,9 +1556,7 @@ window.MediathreadCollect = {
                                     index, optionalCallback) {
                         var stream = objemb.data || objemb.src;
                         if (!stream) {
-                            var jQ = (window.MediathreadCollectOptions.jQuery ||
-                                      window.jQuery);
-                            var movie = jQ(objemb).children(
+                            var movie = $(objemb).children(
                                 'param[name=movie],param[name=MOVIE]');
                             stream = movie.val();
                         }
@@ -1655,10 +1606,8 @@ window.MediathreadCollect = {
                         ) || null;
                     },
                     asset: function(objemb,match,context) {
-                        var jQ = (window.MediathreadCollectOptions.jQuery ||
-                                  window.jQuery);
                         var abs = MediathreadCollect.absolute_url;
-                        var src = objemb.src || jQ(objemb).children(
+                        var src = objemb.src || $(objemb).children(
                             'param[name=src],param[name=SRC]');
                         if (src.length) {
                             src = (src.get) ? src.get(0).value : src;
@@ -1679,9 +1628,7 @@ window.MediathreadCollect = {
                 },
                 'moogaloop': {
                     match: function(objemb) {
-                        var jQ = (window.MediathreadCollectOptions.jQuery ||
-                                  window.jQuery);
-                        var movie = jQ(objemb).children(
+                        var movie = $(objemb).children(
                             'param[name=movie],param[name=MOVIE]');
 
                         return (
@@ -1697,8 +1644,6 @@ window.MediathreadCollect = {
                     },
                     asset: function(objemb, matchRv, context,
                                     index, optionalCallback) {
-                        var jQ = (window.MediathreadCollectOptions.jQuery ||
-                                  window.jQuery);
 
                         var vimeoId;
                         if (matchRv) {
@@ -1707,7 +1652,7 @@ window.MediathreadCollect = {
                             var matches = objemb.src &&
                                 objemb.src.match(/clip_id=([\d]*)/);
                             if (!matches || matches.length < 1) {
-                                var flashvars = jQ(objemb)
+                                var flashvars = $(objemb)
                                     .children(
                                         'param[name=flashvars],' +
                                             'param[name=FLASHVARS]');
@@ -1766,7 +1711,7 @@ window.MediathreadCollect = {
                                 'https://www.vimeo.com/api/v2/video/' +
                                 vimeoId + '.json';
                         }
-                        jQ.ajax(ajaxOptions);
+                        $.ajax(ajaxOptions);
                         return rv;
                     }
                 },
@@ -1779,8 +1724,6 @@ window.MediathreadCollect = {
                     },
                     asset: function(objemb, match, context,
                                     index, optionalCallback) {
-                        var jQ = (window.MediathreadCollectOptions.jQuery ||
-                                  window.jQuery);
                         var tile_root = MediathreadCollect.absolute_url(
                             match[1], context.document);
                         //chomp trailing /
@@ -1870,7 +1813,7 @@ window.MediathreadCollect = {
                             walktiles('z');
                         };
                         try {
-                            jQuery.ajax({
+                            $.ajax({
                                 url: tile_root + '/ImageProperties.xml',
                                 dataType: 'text',
                                 success: function(dir) {
@@ -1975,9 +1918,6 @@ window.MediathreadCollect = {
         },/* end image assethandler */
         'audio': {
             find: function(callback,context) {
-                if (!jQuery) {
-                    jQuery = window.MediathreadCollectOptions.jQuery;
-                }
                 // test if we are on the asset itself, relying on
                 // the browser (support) handling the mp3 file
                 if (/.mp3$/.test(document.location)) {
@@ -2004,11 +1944,11 @@ window.MediathreadCollect = {
                         });
                     };
                     var mp3, type;
-                    if (jQuery('*[href$="mp3"]').length) {// check for href
-                        mp3 = jQuery('*[href$="mp3"]');
+                    if ($('*[href$="mp3"]').length) {// check for href
+                        mp3 = $('*[href$="mp3"]');
                         type = 'href';
-                    }else if (jQuery('*[src$="mp3"]').length) {// check for src
-                        mp3 = jQuery('*[src$="mp3"]');
+                    } else if ($('*[src$="mp3"]').length) {// check for src
+                        mp3 = $('*[src$="mp3"]');
                         type = 'src';
                     }//end else if
                     if (typeof mp3 !== 'undefined') {
@@ -2022,14 +1962,12 @@ window.MediathreadCollect = {
                 if (!window.postMessage) return callback([]);
                 var frms = context.document.getElementsByTagName('iframe');
                 var result = [];
-                var jQ = (window.MediathreadCollectOptions.jQuery ||
-                          window.jQuery);
                 MediathreadCollect.connect(
                     context.window,
                     'message',
                     function(evt) {
                         try {
-                            var id, d = jQ.parseJSON(evt.data);
+                            var id, d = $.parseJSON(evt.data);
                             if ((id = String(d.id).match(/^sherd(\d+)/)) &&
                                 d.info
                                ) {
@@ -2066,8 +2004,6 @@ window.MediathreadCollect = {
             find: function(callback, context) {
                 var frms = context.document.getElementsByTagName('iframe');
                 var result = [];
-                var jQ = (window.MediathreadCollectOptions.jQuery ||
-                          window.jQuery);
                 var cb = function(ind, rv) {
                     callback([rv]);
                 };
@@ -2096,8 +2032,6 @@ window.MediathreadCollect = {
                 var result = [];
                 var zoomify_urls = {};
                 var done = 0;
-                var jQ = (window.MediathreadCollectOptions.jQuery ||
-                          window.jQuery);
                 for (var i = 0; i < imgs.length; i++) {
                     //IGNORE headers/footers/logos
                     var image = imgs[i];
@@ -2124,7 +2058,7 @@ window.MediathreadCollect = {
                     image_ind.src = image.src;
                     if (image_ind.width === 0) {
                         //for if it doesn't load immediately
-                        //cheating: TODO - jQ(image_ind).bind('load',
+                        //cheating: TODO - $(image_ind).bind('load',
                         //    function() { /*see dropbox.com above*/ });
                         image_ind = image;
                     }
@@ -2176,7 +2110,7 @@ window.MediathreadCollect = {
                                   img_root + '/source/' + img_key + '/' +
                                   img_key + '/ImageProperties.xml'
                                 */
-                                jQ.get(
+                                $.get(
                                     tile_root + '/ImageProperties.xml',
                                     null,
                                     /* jshint ignore:start */
@@ -2211,12 +2145,10 @@ window.MediathreadCollect = {
             // BUT it might have more metadata
             find: function(callback) {
                 var result = [];
-                var jQ = (window.MediathreadCollectOptions.jQuery ||
-                          window.jQuery);
-                jQ('div.asset-links').each(function() {
+                $('div.asset-links').each(function() {
                     var top = this;
-                    var res0 = {html:top, sources: {}};
-                    jQ('a.assetsource',top).each(function() {
+                    var res0 = {html: top, sources: {}};
+                    $('a.assetsource', top).each(function() {
                         var reg = String(this.getAttribute('class'))
                             .match(/assetlabel-(\w+)/);
                         if (reg !== null) {
@@ -2238,14 +2170,12 @@ window.MediathreadCollect = {
             page_resource: true,
             find: function(callback,context) {
                 var self = this;
-                var jQ = (window.MediathreadCollectOptions.jQuery ||
-                          window.jQuery);
-                var unapi = jQ('abbr.unapi-id');
+                var unapi = $('abbr.unapi-id');
                 // must find one, or it's not a page resource, and
                 // we won't know what asset to connect to
                 if (unapi.length == 1) {
                     var server = false;
-                    jQ('link').each(function() {
+                    $('link').each(function() {
                         if (this.rel === 'unapi-server') {
                             server = this.href;
                         }
@@ -2255,8 +2185,8 @@ window.MediathreadCollect = {
                         var format = '?format=pbcore';
                         var request_url = server + format + '&id=' +
                             unapi.attr('title');
-                        jQ.ajax({
-                            'url':request_url,
+                        $.ajax({
+                            'url': request_url,
                             'dataType': 'text',
                             success: function(pbcore_xml, textStatus, xhr) {
                                 var rv = {
@@ -2272,12 +2202,12 @@ window.MediathreadCollect = {
                                 };
                                 var pb = MediathreadCollect.xml2dom(
                                     pbcore_xml, xhr);
-                                if (jQ('PBCoreDescriptionDocument', pb)
+                                if ($('PBCoreDescriptionDocument', pb)
                                     .length === 0) {
                                     return callback([]);
                                 }
-                                jQ('title',pb).each(function() {
-                                    var titleType = jQ(
+                                $('title',pb).each(function() {
+                                    var titleType = $(
                                         'titleType', this.parentNode).text();
                                     if (titleType == 'Element' ||
                                         document.title.indexOf(
@@ -2289,34 +2219,34 @@ window.MediathreadCollect = {
                                             this.firstChild.data];
                                     }
                                 });
-                                jQ('description', pb).each(function() {
+                                $('description', pb).each(function() {
                                     rv.metadata.description = [
                                         this.firstChild.data];
                                 });
-                                jQ('contributor', pb).each(function() {
-                                    var role = jQ(
+                                $('contributor', pb).each(function() {
+                                    var role = $(
                                         'contributorRole',
                                         this.parentNode).text();
                                     rv.metadata['Contributor:' + role] =
                                         [this.firstChild.data];
                                 });
-                                jQ('coverage', pb).each(function() {
-                                    var type = jQ('coverageType',
+                                $('coverage', pb).each(function() {
+                                    var type = $('coverageType',
                                                   this.parentNode).text();
                                     rv.metadata['Coverage:' + type] =
                                         [this.firstChild.data];
                                 });
-                                jQ('rightsSummary', pb).each(function() {
+                                $('rightsSummary', pb).each(function() {
                                     rv.metadata.Copyrights =
                                         [this.firstChild.data];
                                 });
-                                jQ('subject', pb).each(function() {
+                                $('subject', pb).each(function() {
                                     // TODO: should we care about the
                                     // subjectAuthorityUsed?
                                     rv.metadata.subject.push(
                                         this.firstChild.data);
                                 });
-                                jQ('publisher', pb).each(function() {
+                                $('publisher', pb).each(function() {
                                     rv.metadata.publisher =
                                         [this.firstChild.data];
                                 });
@@ -2343,14 +2273,14 @@ window.MediathreadCollect = {
                                             },
                                             'metadata': {'subject':[]}
                                         };
-                                        rv.metadata.Description =[jQ(
+                                        rv.metadata.Description =[$(
                                             '.blacklight-dc_description_t ' +
                                                 '.value').text()];
                                         rv.metadata.Subject =
-                                            [jQ('.blacklight-topic_cv .value')
+                                            [$('.blacklight-topic_cv .value')
                                              .text()];
                                         rv.metadata.Copyrights =
-                                            [jQ('.copyright').text()];
+                                            [$('.copyright').text()];
                                         rv.metadata.Publisher =
                                             ['WGBH Educational Foundation'];
                                     }
@@ -2372,10 +2302,8 @@ window.MediathreadCollect = {
             page_resource: true,
             find: function(callback,context) {
                 var self = this;
-                var jQ = (window.MediathreadCollectOptions.jQuery ||
-                          window.jQuery);
                 var oembed_link = false;
-                jQ('link').each(function() {
+                $('link').each(function() {
                     //jQuery 1.0 compatible
                     if (this.type == 'application/json+oembed') {
                         oembed_link = this;
@@ -2388,7 +2316,7 @@ window.MediathreadCollect = {
                         'metadata': {},
                         'page_resource': true
                     };
-                    jQ.ajax({
+                    $.ajax({
                         'url': result.html.href,
                         'dataType': 'json',
                         success: function(json, textStatus) {
@@ -2581,18 +2509,18 @@ window.MediathreadCollect = {
             var final_url = host_url;
             var M = MediathreadCollect;
             var handler = M.gethosthandler();
-            var grabber_func = function(jQuery) {
+            var grabber_func = function() {
                 M.g = new M.Interface(host_url);
                 M.g.findAssets();
             };
             if (!handler) {
-                M.run_with_jquery(grabber_func);
+                grabber_func();
                 return;
             }
             var jump_with_first_asset = function(assets, error) {
                 if (assets.length === 0) {
                     if (handler.also_find_general) {
-                        M.run_with_jquery(grabber_func);
+                        grabber_func();
                         return;
                     }
                     var message = error ||
@@ -2616,12 +2544,10 @@ window.MediathreadCollect = {
         decorate: function(host_url) {
             var M = MediathreadCollect;
             function go(run_func) {
-                M.run_with_jquery(function() {
-                    M.g = new M.Interface(host_url);
-                    if (run_func == 'onclick') {
-                        M.g.findAssets();
-                    }
-                });
+                M.g = new M.Interface(host_url);
+                if (run_func == 'onclick') {
+                    M.g.findAssets();
+                }
             }
             /*ffox 3.6+ and all other browsers:*/
             if (document.readyState != 'complete') {
@@ -2705,8 +2631,7 @@ window.MediathreadCollect = {
     },
     'microdataSearch': function(elem, doc) {
         var item;
-        var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
-        jQ(elem).parents('[itemscope]').each(function() {
+        $(elem).parents('[itemscope]').each(function() {
             item = this;
         });
         if (item) {
@@ -2715,7 +2640,7 @@ window.MediathreadCollect = {
             } else {
                 var props = {};
                 var abs = MediathreadCollect.absolute_url;
-                jQ('[itemprop]', item).each(function() {
+                $('[itemprop]', item).each(function() {
                     var p = this.getAttribute('itemprop');
                     props[p] = props[p] || [];
                     switch(String(this.tagName).toLowerCase()) {
@@ -2733,7 +2658,7 @@ window.MediathreadCollect = {
                         props[p].push(abs(this.src, doc));
                         break;
                     default:
-                        props[p].push(jQ(this).text());
+                        props[p].push($(this).text());
                         break;
                     }
                 });
@@ -2743,22 +2668,21 @@ window.MediathreadCollect = {
     },
     'metadataTableSearch': function(elem, doc) {
         /*If asset is in a table and the next row has the word 'Metadata' */
-        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
         if ('td' === elem.parentNode.tagName.toLowerCase()) {
-            var trs = jQ(elem.parentNode.parentNode).nextAll();
-            if (trs.length && /metadata/i.test(jQ(trs[0]).text())) {
+            var trs = $(elem.parentNode.parentNode).nextAll();
+            if (trs.length && /metadata/i.test($(trs[0]).text())) {
                 var props = {};
                 trs.each(function() {
-                    var tds = jQ('td', this);
+                    var tds = $('td', this);
                     if (tds.length === 2) {
-                        var p = MediathreadCollect.clean(jQ(tds[0]).text());
+                        var p = MediathreadCollect.clean($(tds[0]).text());
                         if (p) {
                             props[p] = props[p] || [];
                             var val = MediathreadCollect.clean(
-                                jQ(tds[1]).text());
+                                $(tds[1]).text());
                             // if there's an <a> tag, then use the URL -- use
                             // for thumbs
-                            jQ('a', tds[1]).slice(0, 1).each(function() {
+                            $('a', tds[1]).slice(0, 1).each(function() {
                                 val = MediathreadCollect.absolute_url(
                                     this.href, doc);
                             });
@@ -2771,46 +2695,44 @@ window.MediathreadCollect = {
         }
     },
     'flowclipMetaSearch': function(doc) {
-        if (jQuery) {
-            var metaData = {};
-            var metaDataElms = jQuery('*[itemprop]', document);
-            if (typeof metaDataElms !== 'undefined') {
-                metaDataElms.each(function() {
-                    var itemProp = jQuery(this).attr('itemprop');
-                    var val = jQuery(this).text();
-                    if (jQuery(this).attr('itemref')) {
-                        var metaId = jQuery(this).attr('itemref');
-                        if (typeof metaData['metadata-' + itemProp] ===
-                            'undefined') {
-                            metaData['metadata-' + itemProp] = {};
-                        }
-                        metaListItem = jQuery('#' + metaId).text();
-                        metaData['metadata-' + itemProp][metaId] = metaListItem;
+        var metaData = {};
+        var metaDataElms = $('*[itemprop]', document);
+        if (typeof metaDataElms !== 'undefined') {
+            metaDataElms.each(function() {
+                var itemProp = $(this).attr('itemprop');
+                var val = $(this).text();
+                if ($(this).attr('itemref')) {
+                    var metaId = $(this).attr('itemref');
+                    if (typeof metaData['metadata-' + itemProp] ===
+                        'undefined') {
+                        metaData['metadata-' + itemProp] = {};
                     }
-                    if (itemProp === 'title') {
-                        metaData[itemProp] = val;
-                    } else if (
-                        typeof metaData['metadata-' + itemProp] !== 'object'
-                    ) {
-                        metaData['metadata-' + itemProp] = val;
-                    }
-                });
-                for(var data in metaData) {
-                    if (typeof metaData[data] == 'object') {
-                        var flatMetaData = '';
-                        for(var str in metaData[data]) {
-                            if (flatMetaData === '') {
-                                flatMetaData = metaData[data][str];
-                            }else{
-                                flatMetaData += ', ' + metaData[data][str];
-                            }
-                        }
-                        metaData[data] = flatMetaData;
-                    }// end if typeof metaData[data]
+                    metaListItem = $('#' + metaId).text();
+                    metaData['metadata-' + itemProp][metaId] = metaListItem;
                 }
-                return metaData;
-            }// end meta_data_elms !== undefined
-        }// end if (jQuery)
+                if (itemProp === 'title') {
+                    metaData[itemProp] = val;
+                } else if (
+                    typeof metaData['metadata-' + itemProp] !== 'object'
+                ) {
+                    metaData['metadata-' + itemProp] = val;
+                }
+            });
+            for(var data in metaData) {
+                if (typeof metaData[data] == 'object') {
+                    var flatMetaData = '';
+                    for(var str in metaData[data]) {
+                        if (flatMetaData === '') {
+                            flatMetaData = metaData[data][str];
+                        }else{
+                            flatMetaData += ', ' + metaData[data][str];
+                        }
+                    }
+                    metaData[data] = flatMetaData;
+                }// end if typeof metaData[data]
+            }
+            return metaData;
+        }// end meta_data_elms !== undefined
     },
     'xml2dom': function (str,xhr) {
         if (window.DOMParser) {
@@ -2903,7 +2825,6 @@ window.MediathreadCollect = {
     *************/
     'Finder': function() {
         var self = this;
-        var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
 
         this.handler_count = 0;
         this.final_count = 0;
@@ -2943,17 +2864,17 @@ window.MediathreadCollect = {
         };
 
         this.noAssetMessage = function() {
-            var closeBtn = jQ('<div class="no-asset-close-btn">X</div>');
-            var messageBox = jQ(
+            var closeBtn = $('<div class="no-asset-close-btn">X</div>');
+            var messageBox = $(
                 '<div class="no-asset-alert">' +
                     'Sorry, no supported assets were found on this page. ' +
                     'Try going to an asset page if you are on a ' +
                     'list/search page. <br/><br/> If there is a video on ' +
                     'the page, press play and then try again.' +
                     '</div>');
-            var winWidth = jQ(window).width();
-            var winHeight = jQ(window).height();
-            jQ('.import-header').remove();
+            var winWidth = $(window).width();
+            var winHeight = $(window).height();
+            $('.import-header').remove();
 
             messageBox.css({
                 left: (winWidth / 2) - 262 + 'px',
@@ -2961,11 +2882,11 @@ window.MediathreadCollect = {
             });
 
             closeBtn.click(function() {
-                jQ('.sherd-analyzer').remove();
+                $('.sherd-analyzer').remove();
             });
             //double check no asset on page
-            if (jQ('.sherd-asset li').length === 0 ) {
-                jQ('.sherd-analyzer').append(messageBox);
+            if ($('.sherd-asset li').length === 0 ) {
+                $('.sherd-analyzer').append(messageBox);
                 messageBox.prepend(closeBtn);
             }
         };
@@ -2980,7 +2901,7 @@ window.MediathreadCollect = {
             self.ASYNC.best_frame(frames.best);
             self.final_count += frames.all.length;
 
-            jQ(frames.all).each(function(i,context) {
+            $(frames.all).each(function(i,context) {
                 ++self.handler_count; //for each frame
                 for (var h in MediathreadCollect.assethandler) {
                     ++self.final_count;
@@ -3033,11 +2954,11 @@ window.MediathreadCollect = {
                 }
 
                 //jQuery 1.0compat (for drupal)
-                jQ.extend(merge_with.sources, asset.sources);
+                $.extend(merge_with.sources, asset.sources);
                 ///not trying to merge individual arrays
                 if (merge_with.metadata && asset.metadata)
-                    jQ.extend(merge_with.metadata, asset.metadata);
-                jQ.extend(asset, merge_with);
+                    $.extend(merge_with.metadata, asset.metadata);
+                $.extend(asset, merge_with);
                 ///keep our pointers singular
                 list[ asset.sources[merge_with.primary_type] ] = asset;
             }
@@ -3106,10 +3027,10 @@ window.MediathreadCollect = {
                     if (area > max) {
                         rv.best = context;
                     }
-                    jQ('frame,iframe',doc).each(_walk);
+                    $('frame,iframe', doc).each(_walk);
                 } catch (e) {/*probably security error*/}
             }
-            jQ('frame,iframe').each(_walk);
+            $('frame,iframe').each(_walk);
             return rv;
         };
 
@@ -3149,7 +3070,6 @@ window.MediathreadCollect = {
                 this.options[b] = M.options[b];
             }
         }
-        var jQ = (window.MediathreadCollectOptions.jQuery || window.jQuery);
 
         var o = this.options;
         var self = this;
@@ -3169,13 +3089,13 @@ window.MediathreadCollect = {
                 comp.window.style.top = self.visibleY(comp.window) + 'px';
                 comp.window.style.display = 'block';
                 comp.tab.style.display = 'none';
-                jQ(comp.ul).empty();
+                $(comp.ul).empty();
                 if (!MediathreadCollect.user_ready()) {
-                    jQ(comp.h2).empty().get(0)
+                    $(comp.h2).empty().get(0)
                         .appendChild(document.createTextNode('Login required'));
                     o.login_url = o.login_url ||
                         host_url.split('/', 3).join('/');
-                    jQ(comp.message).empty().append(
+                    $(comp.message).empty().append(
                         self.elt(null,'span','',{},
                                  [o.not_logged_in_message,
                                   self.elt(null,'br','',{}),
@@ -3188,14 +3108,14 @@ window.MediathreadCollect = {
                                   ', and then click the ' + o.widget_name +
                                   ' again to import items.'
                                  ]));
-                    jQ('.sherd-asset').css({
+                    $('.sherd-asset').css({
                         display: 'none'
                     });
-                    jQ('button').remove();
-                    var messageDiv = jQ('<div class="message-div"></div>');
-                    var messageClose = jQ('<div class="message-close">X<div/>');
-                    var winHeight = jQ(window).height();
-                    var winWidth = jQ(window).width();
+                    $('button').remove();
+                    var messageDiv = $('<div class="message-div"></div>');
+                    var messageClose = $('<div class="message-close">X<div/>');
+                    var winHeight = $(window).height();
+                    var winWidth = $(window).width();
                     messageClose.appendTo(messageDiv);
                     messageDiv.css({
                         'top': winHeight / 2 - 125 + 'px',
@@ -3203,24 +3123,24 @@ window.MediathreadCollect = {
                         'display': 'none'
                     }).appendTo('.sherd-analyzer');
 
-                    jQ('.sherd-window-inner h2').addClass('not-logged-in');
+                    $('.sherd-window-inner h2').addClass('not-logged-in');
 
-                    jQ('.sherd-window-inner a').addClass('not-logged-in');
+                    $('.sherd-window-inner a').addClass('not-logged-in');
 
-                    jQ('.sherd-window').appendTo(messageDiv);
+                    $('.sherd-window').appendTo(messageDiv);
                     messageDiv.fadeIn(1000);
 
                     messageDiv.click(function() {
-                        jQ('.sherd-analyzer').remove();
+                        $('.sherd-analyzer').remove();
                     });
                 } else {
-                    var importHeader = jQ('<h2 class="import-header"/>');
-                    var importHeaderWrap = jQ('<div id="import-header-wrap"/>');
+                    var importHeader = $('<h2 class="import-header"/>');
+                    var importHeaderWrap = $('<div id="import-header-wrap"/>');
                     importHeader.text('Choose item(s) to add to collection');
                     importHeaderWrap.append(importHeader);
-                    jQ(comp.h2).empty().append(importHeaderWrap);
+                    $(comp.h2).empty().append(importHeaderWrap);
                     if (comp.message.tagName) {
-                        jQ(comp.message).empty();
+                        $(comp.message).empty();
                     }
                 }
             }
@@ -3232,7 +3152,7 @@ window.MediathreadCollect = {
             return M.elt(doc,tag,className,style,children);
         };
         this.setupContent = function(target) {
-            var exists = jQ('div.sherd-analyzer',target);
+            var exists = $('div.sherd-analyzer', target);
             if (exists.length) {
                 comp.top = exists.empty().get(0);
             } else {
@@ -3241,10 +3161,10 @@ window.MediathreadCollect = {
                 target.appendChild(comp.top);
             }
             var pageYOffset = self.visibleY(target)+o.top;
-            var pageLength = jQ(document).height();
-            jQ(comp.top).css('height', pageLength);
+            var pageLength = $(document).height();
+            $(comp.top).css('height', pageLength);
             // if page is long make sure the user is placed at top
-            jQ(document).scrollTop(0);
+            $(document).scrollTop(0);
             var doc = target.ownerDocument;
             comp.top.appendChild(
                 self.elt(doc,'div','sherd-tab','',[o.tab_label]));
@@ -3287,10 +3207,10 @@ window.MediathreadCollect = {
                 window.location.replace(url + '/asset/');
             });
             M.connect(comp.close, 'click', function(evt) {
-                jQ('.sherd-analyzer').remove();
+                $('.sherd-analyzer').remove();
                 comp.window.style.display = 'none';
                 if (window.IEVideo) {
-                    jQ(window.IEVideo).css('display','block');
+                    $(window.IEVideo).css('display','block');
                 }
                 if (MediathreadCollect.options.decorate) {
                     comp.tab.style.display = 'block';
@@ -3321,10 +3241,10 @@ window.MediathreadCollect = {
         };
 
         this.clearAssets = function() {
-            jQ(comp.ul).empty();
+            $(comp.ul).empty();
         };
         this.removeAsset = function(asset) {
-            jQ('#' + asset.html_id).remove();
+            $('#' + asset.html_id).remove();
         };
         this.unHttpsTheLink = function(url) {
             newUrl = 'http://' + url.split('://')[1];
@@ -3351,7 +3271,7 @@ window.MediathreadCollect = {
                     src: img,
                     style: 'max-width:215px;max-height:150px',
                     height:null});
-                jQ(form.firstChild).empty().append(newAsset);
+                $(form.firstChild).empty().append(newAsset);
             }else{
 
                 asset.sources.thumb =
@@ -3364,7 +3284,7 @@ window.MediathreadCollect = {
                             style: 'max-width:215px;max-height:150px',
                             height: null
                         });
-                jQ(form.firstChild).empty().append(newAsset);
+                $(form.firstChild).empty().append(newAsset);
 
             }
             if (asset.disabled) {
@@ -3383,22 +3303,22 @@ window.MediathreadCollect = {
                         value: 'Collect'});
                 if (!window.IEVideo) {
                     //the continue button is not working in IE right now
-                    jQ(form).append(form.submitButton2);
+                    $(form).append(form.submitButton2);
                 }
-                jQ(form).append(form.submitButton);
-                jQ(form.submitButton).click(function() {
+                $(form).append(form.submitButton);
+                $(form.submitButton).click(function() {
                     var action = self.unHttpsTheLink(
-                        jQ(this).parent().attr('action'));
-                    jQ(this).parent().attr('action', action);
-                    jQ(this).parent().submit();
+                        $(this).parent().attr('action'));
+                    $(this).parent().attr('action', action);
+                    $(this).parent().submit();
                 });
-                jQ(form.submitButton2).click(function() {
-                    window.button_asset = jQ(this);
+                $(form.submitButton2).click(function() {
+                    window.button_asset = $(this);
                     /* A pop up window solution... */
-                    var bucketWrap = jQ('<div id="bucket-wrap"/>');
-                    var bucket = jQ(form).clone();
-                    jQ('input.analyze', bucket).remove();
-                    jQ('input.cont', bucket).remove();
+                    var bucketWrap = $('<div id="bucket-wrap"/>');
+                    var bucket = $(form).clone();
+                    $('input.analyze', bucket).remove();
+                    $('input.cont', bucket).remove();
                     var bucket_window = window.open(
                         '',
                         'Mediathread',
@@ -3406,54 +3326,54 @@ window.MediathreadCollect = {
                             'location=no,menubar=no,width=650,' +
                             'height=350,top=200,left=300'
                     );
-                    if (jQ('.sherd-image',bucket_window.document).length > 0) {
+                    if ($('.sherd-image',bucket_window.document).length > 0) {
                         // make sure the bucket dies not already exists, if so
                         // remove it.
-                        jQ('#bucket-wrap',bucket_window.document).remove();
+                        $('#bucket-wrap',bucket_window.document).remove();
                     }
                     bucket.appendTo(bucketWrap);
-                    jQ(bucket).append(
+                    $(bucket).append(
                         '<input type="hidden" value="cont" name="button" />');
-                    jQ(bucket).append(
+                    $(bucket).append(
                         '<br/><input id="submit-input" class="btn-primary" ' +
                             'type="button" value="Save" />');
-                    jQ(bucket).append(
+                    $(bucket).append(
                         '<input id="submit-cancel" class="btn-primary" ' +
                             'type="button" value="Cancel" />');
-                    jQ(bucket).append(
+                    $(bucket).append(
                         '<br/><span class ="help-text">Clicking "Save" ' +
                             'will add this item to your Mediathread ' +
                             'collection and return you to collecting.<span/>');
-                    jQ(bucketWrap).prepend(
+                    $(bucketWrap).prepend(
                         '<h2>Add this item to your Mediathread ' +
                             'collection</h2>');
-                    jQ('body',
+                    $('body',
                        bucket_window.document).append(bucketWrap);
-                    jQ('#submit-cancel',
+                    $('#submit-cancel',
                        bucket_window.document).click(
                            function() {
                                bucket_window.close();
                            });
-                    jQ('#submit-input', bucket_window.document)
+                    $('#submit-input', bucket_window.document)
                         .click(function() {
-                            jQ(this).parent().submit();
-                        var sherdOverlay = jQ('.sherd-window-inner',document);
+                            $(this).parent().submit();
+                        var sherdOverlay = $('.sherd-window-inner',document);
                             var alertSavedMarginLeft =
-                                (jQ('.sherd-window-inner',document)
+                                ($('.sherd-window-inner',document)
                                  .width()/2) - (535*0.5);
                             var alertSavedMarginTop =
-                                (jQ(window).height()/2) - 100;
+                                ($(window).height()/2) - 100;
                             var collectionUrl =
                                 self.unHttpsTheLink(
                                     host_url.split('save')[0] + 'asset/');
-                            var alertSaved = jQ(
+                            var alertSaved = $(
                                 '<div class="alert-saved">' +
                                     '<span style="font-weight:bold">' +
                                     'Success.</span> Your item has been ' +
                                     'sucessfully added to your ' +
                                     '<a href="' + collectionUrl +
                                     '">Mediathread collection</a>.</div>');
-                            var alertClose = jQ(
+                            var alertClose = $(
                                 '<div class="alert-close">X</div>');
 
                             alertSaved.css({
@@ -3462,7 +3382,7 @@ window.MediathreadCollect = {
 
                             });
                             alertClose.click(function() {
-                                jQ(this).parent().remove();
+                                $(this).parent().remove();
                             });
                             alertSaved.prepend(alertClose);
                             sherdOverlay.append(alertSaved);
@@ -3480,7 +3400,7 @@ window.MediathreadCollect = {
                     // style and add listeners onto the popup window
                     //force the title of the popup
                     bucket_window.document.title = 'Mediathread';
-                    var body = jQ('body',bucket_window.document);
+                    var body = $('body',bucket_window.document);
                     var title = body.find('.sherd-form-title');
                     var submitBtn = body.find('.btn-primary');
                     var header = body.find('#bucket-wrap h2');
@@ -3545,7 +3465,7 @@ window.MediathreadCollect = {
                         'display': 'inline-block'
                     });
                     submitBtn.hover(function() {
-                        jQ(this).css({
+                        $(this).css({
                             'background-image': [
                                 '-moz-linear-gradient(top, #efefef, #fcfcfc)',
                                 '-webkit-gradient(linear, 0 0, 0 100%, ' +
@@ -3557,7 +3477,7 @@ window.MediathreadCollect = {
                             ]
                         });
                     }, function() {
-                        jQ(this).css({
+                        $(this).css({
                             'background-image': [
                                 '-moz-linear-gradient(top, #fcfcfc, #efefef)',
                                 '-webkit-gradient(linear, 0 0, 0 100%, ' +
@@ -3582,7 +3502,7 @@ window.MediathreadCollect = {
             if (comp.ul) {
                 if (comp.ul.firstChild !== null &&
                     comp.ul.firstChild.innerHTML == o.message_no_assets) {
-                    jQ(comp.ul.firstChild).remove();
+                    $(comp.ul.firstChild).remove();
                 }
                 comp.ul.appendChild(li);
             }
@@ -3592,8 +3512,8 @@ window.MediathreadCollect = {
             if (comp.message) {
                 comp.message ='';/*erase searching message*/
                 if (!results.found) {
-                    jQ(comp.h2).text(o.message_no_assets_short);
-                    jQ(comp.ul).html(self.elt(
+                    $(comp.h2).text(o.message_no_assets_short);
+                    $(comp.ul).html(self.elt(
                         comp.ul.ownerDocument,'li','','',
                         [o.message_no_assets]));
                 }
@@ -3628,7 +3548,7 @@ window.MediathreadCollect = {
             comp.saveAllButton.disabled = true;
             comp.saveAllButton.innerHTML = 'Saving...';
 
-            var all_forms = jQ('form', comp.ul);
+            var all_forms = $('form', comp.ul);
             var done = 0,
                 frmids = 0,
                 todo = all_forms.length,
@@ -3636,22 +3556,22 @@ window.MediathreadCollect = {
                 updateForm = function(frm, new_href) {
                     if (frm) {
                         frm.disabled = true;
-                        jQ(frm.submitButton).remove();
+                        $(frm.submitButton).remove();
                         if (new_href) {
-                            jQ(frm).append(self.elt(null,'span','',{}, [
+                            $(frm).append(self.elt(null,'span','',{}, [
                                 self.elt(
                                     null,'a','',
                                     {href:new_href},
                                     [o.link_text_for_existing_asset])
                             ]));
                         } else {
-                            jQ(frm).append(self.elt(
+                            $(frm).append(self.elt(
                                 null,'span','',{},[' Saved! ']));
                         }
                     }
                 };
             if (window.postMessage) {
-                jQ(window).bind('message', function(jevt) {
+                $(window).bind('message', function(jevt) {
                     //eh, let's not use this after all
                     var evt = jevt.originalEvent;
                     if (host_url.indexOf(evt.origin) === -1 )
@@ -3688,7 +3608,7 @@ window.MediathreadCollect = {
                 //special since it was set by DOM (or changed) above
                 new_frm.elements.title.value = this.elements.title.value;
 
-                jQ(iframe).load(function(evt) {
+                $(iframe).load(function(evt) {
                     ++done;
                     comp.saveAllButton.innerHTML = 'Saved ' + done + ' of ' +
                         todo + '...';
