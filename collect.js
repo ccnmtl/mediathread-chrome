@@ -71,7 +71,7 @@
 
   Besides finding media, an assethandler can also find metadata,
   and if the metadata can only be pinned to 'something on the page'
-  then you should set 'page_resource':true in the assethandler dict.
+  then you should set 'page_resource': true in the assethandler dict.
 
   Each .find method is called as
   find.apply(assethandler,callback,{window: window,document: document})
@@ -127,13 +127,13 @@
 
   .match(embed_or_object) = this function should ===null if the embed/object
   tag does not match, and can return anything else, if it does match.
-  .asset(embed_or_object,match_rv,context,index,optional_callback)
-  @match_rv = whatever .match returned
-  @optional_callback = you can just return the asset_object directly
+  .asset(embed_or_object,matchRv,context,index,optionalCallback)
+  @matchRv = whatever .match returned
+  @optionalCallback = you can just return the asset_object directly
   but if you need to do ajax, or callback-based apis to get all the
   info/metadata, then you can return an asset object with with a
-  'wait':true key, and then call
-  optional_callback(@index, asset_object) where @index is the
+  'wait': true key, and then call
+  optionalCallback(@index, asset_object) where @index is the
   index argument passed to .asset.
 
 
@@ -645,8 +645,6 @@ window.MediathreadCollect = {
                         return false;
                     }
 
-                    // if (jQuery('a.usc-flowplayer > :first').is('img'))
-                    //   jQuery('a.usc-flowplayer').trigger('click');
                     var fpId = jQuery('a.usc-flowplayer > :first ')
                         .attr('id');
                     var video = document.getElementById(fpId);
@@ -1172,11 +1170,11 @@ window.MediathreadCollect = {
                     ) {
                         video = document.getElementsByTagName('video')[0];
                         var videoId = jQuery(video).attr('data-youtube-id');
-                        var faux_match = [null, videoId];
+                        var fauxMatch = [null, videoId];
                         MediathreadCollect.assethandler.objects_and_embeds
                             .players.youtube.asset(
                                 video,
-                                faux_match,
+                                fauxMatch,
                                 {
                                     'window': window,
                                     'document': document
@@ -1215,20 +1213,20 @@ window.MediathreadCollect = {
                                 null);
                     },
                     asset: function(emb, match, context, index,
-                                    optional_callback) {
+                                    optionalCallback) {
                         var jQ =
                             (window.MediathreadCollectOptions.jQuery ||
                              window.jQuery);
                         var abs = MediathreadCollect.absolute_url;
                         var rv = {
-                            html:emb,
+                            html: emb,
                             primary_type: 'realplayer',
                             sources: {}
                         };
-                        if (match=='emb') {
+                        if (match === 'emb') {
                             rv.sources.realplayer = abs(
                                 emb.src, context.document);
-                        } else if (match=='obj') {
+                        } else if (match === 'obj') {
                             var src = jQ('param[name=src],param[name=SRC]',emb);
                             if (src.length) {
                                 rv.sources.realplayer = abs(src.get(0).value,
@@ -1246,8 +1244,8 @@ window.MediathreadCollect = {
                             rv.sources.title = emb.GetTitle() || undefined;
                             if (rv.sources.title) {//let's try for the rest
                                 rv.metadata = {
-                                    'author' : [emb.GetAuthor() || undefined],
-                                    'copyright' : [emb.GetCopyright() ||
+                                    'author': [emb.GetAuthor() || undefined],
+                                    'copyright': [emb.GetCopyright() ||
                                                    undefined]
                                 };
                             }
@@ -1265,7 +1263,8 @@ window.MediathreadCollect = {
                         return String(emb.src).match(
                                 /^http:\/\/www.youtube.com\/v\/([\w\-]*)/);
                     },
-                    asset: function(emb,match,context,index,optional_callback) {
+                    asset: function(emb, match, context,
+                                    index, optionalCallback) {
                         var apikey = MediathreadCollect.options.youtube_apikey;
 
                         var jQ = (window.MediathreadCollectOptions.jQuery ||
@@ -1290,14 +1289,16 @@ window.MediathreadCollect = {
                             }};
                         if (emb.getCurrentTime) {
                             if (emb.getCurrentTime() > 0 &&
-                                emb.getCurrentTime() < emb.getDuration())
+                                emb.getCurrentTime() < emb.getDuration()
+                               ) {
                                 rv.hash = 'start=' + emb.getCurrentTime();
+                            }
                         }
-                        var yt_callback = 'sherd_youtube_callback_' + index;
-                        window[yt_callback] = function(yt_data, b, c) {
-                            console.log('yt_data', yt_data, b, c);
-                            if (yt_data.items.length > 0) {
-                                var item = yt_data.items[0].snippet;
+                        var ytCallback = 'sherd_youtube_callback_' + index;
+                        window[ytCallback] = function(ytData, b, c) {
+                            console.log('ytData', ytData, b, c);
+                            if (ytData.items.length > 0) {
+                                var item = ytData.items[0].snippet;
                                 rv.sources.title = item.title;
 
                                 var th = item.thumbnails.default;
@@ -1310,25 +1311,26 @@ window.MediathreadCollect = {
                                     'Channel': [item.channelTitle],
                                     'Published': [item.publishedAt]
                                 };
-                                rv.disabled = !yt_data.items[0].status
+                                rv.disabled = !ytData.items[0].status
                                     .embeddable;
                             }
-                            optional_callback(index, rv);
+                            optionalCallback(index, rv);
                         };
-                        console.log('cb', window[yt_callback]);
-                        var ajax_options = {
+                        console.log('cb', window[ytCallback]);
+                        var ajaxOptions = {
                             url: rv.sources.gapi + '&key=' + apikey +
-                                '&part=snippet,status&callback=' + yt_callback,
+                                '&part=snippet,status&callback=' + ytCallback,
                             dataType: 'script',
-                            error: function() {optional_callback(index);}
+                            error: function() {optionalCallback(index);}
                         };
                         if (MediathreadCollect.options.cross_origin) {
-                            ajax_options.dataType = 'json';
-                            ajax_options.success = window[yt_callback];
+                            ajaxOptions.dataType = 'json';
+                            ajaxOptions.success = window[ytCallback];
                             console.log('rv', rv.sources.gdata);
-                            ajax_options.url = rv.sources.gdata+'?v=2&alt=json';
+                            ajaxOptions.url = rv.sources.gdata +
+                                '?v=2&alt=json';
                         }
-                        jQ.ajax(ajax_options);
+                        jQ.ajax(ajaxOptions);
                         // YT is declaring maximum z-index for Safari and it
                         // cannot be overriden via CSS
                         // we need to redeclare it
@@ -1339,13 +1341,17 @@ window.MediathreadCollect = {
                 'jwplayer5': {
                     match: function(obj) {
                         return ((typeof obj.getPlaylist === 'function' &&
-                                 typeof obj.sendEvent==='function') || null);
+                                 typeof obj.sendEvent === 'function') || null);
                     },
                     asset: function(obj, match, context) {
-                        var item, pl = obj.getPlaylist();
+                        var item;
+                        pl = obj.getPlaylist();
                         switch (pl.length) {
-                        case 0: return {};
-                        case 1: item = pl[0]; break;
+                        case 0:
+                            return {};
+                        case 1:
+                            item = pl[0];
+                            break;
                         default:
                             //or should we just show all options?
                             if (obj.jwGetPlaylistIndex) {
@@ -1381,14 +1387,14 @@ window.MediathreadCollect = {
                                 item.file;
                             rv.primary_type = 'video_rtmp';
                         } else {
-                            var url = item.streamer+item.file;
+                            var url = item.streamer + item.file;
                             if (pcfg.startparam) {
                                 rv.primary_type = 'video_pseudo';
                                 url += '?' + pcfg.startparam + '=${start}';
                             }
                             rv.sources[rv.primary_type] = url;
                         }
-                        rv.sources[rv.primary_type+'-metadata'] =
+                        rv.sources[rv.primary_type + '-metadata'] =
                             'w' + c.width + 'h' + c.height;
                         if (item.image) {
                             rv.sources.thumb =
@@ -1398,7 +1404,9 @@ window.MediathreadCollect = {
                         }
                         if (item.title) {
                             rv.sources.title = item.title;
-                        } else rv.sources.title = document.title;
+                        } else {
+                            rv.sources.title = document.title;
+                        }
                         return rv;
                     }
                 },
@@ -1410,7 +1418,7 @@ window.MediathreadCollect = {
                         } else {//IE7 ?+
                             var jQ =
                                 (window.MediathreadCollectOptions.jQuery ||
-                                 window.jQuery );
+                                 window.jQuery);
                             var movie = MediathreadCollect.find_by_attr(
                                 jQ, 'param', 'name', 'movie', obj);
                             return (
@@ -1420,7 +1428,7 @@ window.MediathreadCollect = {
                                     null);
                         }
                     },
-                    asset: function(obj,match,context) {
+                    asset: function(obj, match, context) {
                         /* TODO: 1. support audio
                          */
                         var jQ = (window.MediathreadCollectOptions.jQuery ||
@@ -1446,7 +1454,7 @@ window.MediathreadCollect = {
                             ($f && $f.id() || undefined));
                     },
                     queryasset: function(context, obj, cfg,
-                                         clip, time, ref_id) {
+                                         clip, time, refId) {
                         var sources = {};
                         var type = 'video';
                         var abs = MediathreadCollect.absolute_url;
@@ -1456,15 +1464,14 @@ window.MediathreadCollect = {
                             for (var i = 0; i < cfg.playlist.length; i++) {
                                 var p = cfg.playlist[i];
                                 var url =  abs(
-                                    ((typeof p=='string') ? p : p.url),
+                                    ((typeof p === 'string') ? p : p.url),
                                     context.document,p.baseUrl);
                                 if (/\.(jpg|jpeg|png|gif)/.test(url)) {
                                     //redundant urls wasteful, but useful
                                     sources.thumb = url;
                                     sources.poster = url;
                                     continue;
-                                }
-                                else if (!clip.type || clip.type == 'image') {
+                                } else if (!clip.type || clip.type == 'image') {
                                     if (/\.flv$/.test(url)) {
                                         clip = p;
                                         type = 'flv';
@@ -1479,7 +1486,7 @@ window.MediathreadCollect = {
                         }
                         var provider = (clip.provider &&
                                         cfg.plugins[clip.provider]) || false;
-                        function get_provider(c) {
+                        function getProvider(c) {
                             if (provider) {
                                 var plugin = provider.url;
                                 if (/pseudostreaming/.test(plugin)) {
@@ -1490,37 +1497,37 @@ window.MediathreadCollect = {
                             }
                             return '';
                         }
-                        var primary_type = type+get_provider(clip);
-                        sources[primary_type] = clip.completeUrl ||
+                        var primaryType = type + getProvider(clip);
+                        sources[primaryType] = clip.completeUrl ||
                             clip.originalUrl || clip.resolvedUrl ||
                             clip.url || clip;
                         if (provider && provider.netConnectionUrl) {
-                            sources[primary_type] = provider.netConnectionUrl +
-                                sources[primary_type];
+                            sources[primaryType] = provider.netConnectionUrl +
+                                sources[primaryType];
                         }
                         // TODO:is context.document the right
                         // relative URL instead of the SWF?
-                        sources[primary_type] = abs(
-                            sources[primary_type], context.document);
-                        if (/_pseudo/.test(primary_type) &&
+                        sources[primaryType] = abs(
+                            sources[primaryType], context.document);
+                        if (/_pseudo/.test(primaryType) &&
                             cfg.plugins[clip.provider].queryString) {
-                            sources[primary_type] +=
+                            sources[primaryType] +=
                                 unescape(
                                     cfg.plugins[clip.provider].queryString);
                         }
                         if (clip.width && clip.width >= obj.offsetWidth) {
-                            sources[primary_type+'-metadata'] =
+                            sources[primaryType + '-metadata'] =
                                 'w' + clip.width + 'h' + clip.height;
                         } else {
-                            sources[primary_type+'-metadata'] =
+                            sources[primaryType + '-metadata'] =
                                 'w' + obj.offsetWidth +
                                 'h' + (obj.offsetHeight-25);
                         }
 
-                        var meta_obj = MediathreadCollect.flowclipMetaSearch(
+                        var metaObj = MediathreadCollect.flowclipMetaSearch(
                             document);
-                        for(var k in meta_obj) {
-                            sources[k] = meta_obj[k];
+                        for(var k in metaObj) {
+                            sources[k] = metaObj[k];
                         }
                         if (!sources.thumb) {
                             var paramConfig =
@@ -1533,12 +1540,12 @@ window.MediathreadCollect = {
                             sources.thumb = paramThumb;
                         }
                         return {
-                            'html':obj,
-                            'sources':sources,
+                            'html': obj,
+                            'sources': sources,
                             'label': 'video',
-                            'primary_type':primary_type,
+                            'primary_type': primaryType,
                             'hash': 'start=' + Math.floor(time),
-                            'ref_id':ref_id //used for merging
+                            'ref_id': refId //used for merging
                         };
                     }
                 },/*end flowplayer3*/
@@ -1592,8 +1599,8 @@ window.MediathreadCollect = {
                                   (objemb.resource && String(objemb.resource)
                                    .search('kaltura') > -1)))) || null;
                     },
-                    asset: function(objemb, match_rv, context,
-                                    index, optional_callback) {
+                    asset: function(objemb, matchRv, context,
+                                    index, optionalCallback) {
                         var stream = objemb.data || objemb.src;
                         if (!stream) {
                             var jQ = (window.MediathreadCollectOptions.jQuery ||
@@ -1688,14 +1695,14 @@ window.MediathreadCollect = {
                                   (objemb.src && String(objemb.src)
                                    .search('moogaloop.swf') > -1)))) || null;
                     },
-                    asset: function(objemb, match_rv, context,
-                                    index, optional_callback) {
+                    asset: function(objemb, matchRv, context,
+                                    index, optionalCallback) {
                         var jQ = (window.MediathreadCollectOptions.jQuery ||
                                   window.jQuery);
 
                         var vimeoId;
-                        if (match_rv) {
-                            vimeoId = match_rv;
+                        if (matchRv) {
+                            vimeoId = matchRv;
                         } else {
                             var matches = objemb.src &&
                                 objemb.src.match(/clip_id=([\d]*)/);
@@ -1718,7 +1725,7 @@ window.MediathreadCollect = {
 
                         var rv = {
                             html:objemb,
-                            wait:true,
+                            wait: true,
                             primary_type: 'vimeo',
                             label: 'vimeo video',
                             sources: {
@@ -1728,12 +1735,13 @@ window.MediathreadCollect = {
 
                         if (objemb.api_getCurrentTime) {
                             if (objemb.api_getCurrentTime() > 0) {
-                                rv.hash='start=' + objemb.api_getCurrentTime();
+                                rv.hash = 'start=' +
+                                    objemb.api_getCurrentTime();
                             }
                         }
 
-                        var vm_callback = 'sherd_vimeo_callback_' + index;
-                        window[vm_callback] = function(vm_data) {
+                        var vmCallback = 'sherd_vimeo_callback_' + index;
+                        window[vmCallback] = function(vm_data) {
                             if (vm_data && vm_data.length > 0) {
                                 var info = vm_data[0];
                                 rv.sources.title = info.title;
@@ -1743,22 +1751,22 @@ window.MediathreadCollect = {
                                 rv.sources.width = info.width;
                                 rv.sources.height = info.height;
                             }
-                            optional_callback(index, rv);
+                            optionalCallback(index, rv);
                         };
-                        var ajax_options = {
+                        var ajaxOptions = {
                             url: 'https://www.vimeo.com/api/v2/video/' +
-                                vimeoId + '.json?callback=' + vm_callback,
+                                vimeoId + '.json?callback=' + vmCallback,
                             dataType: 'script',
-                            error: function() {optional_callback(index);}
+                            error: function() {optionalCallback(index);}
                         };
                         if (MediathreadCollect.options.cross_origin) {
-                            ajax_options.dataType = 'json';
-                            ajax_options.success = window[vm_callback];
-                            ajax_options.url =
+                            ajaxOptions.dataType = 'json';
+                            ajaxOptions.success = window[vmCallback];
+                            ajaxOptions.url =
                                 'https://www.vimeo.com/api/v2/video/' +
                                 vimeoId + '.json';
                         }
-                        jQ.ajax(ajax_options);
+                        jQ.ajax(ajaxOptions);
                         return rv;
                     }
                 },
@@ -1770,7 +1778,7 @@ window.MediathreadCollect = {
                                 .match(/zoomifyImagePath=([^&\"\']*)/));
                     },
                     asset: function(objemb, match, context,
-                                    index, optional_callback) {
+                                    index, optionalCallback) {
                         var jQ = (window.MediathreadCollectOptions.jQuery ||
                                   window.jQuery);
                         var tile_root = MediathreadCollect.absolute_url(
@@ -1845,7 +1853,7 @@ window.MediathreadCollect = {
                                                  'h' + (dim.height*dim.y));
                                             rv_zoomify._data_collection =
                                                 'Hackish tile walk';
-                                            return optional_callback(
+                                            return optionalCallback(
                                                 index, rv_zoomify);
                                         }
                                         break;
@@ -1866,17 +1874,6 @@ window.MediathreadCollect = {
                                 url: tile_root + '/ImageProperties.xml',
                                 dataType: 'text',
                                 success: function(dir) {
-                                    /*
-                                      was for url = tile_root+'/TileGroup0/'
-                                      parsing:
-
-                                      var zooms = dir.split('">').reverse()[3]
-                                          .match(/\d+/);
-                                      var exp = Math.pow(2,zooms);
-                                      sources['xyztile-metadata'] =
-                                          'w' + (img.width*exp) +
-                                          'h' +(img.height*exp);
-                                    */
                                     var re = /WIDTH=\"(\d+)\"\s+HEIGHT=\"(\d+)\"/;
                                     var sizes = dir.match(re);
                                     rv_zoomify.sources['xyztile-metadata'] =
@@ -1884,7 +1881,7 @@ window.MediathreadCollect = {
                                         'h' + (sizes[2]);
                                     rv_zoomify._data_collection =
                                         'ImageProperties.xml';
-                                    optional_callback(index, rv_zoomify);
+                                    optionalCallback(index, rv_zoomify);
                                 },
                                 error: hard_way
                             });
@@ -1944,7 +1941,7 @@ window.MediathreadCollect = {
                     var mtype = String(video.type).match(codecs);
                     if (mtype) {
                         vid_type = mtype[1].toLowerCase();
-                        if (video.canPlayType(video.type)=='probably')
+                        if (video.canPlayType(video.type) === 'probably')
                             rv.primary_type = vid_type;
                     } else if (mtype == String(source.src).match(codecs)) {
                         vid_type = mtype[1].toLowerCase().replace('ogv', 'ogg');
@@ -1952,7 +1949,7 @@ window.MediathreadCollect = {
                     if (rv.primary_type == 'video')
                         rv.primary_type = vid_type;
                     rv.sources[vid_type] = source.src;
-                    rv.sources[vid_type+'-metadata'] =
+                    rv.sources[vid_type + '-metadata'] =
                         'w' + video.videoWidth +
                         'h' + video.videoHeight;
                 };
@@ -2209,8 +2206,9 @@ window.MediathreadCollect = {
             }
         },/* end image assethandler */
         'mediathread': {
-            ///the better we get on more generic things, the more redundant this will be
-            ///BUT it might have more metadata
+            // the better we get on more generic things, the more
+            // redundant this will be
+            // BUT it might have more metadata
             find: function(callback) {
                 var result = [];
                 var jQ = (window.MediathreadCollectOptions.jQuery ||
@@ -2237,7 +2235,7 @@ window.MediathreadCollect = {
             }
         },/* end mediathread assethandler */
         'unAPI': {/// http://unapi.info/specs/
-            page_resource:true,
+            page_resource: true,
             find: function(callback,context) {
                 var self = this;
                 var jQ = (window.MediathreadCollectOptions.jQuery ||
@@ -2287,7 +2285,7 @@ window.MediathreadCollect = {
                                        ) {
                                         rv.sources.title = this.firstChild.data;
                                     } else {
-                                        rv.metadata[titleType+':Title'] = [
+                                        rv.metadata[titleType + ':Title'] = [
                                             this.firstChild.data];
                                     }
                                 });
@@ -2337,7 +2335,7 @@ window.MediathreadCollect = {
                                     // if Openvault
                                     if (request_url.indexOf('openvault') > 0) {
                                         rv = {
-                                            'page_resource':true,
+                                            'page_resource': true,
                                             'html': document,
                                             'primary_type': 'pbcore',
                                             'sources': {
@@ -2371,7 +2369,7 @@ window.MediathreadCollect = {
             }
         },/* end unAPI assethandler */
         'oEmbed.json': {/// http://www.oembed.com/
-            page_resource:true,
+            page_resource: true,
             find: function(callback,context) {
                 var self = this;
                 var jQ = (window.MediathreadCollectOptions.jQuery ||
@@ -2469,7 +2467,9 @@ window.MediathreadCollect = {
         if (!obj.sources.url) obj.sources.url = String(document.location);
         var destination =  host_url;
         for (var a in obj.sources) {
-            if (typeof obj.sources[a] =='undefined') continue;
+            if (typeof obj.sources[a] === 'undefined') {
+                continue;
+            }
             destination += (a + '=' + escape(obj.sources[a]) + '&');
         }
         if (obj.hash) {
@@ -2507,7 +2507,7 @@ window.MediathreadCollect = {
     'addField': function(name,value,form,doc) {
         var span = doc.createElement('span');
         var item = doc.createElement('input');
-        if (name=='title') {
+        if (name === 'title') {
             item.type = 'text';
             //IE7 doesn't allow setAttribute here, mysteriously
             item.className = 'sherd-form-title';
@@ -2528,7 +2528,9 @@ window.MediathreadCollect = {
              * this also allows us to send larger amounts of metadata
              */
             for (var a in obj.sources) {
-                if (typeof obj.sources[a] =='undefined') continue;
+                if (typeof obj.sources[a] === 'undefined') {
+                    continue;
+                }
                 M.addField(a, obj.sources[a],form,doc);
             }
             if (!obj.sources.title) {
@@ -2645,7 +2647,7 @@ window.MediathreadCollect = {
             .indexOf(cls) > -1;
     },
     'hasBody': function(doc) {
-        return (doc.body && 'body'==doc.body.tagName.toLowerCase());
+        return (doc.body && 'body' === doc.body.tagName.toLowerCase());
     },
     'clean': function(str) {
         return str.replace(/^\s+/,'').replace(/\s+$/,'').replace(/\s+/,' ');
@@ -2742,7 +2744,7 @@ window.MediathreadCollect = {
     'metadataTableSearch': function(elem, doc) {
         /*If asset is in a table and the next row has the word 'Metadata' */
         var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
-        if ('td'===elem.parentNode.tagName.toLowerCase()) {
+        if ('td' === elem.parentNode.tagName.toLowerCase()) {
             var trs = jQ(elem.parentNode.parentNode).nextAll();
             if (trs.length && /metadata/i.test(jQ(trs[0]).text())) {
                 var props = {};
@@ -2873,13 +2875,15 @@ window.MediathreadCollect = {
         var t = doc.createElement(tag);
         t.setAttribute('class',className);
         if (typeof style == 'string') {
-            t.setAttribute('style',style);
-            setStyle(t,style);
+            t.setAttribute('style', style);
+            setStyle(t, style);
         } else for (var a in style) {
-            t.setAttribute(a,style[a]);
-            if (style[a] === null) t.removeAttribute(a);
-            if (a==='style') {
-                setStyle(t,style[a]);
+            t.setAttribute(a, style[a]);
+            if (style[a] === null) {
+                t.removeAttribute(a);
+            }
+            if (a === 'style') {
+                setStyle(t, style[a]);
             }
         }
         if (children) {
@@ -2897,7 +2901,7 @@ window.MediathreadCollect = {
     /**************
    Finder finds assets in a document (and all sub-frames)
     *************/
-    'Finder' : function() {
+    'Finder': function() {
         var self = this;
         var jQ = (window.MediathreadCollectOptions.jQuery ||window.jQuery );
 
@@ -3112,7 +3116,7 @@ window.MediathreadCollect = {
     },/*****************
      END Finder
       *****************/
-    'Interface' : function (host_url, options) {
+    'Interface': function (host_url, options) {
         var M = MediathreadCollect;
         this.options = {
             login_url:null,
@@ -3124,7 +3128,7 @@ window.MediathreadCollect = {
             postTarget: '_top',
             top:100,
             side: 'left',
-            fixed:true,
+            fixed: true,
             message_no_assets: 'Sorry, no supported assets were found on ' +
                 'this page. Try going to an asset page if you are on a ' +
                 'list/search page.  If there is a video on the page, press ' +
@@ -3162,7 +3166,7 @@ window.MediathreadCollect = {
         this.showWindow = function() {
             self.windowStatus = true;
             if (comp.window) {
-                comp.window.style.top = self.visibleY(comp.window)+'px';
+                comp.window.style.top = self.visibleY(comp.window) + 'px';
                 comp.window.style.display = 'block';
                 comp.tab.style.display = 'none';
                 jQ(comp.ul).empty();
@@ -3194,8 +3198,8 @@ window.MediathreadCollect = {
                     var winWidth = jQ(window).width();
                     messageClose.appendTo(messageDiv);
                     messageDiv.css({
-                        'top': winHeight/2 - 125 +'px',
-                        'left': winWidth/2- 267 +'px',
+                        'top': winHeight / 2 - 125 + 'px',
+                        'left': winWidth / 2 - 267 + 'px',
                         'display': 'none'
                     }).appendTo('.sherd-analyzer');
 
@@ -3249,8 +3253,6 @@ window.MediathreadCollect = {
                     self.elt(doc,'div','sherd-window-inner','',[
                         self.elt(
                             doc,'button','sherd-close btn-primary','',['X']),
-                        //self.elt(
-                        //   doc,'button','sherd-move','float:right;',['Move']),
                         self.elt(
                             doc,'button',
                             'sherd-collection btn-primary',
@@ -3716,7 +3718,7 @@ if (!window.MediathreadCollectOptions) {
     window.MediathreadCollectOptions = {};
 }
 
-///1. search for assets--as soon as we find one, break out and send show:true
+///1. search for assets--as soon as we find one, break out and send show: true
 ///2. on request, return a full asset list
 ///3. allow the grabber to be created by sending an asset list to it
 MediathreadCollect.options = MediathreadCollectOptions;
