@@ -1,3 +1,8 @@
+2015-08-25  Nik Nyby  <nnyby@columbia.edu>
+
+	* Clean up JavaScript
+	* Connect to main mediathread instance
+
 2015-08-19  Nik Nyby  <nnyby@columbia.edu>
 
 	* Upgrade jQuery to 2.1.4
