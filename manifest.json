@@ -21,6 +21,6 @@
     "permissions": [
         "activeTab"
     ],
-    "version": "0.4",
+    "version": "0.5",
     "manifest_version": 2
 }
