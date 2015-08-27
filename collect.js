@@ -484,36 +484,6 @@ window.MediathreadCollect = {
             decorate: function(objs) {
             }
         },
-        'dropbox.com': {
-            find: function(callback) {
-                var saveLink = document.getElementById(
-                    'gallery_full_size');
-                if (saveLink) {
-                    var regex = String(saveLink.href).match(
-                            /dropbox.com\/s\/[^\/]+\/([^?]+)/);
-                    if (regex) {
-                        var img = document.createElement('img');
-                        img.src = saveLink;
-                        $(img).bind('load', function() {
-                            callback([{
-                                primary_type: 'image',
-                                sources: {
-                                    'title': regex[1],
-                                    'image': img.src,
-                                    'url': String(document.location),
-                                    'image-metadata': 'w' + img.width +
-                                        'h' + img.height
-                                }
-                            }]);
-                        });
-                    } else {
-                        callback([]);
-                    }
-                } else {
-                    callback([]);
-                }
-            }
-        },
         'flickr.com': {
             find: function(callback) {
                 var apikey = MediathreadCollect.options.flickr_apikey;
