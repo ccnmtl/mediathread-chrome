@@ -2375,7 +2375,7 @@ window.MediathreadCollect = {
         }
         return destination;
     },/*obj2url*/
-    'obj2form': function(host_url,obj,doc,target, index) {
+    'obj2form': function(host_url, obj, doc, target, index) {
         var M = window.MediathreadCollect;
         doc = doc||document;
         target = target||'_top';
@@ -3242,8 +3242,7 @@ window.MediathreadCollect = {
                     style: 'max-width:215px;max-height:150px',
                     height:null});
                 $(form.firstChild).empty().append(newAsset);
-            }else{
-
+            } else {
                 asset.sources.thumb =
                     host_url.split('save')[0] + 'media/img/nothumb_video.png';
                 newAsset =
@@ -3255,22 +3254,22 @@ window.MediathreadCollect = {
                             height: null
                         });
                 $(form.firstChild).empty().append(newAsset);
-
             }
             if (asset.disabled) {
                 form.lastChild.innerHTML = o.message_disabled_asset;
             } else if (MediathreadCollect.user_ready()) {
                 form.submitButton = self.elt(
-                    null, 'input','analyze btn-primary',
+                    null, 'input', 'analyze btn-primary',
                     {
                         type: 'button',
                         value: 'Open in Mediathread'
                     });
                 form.submitButton2 = self.elt(
-                    null,'input','cont btn-primary',
+                    null, 'input', 'cont btn-primary',
                     {
                         type: 'button',
-                        value: 'Collect'});
+                        value: 'Collect'
+                    });
                 if (!window.IEVideo) {
                     //the continue button is not working in IE right now
                     $(form).append(form.submitButton2);
