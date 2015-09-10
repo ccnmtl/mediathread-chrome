@@ -1202,7 +1202,6 @@ window.MediathreadCollect = {
                         } else {
                             return {};
                         }
-                        console.log('VIDEO_ID', VIDEO_ID);
                         var rv = {
                             html: emb,
                             wait: true,
@@ -1221,9 +1220,7 @@ window.MediathreadCollect = {
                                 rv.hash = 'start=' + emb.getCurrentTime();
                             }
                         }
-                        var ytCallback = 'sherd_youtube_callback_' + index;
-                        window[ytCallback] = function(ytData, b, c) {
-                            console.log('ytData', ytData, b, c);
+                        var ytCallback = function(ytData, b, c) {
                             if (
                                 $.type(ytData.items) === 'array' &&
                                     ytData.items.length > 0
@@ -1246,21 +1243,26 @@ window.MediathreadCollect = {
                             }
                             optionalCallback(index, rv);
                         };
-                        console.log('cb', window[ytCallback]);
-                        var ajaxOptions = {
-                            url: rv.sources.gapi + '&key=' + apikey +
-                                '&part=snippet,status&callback=' + ytCallback,
-                            dataType: 'script',
-                            error: function() {optionalCallback(index);}
+
+                        // url params as specified here:
+                        // https://developers.google.com/youtube/v3/docs/videos/list#try-it
+                        var urlParams = {
+                            key: apikey,
+                            part: 'snippet,status'
                         };
-                        if (MediathreadCollect.options.cross_origin) {
-                            ajaxOptions.dataType = 'json';
-                            ajaxOptions.success = window[ytCallback];
-                            console.log('rv', rv.sources.gdata);
-                            ajaxOptions.url = rv.sources.gdata +
-                                '?v=2&alt=json';
-                        }
-                        $.ajax(ajaxOptions);
+
+                        // gapi will be a string that includes the id, like
+                        // https://www.googleapis.com/youtube/v3/videos?id=Tu42VMSZV8o
+                        var url = rv.sources.gapi + '&' + $.param(urlParams);
+
+                        $.ajax({
+                            url: url,
+                            dataType: 'json',
+                            success: ytCallback,
+                            error: function() {
+                                optionalCallback(index);
+                            }
+                        });
                         // YT is declaring maximum z-index for Safari and it
                         // cannot be overriden via CSS
                         // we need to redeclare it
@@ -2498,7 +2500,11 @@ window.MediathreadCollect = {
                         'assets. ' +
                         'Try going to an asset page.';
                     return alert(message);
-                } else if (assets.length === 1 && assets[0].disabled) {
+                } else if (
+                    assets.length === 1 &&
+                        $.type(assets[0]) === 'object' &&
+                        assets[0].disabled
+                ) {
                     return alert(
                         'This asset cannot be embedded on external sites. ' +
                             'Please select another asset.');
@@ -3226,7 +3232,9 @@ window.MediathreadCollect = {
                 // make sure to strip out any url params
                 asset.sources[asset.primary_type] = assetUrl.split('?')[0];
             }
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
             var doc = comp.ul.ownerDocument;
             var li = doc.createElement('li');
             var jump_url = M.obj2url(host_url, asset);
