@@ -1492,8 +1492,21 @@ window.MediathreadCollect = {
                                 .split('config=')[1];
                             paramConfig = JSON.parse(paramConfig);
                             var paramObj = paramConfig;
-                            paramThumb = paramObj.canvas.background.split(
-                                'url(')[1].split(')')[0];
+                            var paramThumb;
+                            if (paramObj &&
+                                paramObj.canvas &&
+                                paramObj.canvas.background
+                               ) {
+                                var bg = paramObj.canvas.background;
+                                var bgsplit = bg.split('url(');
+                                if (bgsplit.length > 1) {
+                                    paramThumb = bgsplit[1].split(')')[0];
+                                }
+                                // Otherwise,
+                                // background doesn't contain the string "url()",
+                                // so it's probably something like #000000. Just
+                                // ignore it - the thumbnail isn't essential.
+                            }
                             sources.thumb = paramThumb;
                         }
                         return {
