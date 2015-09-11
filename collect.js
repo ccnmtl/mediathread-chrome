@@ -305,7 +305,7 @@ window.MediathreadCollect = {
                 var foundImages = [];
                 var floatingPane = $('.MetaDataWidgetRoot');
                 var selectedThumbs = $('.thumbNailImageSelected');
-                if (floatingPane.length) {
+                if (floatingPane.length > 0) {
                     var dom = floatingPane.get(0);
                     foundImages.push({
                         'artstorId': dom.id.substr(3),/*after 'mdw'*/
@@ -314,7 +314,7 @@ window.MediathreadCollect = {
                         'primary_type': 'image_fpx',
                         'html': dom
                     });
-                } else if (selectedThumbs.length) {
+                } else if (selectedThumbs.length > 0) {
                     selectedThumbs.each(function() {
                         foundImages.push({
                             'artstorId': dijit.byId(
@@ -401,7 +401,6 @@ window.MediathreadCollect = {
         },
         'blakearchive.org': {
             find: function(callback) {
-                var SB = MediathreadCollect;
                 var obj = {
                     'sources': {
                         'title': document.title
@@ -414,7 +413,7 @@ window.MediathreadCollect = {
                 } catch (e) {
                     return callback([]);
                 }
-                var abs = SB.absolute_url;
+                var abs = MediathreadCollect.absolute_url;
                 for (var i = 0; i < optUrls.length; i++) {
                     var o = optUrls[i];
                     if (/Image/.test(o.text)) {
@@ -438,14 +437,45 @@ window.MediathreadCollect = {
                                 document)
                         ];
                     });
-                    SB.getImageDimensions(
+                    MediathreadCollect.getImageDimensions(
                         obj.sources.image,
                         function onload(img, dims) {
                             obj.sources['image-metadata'] = dims;
                             callback([obj]);
                         },
-                        function error() {
-                            callback([]);//perhaps overly extreme?
+                        function error(e) {
+                            // Error, maybe the url isn't a straight image
+                            // file? In that case, load the URL as a document
+                            // and get the enlarged image.
+                            // e.g.
+                            //
+                            // http://www.blakearchive.org/exist/blake/archive/object.xq?objectid=milton.a.illbk.33
+                            //  ->
+                            // http://www.blakearchive.org/exist/blake/archive/enlargement.xq?objectdbi=milton.a.p33
+                            $.get(obj.sources.image)
+                                .done(function(doc) {
+                                    var $img = $(doc).find('#enlargedImage');
+                                    var src = $img.attr('src');
+                                    if (!src.match(/^http/)) {
+                                        // make the src absolute
+                                        src = 'http://' +
+                                            document.location.hostname + src;
+                                    }
+                                    obj.sources.image = src;
+                                    MediathreadCollect.getImageDimensions(
+                                        src,
+                                        function onload(img, dims) {
+                                            obj.sources['image-metadata'] =
+                                                dims;
+                                            callback([obj]);
+                                        },
+                                        function(error) {
+                                            callback([]);
+                                        });
+                                })
+                                .fail(function() {
+                                    callback([]);
+                                });
                         });
                 }
             }
@@ -2555,10 +2585,9 @@ window.MediathreadCollect = {
         return str.replace(/^\s+/,'').replace(/\s+$/,'').replace(/\s+/,' ');
     },
     'getImageDimensions': function(src, callback, onerror) {
-        //
         var img = document.createElement('img');
         img.onload = function() {
-            callback(img,'w' + img.width + 'h' + img.height);
+            callback(img, 'w' + img.width + 'h' + img.height);
         };
         img.onerror = onerror;
         img.src = src;
