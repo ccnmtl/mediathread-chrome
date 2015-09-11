@@ -979,10 +979,10 @@ window.MediathreadCollect = {
                     callback([]); // no items found
                 } else {
                     // parse vimeo id out of the fallback url
-                    var video = videos[0];
-                    var parent = $(video).parents('div.player')[0];
-                    var url = $(parent).attr('data-fallback-url');
-                    var vimeoId = url.split('/')[4];
+                    var $wrapper = $(videos[0]);
+                    var $player = $wrapper.closest('.player');
+                    var url = $player.data('fallback-url');
+                    var vimeoId = $player.data('clip-id');
 
                     MediathreadCollect.assethandler.objects_and_embeds
                         .players.moogaloop.asset(
@@ -1567,7 +1567,6 @@ window.MediathreadCollect = {
                     },
                     asset: function(objemb, matchRv, context,
                                     index, optionalCallback) {
-
                         var vimeoId;
                         if (matchRv) {
                             vimeoId = matchRv;
@@ -1592,13 +1591,13 @@ window.MediathreadCollect = {
                         }
 
                         var rv = {
-                            html:objemb,
+                            html: objemb,
                             wait: true,
                             primary_type: 'vimeo',
                             label: 'vimeo video',
                             sources: {
-                                'url': 'http://www.vimeo.com/' + vimeoId,
-                                'vimeo': 'http://www.vimeo.com/' + vimeoId
+                                'url': 'https://vimeo.com/' + vimeoId,
+                                'vimeo': 'https://vimeo.com/' + vimeoId
                             }};
 
                         if (objemb.api_getCurrentTime) {
@@ -1608,8 +1607,7 @@ window.MediathreadCollect = {
                             }
                         }
 
-                        var vmCallback = 'sherd_vimeo_callback_' + index;
-                        window[vmCallback] = function(vm_data) {
+                        var vmCallback = function(vm_data) {
                             if (vm_data && vm_data.length > 0) {
                                 var info = vm_data[0];
                                 rv.sources.title = info.title;
@@ -1621,20 +1619,17 @@ window.MediathreadCollect = {
                             }
                             optionalCallback(index, rv);
                         };
-                        var ajaxOptions = {
-                            url: 'https://www.vimeo.com/api/v2/video/' +
-                                vimeoId + '.json?callback=' + vmCallback,
-                            dataType: 'script',
-                            error: function() {optionalCallback(index);}
-                        };
-                        if (MediathreadCollect.options.cross_origin) {
-                            ajaxOptions.dataType = 'json';
-                            ajaxOptions.success = window[vmCallback];
-                            ajaxOptions.url =
-                                'https://www.vimeo.com/api/v2/video/' +
-                                vimeoId + '.json';
-                        }
-                        $.ajax(ajaxOptions);
+
+                        var url = 'https://vimeo.com/api/v2/video/' +
+                            vimeoId + '.json';
+                        $.ajax({
+                            url: url,
+                            dataType: 'json',
+                            success: vmCallback,
+                            error: function() {
+                                optionalCallback(index);
+                            }
+                        });
                         return rv;
                     }
                 },
