@@ -305,7 +305,7 @@ window.MediathreadCollect = {
                 var foundImages = [];
                 var floatingPane = $('.MetaDataWidgetRoot');
                 var selectedThumbs = $('.thumbNailImageSelected');
-                if (floatingPane.length) {
+                if (floatingPane.length > 0) {
                     var dom = floatingPane.get(0);
                     foundImages.push({
                         'artstorId': dom.id.substr(3),/*after 'mdw'*/
@@ -314,7 +314,7 @@ window.MediathreadCollect = {
                         'primary_type': 'image_fpx',
                         'html': dom
                     });
-                } else if (selectedThumbs.length) {
+                } else if (selectedThumbs.length > 0) {
                     selectedThumbs.each(function() {
                         foundImages.push({
                             'artstorId': dijit.byId(
@@ -401,7 +401,6 @@ window.MediathreadCollect = {
         },
         'blakearchive.org': {
             find: function(callback) {
-                var SB = MediathreadCollect;
                 var obj = {
                     'sources': {
                         'title': document.title
@@ -414,7 +413,7 @@ window.MediathreadCollect = {
                 } catch (e) {
                     return callback([]);
                 }
-                var abs = SB.absolute_url;
+                var abs = MediathreadCollect.absolute_url;
                 for (var i = 0; i < optUrls.length; i++) {
                     var o = optUrls[i];
                     if (/Image/.test(o.text)) {
@@ -438,14 +437,45 @@ window.MediathreadCollect = {
                                 document)
                         ];
                     });
-                    SB.getImageDimensions(
+                    MediathreadCollect.getImageDimensions(
                         obj.sources.image,
                         function onload(img, dims) {
                             obj.sources['image-metadata'] = dims;
                             callback([obj]);
                         },
-                        function error() {
-                            callback([]);//perhaps overly extreme?
+                        function error(e) {
+                            // Error, maybe the url isn't a straight image
+                            // file? In that case, load the URL as a document
+                            // and get the enlarged image.
+                            // e.g.
+                            //
+                            // http://www.blakearchive.org/exist/blake/archive/object.xq?objectid=milton.a.illbk.33
+                            //  ->
+                            // http://www.blakearchive.org/exist/blake/archive/enlargement.xq?objectdbi=milton.a.p33
+                            $.get(obj.sources.image)
+                                .done(function(doc) {
+                                    var $img = $(doc).find('#enlargedImage');
+                                    var src = $img.attr('src');
+                                    if (!src.match(/^http/)) {
+                                        // make the src absolute
+                                        src = 'http://' +
+                                            document.location.hostname + src;
+                                    }
+                                    obj.sources.image = src;
+                                    MediathreadCollect.getImageDimensions(
+                                        src,
+                                        function onload(img, dims) {
+                                            obj.sources['image-metadata'] =
+                                                dims;
+                                            callback([obj]);
+                                        },
+                                        function(error) {
+                                            callback([]);
+                                        });
+                                })
+                                .fail(function() {
+                                    callback([]);
+                                });
                         });
                 }
             }
@@ -755,98 +785,6 @@ window.MediathreadCollect = {
                 return callback(returnArray);
             }
         },
-        'vital.ccnmtl.columbia.edu': {
-            allow_save_all: true,
-            find: function(callback) {
-                if (!/materialsLib/.test(document.location.pathname)) {
-                    callback(
-                        [],
-                        'Go to the Course Library page and ' +
-                            'run the extension again');
-                }
-                var foundVideos = [];
-                var courseLibrary = $('a.thumbnail');
-                var done = courseLibrary.length;
-                var objFinal = function() {
-                    return callback(foundVideos);
-                };
-                courseLibrary.each(function() {
-                    var asset = {
-                        'html': this,
-                        'vitalId': String(
-                            this.href).match(/\&id=(\d+)/)[1],
-                        'sources': {
-                            'quicktime-metadata': 'w320h240'
-                        },
-                        'metadata': {},
-                        'primary_type': 'quicktime'
-                    };
-                    $.ajax({
-                        url: 'basicAdmin.smvc?' +
-                            'action=display&entity=material&id=' +
-                            asset.vitalId,
-                        dataType: 'text',
-                        success: function(editHtml) {
-                            var splitHtml = editHtml.split(
-                                'Video Categories:');
-                            ///Basic URLs and Title
-                            splitHtml[0].replace(
-                                new RegExp(
-                                    '<input[^>]+name="(\\w+)" ' +
-                                        'value="([^"]+)"',
-                                    'mg'),
-                                function(full, name, val) {
-                                    switch (name) {
-                                    case 'title':
-                                        asset.sources.title = val;
-                                        break;
-                                    case 'url':
-                                        asset.sources.quicktime = val;
-                                        break;
-                                    case 'thumbUrl':
-                                        asset.sources.thumb = val;
-                                        break;
-                                    }
-                                });
-                            // don't procede if we didn't get the
-                            // quicktime url
-                            if (asset.sources.quicktime) {
-                                ///TODO: VITAL Metadata
-                                //Topics = assignments
-                                ///Extra Metadata
-                                if (splitHtml.length > 1) {
-                                    var re =
-                                        '<b>([^<]+):</b>[\\s\\S]*?' +
-                                        'value="([^"]+)"[\\s\\S]*?' +
-                                        'value="([^"]+)"';
-                                    splitHtml[1].replace(
-                                        new RegExp(re, 'mg'),
-                                        function(
-                                            full,
-                                            name,
-                                            valueId,
-                                            val
-                                        ) {
-                                            asset.metadata[name] =
-                                                [val];
-                                        });
-                                }
-                                ///PUSH
-                                foundVideos.push(asset);
-                            }
-                            if (--done === 0) {
-                                objFinal();
-                            }
-                        },
-                        error: function() {
-                            if (--done === 0) {
-                                objFinal();
-                            }
-                        }
-                    });
-                });
-            }
-        },
         'learn.columbia.edu': {
             /*and www.mcah.columbia.edu */
             find: function(callback) {
@@ -1041,10 +979,10 @@ window.MediathreadCollect = {
                     callback([]); // no items found
                 } else {
                     // parse vimeo id out of the fallback url
-                    var video = videos[0];
-                    var parent = $(video).parents('div.player')[0];
-                    var url = $(parent).attr('data-fallback-url');
-                    var vimeoId = url.split('/')[4];
+                    var $wrapper = $(videos[0]);
+                    var $player = $wrapper.closest('.player');
+                    var url = $player.data('fallback-url');
+                    var vimeoId = $player.data('clip-id');
 
                     MediathreadCollect.assethandler.objects_and_embeds
                         .players.moogaloop.asset(
@@ -1462,8 +1400,21 @@ window.MediathreadCollect = {
                                 .split('config=')[1];
                             paramConfig = JSON.parse(paramConfig);
                             var paramObj = paramConfig;
-                            paramThumb = paramObj.canvas.background.split(
-                                'url(')[1].split(')')[0];
+                            var paramThumb;
+                            if (paramObj &&
+                                paramObj.canvas &&
+                                paramObj.canvas.background
+                               ) {
+                                var bg = paramObj.canvas.background;
+                                var bgsplit = bg.split('url(');
+                                if (bgsplit.length > 1) {
+                                    paramThumb = bgsplit[1].split(')')[0];
+                                }
+                                // Otherwise,
+                                // background doesn't contain the string "url()",
+                                // so it's probably something like #000000. Just
+                                // ignore it - the thumbnail isn't essential.
+                            }
                             sources.thumb = paramThumb;
                         }
                         return {
@@ -1616,7 +1567,6 @@ window.MediathreadCollect = {
                     },
                     asset: function(objemb, matchRv, context,
                                     index, optionalCallback) {
-
                         var vimeoId;
                         if (matchRv) {
                             vimeoId = matchRv;
@@ -1641,13 +1591,13 @@ window.MediathreadCollect = {
                         }
 
                         var rv = {
-                            html:objemb,
+                            html: objemb,
                             wait: true,
                             primary_type: 'vimeo',
                             label: 'vimeo video',
                             sources: {
-                                'url': 'http://www.vimeo.com/' + vimeoId,
-                                'vimeo': 'http://www.vimeo.com/' + vimeoId
+                                'url': 'https://vimeo.com/' + vimeoId,
+                                'vimeo': 'https://vimeo.com/' + vimeoId
                             }};
 
                         if (objemb.api_getCurrentTime) {
@@ -1657,8 +1607,7 @@ window.MediathreadCollect = {
                             }
                         }
 
-                        var vmCallback = 'sherd_vimeo_callback_' + index;
-                        window[vmCallback] = function(vm_data) {
+                        var vmCallback = function(vm_data) {
                             if (vm_data && vm_data.length > 0) {
                                 var info = vm_data[0];
                                 rv.sources.title = info.title;
@@ -1670,20 +1619,17 @@ window.MediathreadCollect = {
                             }
                             optionalCallback(index, rv);
                         };
-                        var ajaxOptions = {
-                            url: 'https://www.vimeo.com/api/v2/video/' +
-                                vimeoId + '.json?callback=' + vmCallback,
-                            dataType: 'script',
-                            error: function() {optionalCallback(index);}
-                        };
-                        if (MediathreadCollect.options.cross_origin) {
-                            ajaxOptions.dataType = 'json';
-                            ajaxOptions.success = window[vmCallback];
-                            ajaxOptions.url =
-                                'https://www.vimeo.com/api/v2/video/' +
-                                vimeoId + '.json';
-                        }
-                        $.ajax(ajaxOptions);
+
+                        var url = 'https://vimeo.com/api/v2/video/' +
+                            vimeoId + '.json';
+                        $.ajax({
+                            url: url,
+                            dataType: 'json',
+                            success: vmCallback,
+                            error: function() {
+                                optionalCallback(index);
+                            }
+                        });
                         return rv;
                     }
                 },
@@ -2555,10 +2501,9 @@ window.MediathreadCollect = {
         return str.replace(/^\s+/,'').replace(/\s+$/,'').replace(/\s+/,' ');
     },
     'getImageDimensions': function(src, callback, onerror) {
-        //
         var img = document.createElement('img');
         img.onload = function() {
-            callback(img,'w' + img.width + 'h' + img.height);
+            callback(img, 'w' + img.width + 'h' + img.height);
         };
         img.onerror = onerror;
         img.src = src;
