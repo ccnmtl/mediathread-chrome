@@ -529,7 +529,7 @@ window.MediathreadCollect = {
         };
 
         this.noAssetMessage = function() {
-            var closeBtn = $('<div class="no-asset-close-btn">X</div>');
+            var closeBtn = $('<div class="no-asset-close-btn">&#10005;</div>');
             var messageBox = $(
                 '<div class="no-asset-alert">' +
                     'Sorry, no supported assets were found on this page. ' +
@@ -839,7 +839,8 @@ window.MediathreadCollect = {
                         self.elt(
                             doc,'button','sherd-close btn-primary','',['X']),
                         self.elt(
-                            doc,'button',
+                            doc,
+                            'button',
                             'sherd-collection btn-primary',
                             '',
                             ['Go to Collection']),
@@ -867,8 +868,8 @@ window.MediathreadCollect = {
 
             M.connect(comp.tab, 'click', this.onclick);
             M.connect(comp.collection, 'click', function(evt) {
-                hostURL = MediathreadCollectOptions.host_url;
-                var url = self.unHttpsTheLink(hostURL.split('/save/?')[0]);
+                var hostURL = MediathreadCollectOptions.host_url;
+                var url = self.unHttpsTheLink(hostURL.split(/\/save\//)[0]);
                 window.location.replace(url + '/asset/');
             });
             M.connect(comp.close, 'click', function(evt) {
