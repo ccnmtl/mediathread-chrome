@@ -12,13 +12,13 @@
   },
   "devDependencies": {
     "jscs": "^2.1.1",
-    "jsdom": "^6.5.1",
+    "jsdom": "^3.1.2",
     "jshint": "^2.8.0",
     "mocha": "^2.3.3"
   },
   "scripts": {
-    "pretest": "jshint src/*.js",
-    "test": "mocha tests/"
+    "pretest": "jshint src/*.js tests/*.js",
+    "test": "mocha tests/ -t 6000"
   },
   "repository": {
     "type": "git",
