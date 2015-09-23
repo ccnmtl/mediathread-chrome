@@ -1,0 +1,36 @@
+{
+  "name": "mediathread-chrome",
+  "version": "0.6.0",
+  "description": "Find assets to analyze in Mediathread.",
+  "main": "background.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "jshint": "^2.8.0",
+    "jscs": "^2.1.1"
+  },
+  "devDependencies": {
+    "jscs": "^2.1.1",
+    "jsdom": "^3.1.2",
+    "jshint": "^2.8.0",
+    "mocha": "^2.3.3"
+  },
+  "scripts": {
+    "pretest": "jshint src/*.js tests/*.js",
+    "test": "mocha tests/ -t 6000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ccnmtl/mediathread-chrome.git"
+  },
+  "keywords": [
+    "chrome"
+  ],
+  "author": "Center for Teaching and Learning, Columbia University",
+  "license": "GPL-2.0+",
+  "bugs": {
+    "url": "https://github.com/ccnmtl/mediathread-chrome/issues"
+  },
+  "homepage": "https://github.com/ccnmtl/mediathread-chrome#readme"
+}

@@ -1,6 +1,6 @@
 {
     "background": {
-        "scripts": ["background.js"],
+        "scripts": ["src/background.js"],
         "persistent": false
     },
     "browser_action": {
@@ -21,6 +21,6 @@
     "permissions": [
         "activeTab"
     ],
-    "version": "0.6",
+    "version": "0.6.0",
     "manifest_version": 2
 }
