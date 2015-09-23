@@ -1,3 +1,11 @@
+2015-09-23  Nik Nyby  <nnyby@columbia.edu>
+
+	* Don't alter the aspect ratio of the image in the asset
+	finder
+	* Use better image thumbnails on flickr
+	* Fix video collection on the Columbia Film Language Glossary
+	* Fix asset collection on various sites
+
 2015-09-10  Nik Nyby  <nnyby@columbia.edu>
 
 	* Fix collection on YouTube
