@@ -937,10 +937,7 @@ window.MediathreadCollect = {
                 asset.sources.poster;
             var newAsset;
             if (img) {
-                newAsset = self.elt(null,'img','sherd-image',{
-                    src: img,
-                    style: 'max-width:215px;max-height:150px',
-                    height:null});
+                newAsset = self.elt(null, 'img', 'sherd-image', { src: img });
                 $(form.firstChild).empty().append(newAsset);
             } else {
                 asset.sources.thumb =
