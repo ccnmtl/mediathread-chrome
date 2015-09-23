@@ -932,7 +932,9 @@ window.MediathreadCollect = {
             li.id = asset.html_id;
             li.appendChild(form);
 
-            var img = asset.sources.thumb || asset.sources.image;
+            var img = asset.sources.thumb ||
+                asset.sources.image ||
+                asset.sources.poster;
             var newAsset;
             if (img) {
                 newAsset = self.elt(null,'img','sherd-image',{
