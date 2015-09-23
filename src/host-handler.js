@@ -323,13 +323,16 @@ var hostHandler = {
                 return callback([]);
             }
 
+            var urlParams = $.param({
+                'format': 'json',
+                'api_key': apikey,
+                'photo_id': imageId,
+                'nojsoncallback': 1
+            });
+            var baseUrl = 'https://api.flickr.com/services/rest/?' + urlParams;
+
             // See jsonp docs for $.getJSON:
             // http://api.jquery.com/jquery.getjson/
-            var baseUrl = 'https://api.flickr.com/' +
-                'services/rest/?format=json&api_key=' +
-                apikey + '&photo_id=' + imageId +
-                ((MediathreadCollect.options.cross_origin) ?
-                 '&nojsoncallback=1' : '&jsoncallback=?');
             $.getJSON(
                 baseUrl + '&method=flickr.photos.getInfo',
                 function(getInfoData) {
@@ -354,7 +357,7 @@ var hostHandler = {
                                         h = item.height;
                                         imgUrl = item.source;
                                     }
-                                    if (item.label == 'Thumbnail') {
+                                    if (item.label === 'Small') {
                                         thumbUrl = item.source;
                                     }
                                 }
