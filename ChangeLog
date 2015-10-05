@@ -1,3 +1,7 @@
+2015-10-05  Nik Nyby  <nnyby@columbia.edu>
+
+	* Fix image collection on artstor.org
+
 2015-09-23  Nik Nyby  <nnyby@columbia.edu>
 
 	* Don't alter the aspect ratio of the image in the asset
