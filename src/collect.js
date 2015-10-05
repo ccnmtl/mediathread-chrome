@@ -1086,7 +1086,7 @@ window.MediathreadCollect = {
 
                     title.focus();
                     title.css({
-                        color: '#999',
+                        color: '#000',
                         width: '350px',
                         height: '35px',
                         fontSize: '14px',
