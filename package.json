@@ -18,7 +18,7 @@
   },
   "scripts": {
     "pretest": "jshint src/*.js tests/*.js",
-    "test": "mocha tests/ -t 6000"
+    "test": "mocha tests/ -t 10000"
   },
   "repository": {
     "type": "git",

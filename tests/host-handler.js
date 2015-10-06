@@ -12,6 +12,31 @@ describe('hosthandler', function() {
     });
 });
 
+describe('library.artstor.org', function() {
+    it('has the expected JavaScript', function(done) {
+        jsdom.env({
+            url: 'http://library.artstor.org/library/',
+            resourceLoader: function (resource, callback) {
+                // Only load relevant scripts, otherwise jsdom times out.
+                if (resource.url.hostname === 'library.artstor.org') {
+                    resource.defaultFetch(callback);
+                } else {
+                    callback();
+                }
+            },
+            features : {
+                FetchExternalResources : ['script'],
+                ProcessExternalResources : ['script']
+            },
+            'done': function (err, window) {
+                assert.ok(typeof window.dijit.registry.length === 'number');
+                assert.ok(typeof window.dijit.registry._hash === 'object');
+                done();
+            }
+        });
+    });
+});
+
 describe('blakearchive.org', function() {
     it('has the expected DOM', function(done) {
         jsdom.env({
