@@ -727,32 +727,38 @@ var assetHandler = {
         }
     },
 
-    video_tag: {
-        find: function(callback,context) {
+    video: {
+        addSource: function(source, rv, video) {
+            var codecs = /[.\/](ogv|ogg|webm|mp4)/i;
+            if (!source.src) {
+                return;
+            }
+            var vid_type = 'video';
+            var mtype = String(video.type).match(codecs);
+            if (mtype) {
+                vid_type = mtype[1].toLowerCase();
+                if (video.canPlayType(video.type) === 'probably') {
+                    rv.primary_type = vid_type;
+                }
+            } else if (mtype == String(source.src).match(codecs)) {
+                vid_type = mtype[1].toLowerCase().replace('ogv', 'ogg');
+            }
+            if (rv.primary_type == 'video') {
+                rv.primary_type = vid_type;
+            }
+            rv.sources[vid_type] = source.src;
+            rv.sources[vid_type + '-metadata'] =
+                'w' + video.videoWidth +
+                'h' + video.videoHeight;
+        },
+
+        find: function(callback, context) {
             var videos = context.document.getElementsByTagName('video');
             var result = [];
-            var codecs = /[.\/](ogv|ogg|webm|mp4)/i;
-            var addSource = function(source, rv, video) {
-                if (!source.src) return;
-                var vid_type = 'video';
-                var mtype = String(video.type).match(codecs);
-                if (mtype) {
-                    vid_type = mtype[1].toLowerCase();
-                    if (video.canPlayType(video.type) === 'probably')
-                        rv.primary_type = vid_type;
-                } else if (mtype == String(source.src).match(codecs)) {
-                    vid_type = mtype[1].toLowerCase().replace('ogv', 'ogg');
-                }
-                if (rv.primary_type == 'video')
-                    rv.primary_type = vid_type;
-                rv.sources[vid_type] = source.src;
-                rv.sources[vid_type + '-metadata'] =
-                    'w' + video.videoWidth +
-                    'h' + video.videoHeight;
-            };
+
             for (var i = 0; i < videos.length; i++) {
                 var rv = {
-                    'html':videos[i],
+                    'html': videos[i],
                     'label': 'video',
                     'primary_type': 'video',
                     'sources': {}
@@ -760,12 +766,16 @@ var assetHandler = {
                 if (videos[i].poster) {
                     rv.sources.poster = videos[i].poster;
                 }
-                addSource(videos[i], rv, videos[i]);
+                this.addSource(videos[i], rv, videos[i]);
                 var sources = videos[i].getElementsByTagName('source');
-                for (var j=0;j<sources.length;j++) {
-                    addSource(sources[j], rv, videos[i]);
+                for (var j = 0; j < sources.length; j++) {
+                    this.addSource(sources[j], rv, videos[i]);
                 }
                 result.push(rv);
+            }
+            for (i = 0; i < result.length; i++) {
+                MediathreadCollect.metadataSearch(
+                    result[i], context.document);
             }
             callback(result);
         }

@@ -6,6 +6,10 @@
     left: 0;
     background: url(/img/overlaybg.png) repeat;
 }
+.sherd-analyzer button,
+.sherd-analyzer input[type="button"] {
+    cursor: pointer;
+}
 .sherd-window-inner h2{
     color: #fff;
     font-size: 14px;

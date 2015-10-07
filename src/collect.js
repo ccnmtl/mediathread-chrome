@@ -254,7 +254,9 @@ window.MediathreadCollect = {
         return img;
     },
     'mergeMetadata': function(result, metadata) {
-        if (!metadata) return;
+        if (!metadata) {
+            return;
+        }
         if (!result.metadata) {
             result.metadata = metadata;
             return result.metadata;
@@ -320,7 +322,9 @@ window.MediathreadCollect = {
                     case 'img':
                     case 'source':
                     case 'video':
-                        props[p].push(abs(this.src, doc));
+                        if (this.src) {
+                            props[p].push(abs(this.src, doc));
+                        }
                         break;
                     default:
                         props[p].push($(this).text());
