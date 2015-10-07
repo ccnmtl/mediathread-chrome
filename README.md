@@ -16,6 +16,6 @@ to load the source directory.
 
 ### Release Checklist
 * Update ChangeLog
-* Increment version number in manifest.json
+* Increment version number in manifest.json and package.json
 * Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
 * In the Mediathread row, click "Edit", then "Upload Updated Package"

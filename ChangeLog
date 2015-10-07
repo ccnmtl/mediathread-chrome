@@ -1,3 +1,7 @@
+2015-10-07  Nik Nyby  <nnyby@columbia.edu>
+
+	* Fix metadata collection for the <video> tag
+
 2015-10-05  Nik Nyby  <nnyby@columbia.edu>
 
 	* Fix image collection on artstor.org
