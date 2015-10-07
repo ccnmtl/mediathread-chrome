@@ -740,10 +740,10 @@ var assetHandler = {
                 if (video.canPlayType(video.type) === 'probably') {
                     rv.primary_type = vid_type;
                 }
-            } else if (mtype == String(source.src).match(codecs)) {
+            } else if (mtype === String(source.src).match(codecs)) {
                 vid_type = mtype[1].toLowerCase().replace('ogv', 'ogg');
             }
-            if (rv.primary_type == 'video') {
+            if (rv.primary_type === 'video') {
                 rv.primary_type = vid_type;
             }
             rv.sources[vid_type] = source.src;
