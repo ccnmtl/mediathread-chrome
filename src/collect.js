@@ -112,7 +112,7 @@ window.MediathreadCollect = {
         return item;
     },/*addField*/
     'forms': {
-        'mediathread': function(obj,form,ready,doc) {
+        'mediathread': function(obj, form, ready, doc) {
             var M = window.MediathreadCollect;
             /* just auto-save immediately
              * this also allows us to send larger amounts of metadata
@@ -124,11 +124,13 @@ window.MediathreadCollect = {
                 M.addField(a, obj.sources[a],form,doc);
             }
             if (!obj.sources.title) {
-                //guess title as file-name
-                M.addField(
-                    'title',
-                    obj.sources[obj.primary_type].split('/').pop()
-                        .split('?').shift(), form, doc);
+                var title = 'Untitled';
+                if (obj.sources[obj.primary_type]) {
+                    // guess title as filename
+                    title = obj.sources[obj.primary_type].split('/').pop()
+                        .split('?').shift();
+                }
+                M.addField('title', title, form, doc);
             }
             if (ready && obj.metadata) {
                 for (a in obj.metadata) {
@@ -138,7 +140,7 @@ window.MediathreadCollect = {
                     }
                 }
             }
-            M.addField('asset-source', 'bookmarklet',form,doc);
+            M.addField('asset-source', 'bookmarklet', form, doc);
         },/*mediathread_form*/
         'imagemat': function(obj, form, ready, doc) {
             var M = window.MediathreadCollect;
@@ -576,7 +578,7 @@ window.MediathreadCollect = {
                     ++self.final_count;
                 }
                 for (h in MediathreadCollect.assethandler) {
-                    try {///DEBUG
+                    try {
                         handlers[h].find.call(handlers[h],
                                               self.collectAssets,
                                               context);

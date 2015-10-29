@@ -793,7 +793,7 @@ var assetHandler = {
                         'mp3': String(document.location)
                     }
                 }]);
-            }else{//this must be a listing of audio files somewhere
+            } else {//this must be a listing of audio files somewhere
                 // on the page.
                 window.MediathreadCollect.snd_asset_2_django = function(
                     mp3, type
