@@ -1,3 +1,8 @@
+2015-10-30  Nik Nyby  <nnyby@columbia.edu>
+
+	* Fix error that can occur when <video> and
+	<audio> has no source.
+
 2015-10-07  Nik Nyby  <nnyby@columbia.edu>
 
 	* Fix metadata collection for the <video> tag
