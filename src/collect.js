@@ -943,19 +943,19 @@ window.MediathreadCollect = {
                 asset.sources.poster;
             var newAsset;
             if (img) {
-                newAsset = self.elt(null, 'img', 'sherd-image', { src: img });
+                newAsset = self.elt(null, 'img', 'sherd-image', {
+                    src: img,
+                    style: 'max-width: 215px; max-height: 150px'
+                });
                 $(form.firstChild).empty().append(newAsset);
             } else {
                 asset.sources.thumb =
                     host_url.split('save')[0] + 'media/img/nothumb_video.png';
                 newAsset =
-                    self.elt(
-                        null,'img','sherd-video',
-                        {
-                            src: asset.sources.thumb,
-                            style: 'max-width:215px;max-height:150px',
-                            height: null
-                        });
+                    self.elt(null, 'img', 'sherd-video', {
+                        src: asset.sources.thumb,
+                        style: 'max-width:215px;max-height:150px'
+                    });
                 $(form.firstChild).empty().append(newAsset);
             }
             if (asset.disabled) {
