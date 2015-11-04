@@ -48,6 +48,7 @@
 .sherd-asset-wrap{
     min-height: 55px;
     min-width: 215px;
+    text-align: center;
 /*
     setting the min height and width will make sure that videos are
     picked up and shown when they do not have thubmnails on their
