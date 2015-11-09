@@ -525,7 +525,6 @@ window.MediathreadCollect = {
                 }
             } else {
                 self.findGeneralAssets();
-
             }
             if (self.assets_found.length === 0 &&
                 MediathreadCollect.user_ready()
@@ -572,16 +571,18 @@ window.MediathreadCollect = {
             self.ASYNC.best_frame(frames.best);
             self.final_count += frames.all.length;
 
-            $(frames.all).each(function(i,context) {
+            $(frames.all).each(function(i, context) {
                 ++self.handler_count; //for each frame
                 for (var h in MediathreadCollect.assethandler) {
                     ++self.final_count;
                 }
+
                 for (h in MediathreadCollect.assethandler) {
+                    var handler = handlers[h];
                     try {
-                        handlers[h].find.call(handlers[h],
-                                              self.collectAssets,
-                                              context);
+                        handler.find.call(handler,
+                                          self.collectAssets,
+                                          context);
                     } catch (e) {
                         ++self.handler_count;
                         MediathreadCollect.error = e;
@@ -648,7 +649,7 @@ window.MediathreadCollect = {
                 throw Error('asset does not have a primary type.');
             }
         };
-        this.collectAssets = function(assets,errors) {
+        this.collectAssets = function(assets, errors) {
             self.assets_found = self.assets_found.concat(assets);
             for (var i = 0; i < assets.length; i++) {
                 self.no_assets_yet = false;
@@ -663,9 +664,17 @@ window.MediathreadCollect = {
                     }
                 }
             }
+
             ++self.handler_count;
+
+            // Whenever an asset is found, even if it's async, remove
+            // the "no assets found" error.
+            if (self.assets_found.length > 0) {
+                $('.no-asset-alert').remove();
+            }
+
             if (self.handler_count >= self.final_count) {
-                self.ASYNC.finish({'found':!self.no_assets_yet});
+                self.ASYNC.finish({'found': !self.no_assets_yet});
             }
         };
         this.walkFrames = function() {

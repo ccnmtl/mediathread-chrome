@@ -45,10 +45,11 @@
     color: #333;
 }
 
-.sherd-asset-wrap{
+.sherd-asset-wrap {
     min-height: 55px;
     min-width: 215px;
     text-align: center;
+    margin-bottom: 4px;
 /*
     setting the min height and width will make sure that videos are
     picked up and shown when they do not have thubmnails on their
@@ -78,6 +79,7 @@ img.sherd-image {
     max-width: 215px;
     max-height: 300px;
     border-radius: 4px;
+    margin: 0 auto;
 }
 
 .import-header{
