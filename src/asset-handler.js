@@ -764,7 +764,7 @@ var assetHandler = {
                     'sources': {}
                 };
                 if (videos[i].poster) {
-                    rv.sources.poster = videos[i].poster;
+                    rv.sources.thumb = videos[i].poster;
                 }
                 this.addSource(videos[i], rv, videos[i]);
                 var sources = videos[i].getElementsByTagName('source');
