@@ -2,6 +2,10 @@
 
 	* Fixed bug where video thumbnails could be missing when
 	using the poster attribute.
+	* Hide "no assets found" error when asynchronous assets
+	get found.
+	* Fix a display bug where the asset wasn't always centered
+	on the collection page.
 
 2015-11-04  Nik Nyby  <nnyby@columbia.edu>
 
