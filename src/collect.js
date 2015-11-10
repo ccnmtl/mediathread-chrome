@@ -934,7 +934,13 @@ window.MediathreadCollect = {
         this.displayAsset = function(asset,index) {
             var assetUrl = asset.sources[asset.primary_type];
             if (typeof assetUrl !== 'undefined') {
-                asset.sources[asset.primary_type] = assetUrl;
+                var uri = URI(assetUrl);
+
+                // asia.si.edu sets max_w to set a thumbnailed size.
+                uri.removeQuery('max_w');
+                uri.removeQuery('max_h');
+
+                asset.sources[asset.primary_type] = uri.href();
             }
             if (!asset) {
                 return;

@@ -6,6 +6,7 @@
 	get found.
 	* Fix a display bug where the asset wasn't always centered
 	on the collection page.
+	* Collect fullsize images on asia.si.edu.
 
 2015-11-04  Nik Nyby  <nnyby@columbia.edu>
 
