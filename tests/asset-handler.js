@@ -1,6 +1,6 @@
 var assert = require('assert');
 
-var assetHandler = require('../src/asset-handler.js');
+var assetHandler = require('../src/common/asset-handler.js');
 
 describe('assethandler', function() {
     it('should exist', function() {
