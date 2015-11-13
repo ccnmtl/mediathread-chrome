@@ -1,7 +1,7 @@
 var assert = require('assert');
 var jsdom = require('jsdom');
 
-var hostHandler = require('../src/host-handler.js');
+var hostHandler = require('../src/common/host-handler.js');
 
 var jqueryUrl = 'https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js';
 
