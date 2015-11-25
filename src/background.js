@@ -6,4 +6,5 @@ chrome.browserAction.onClicked.addListener(function(tab) {
     chrome.tabs.executeScript(tab.id, {file: 'src/common/host-handler.js'});
     chrome.tabs.executeScript(tab.id, {file: 'src/common/asset-handler.js'});
     chrome.tabs.executeScript(tab.id, {file: 'src/common/collect.js'});
+    chrome.tabs.executeScript(tab.id, {file: 'src/init.js'});
 });
