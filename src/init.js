@@ -7,6 +7,8 @@ $.ajax({
         withCredentials: true
     },
     success: function(d) {
+        var hostUrl = MediathreadCollectOptions.host_url.replace(
+                /\/save\/$/, '');
         if ('flickr_apikey' in d) {
             MediathreadCollect.options.flickr_apikey = d.flickr_apikey;
         }
@@ -20,14 +22,13 @@ $.ajax({
                 MediathreadCollectOptions.host_url, true);
         } else if (d.logged_in === true && d.course_selected === false) {
             alert(
-                'You\'re logged in to mediathread at ' +
-                    MediathreadCollectOptions.host_url +
-                    ', now select a course to use the browser extension.');
+                'You\'re logged in to Mediathread at ' +
+                    hostUrl +
+                    ', now select a course to use the Chrome extension.');
         } else {
             alert(
-                'Log in to mediathread (' +
-                    MediathreadCollectOptions.host_url +
-                    ') and select a course!');
+                'Log in to Mediathread here: ' + hostUrl +
+                    ' and select a course!');
         }
     },
     error: function(d) {
