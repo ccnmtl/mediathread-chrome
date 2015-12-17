@@ -19,8 +19,13 @@
         "128": "img/icon-128.png"
     },
     "permissions": [
-        "activeTab"
+        "activeTab",
+        "storage"
     ],
     "version": "0.8.5",
-    "manifest_version": 2
+    "manifest_version": 2,
+    "options_ui": {
+        "page": "options.html",
+        "chrome_style": true
+    }
 }
