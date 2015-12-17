@@ -487,7 +487,7 @@ window.MediathreadCollect = {
    Finder finds assets in a document (and all sub-frames)
     *************/
     'Finder': function() {
-        var self = this;
+        var me = this;
 
         this.handler_count = 0;
         this.final_count = 0;
@@ -504,24 +504,24 @@ window.MediathreadCollect = {
         };
 
         this.bestFrame = function() {
-            return self.best_frame;
+            return me.best_frame;
         };
 
         this.findAssets = function() {
-            self.assets_found = [];
+            me.assets_found = [];
             var handler = MediathreadCollect.gethosthandler();
             if (handler) {
-                handler.find.call(handler, self.collectAssets);
+                handler.find.call(handler, me.collectAssets);
                 if (handler.also_find_general) {
-                    self.findGeneralAssets();
+                    me.findGeneralAssets();
                 }
             } else {
-                self.findGeneralAssets();
+                me.findGeneralAssets();
             }
-            if (self.assets_found.length === 0 &&
+            if (me.assets_found.length === 0 &&
                 MediathreadCollect.user_ready()
                ) {
-                self.noAssetMessage();
+                me.noAssetMessage();
             }
         };
 
@@ -554,29 +554,29 @@ window.MediathreadCollect = {
         };
 
         this.findGeneralAssets = function() {
-            self.no_assets_yet = true;
-            self.asset_keys = {};
+            me.no_assets_yet = true;
+            me.asset_keys = {};
 
             var handlers = MediathreadCollect.assethandler;
-            var frames = self.walkFrames();
-            self.best_frame = frames.best;
-            self.ASYNC.best_frame(frames.best);
-            self.final_count += frames.all.length;
+            var frames = me.walkFrames();
+            me.best_frame = frames.best;
+            me.ASYNC.best_frame(frames.best);
+            me.final_count += frames.all.length;
 
             $(frames.all).each(function(i, context) {
-                ++self.handler_count; //for each frame
+                ++me.handler_count; //for each frame
                 for (var h in MediathreadCollect.assethandler) {
-                    ++self.final_count;
+                    ++me.final_count;
                 }
 
                 for (h in MediathreadCollect.assethandler) {
                     var handler = handlers[h];
                     try {
                         handler.find.call(handler,
-                                          self.collectAssets,
+                                          me.collectAssets,
                                           context);
                     } catch (e) {
-                        ++self.handler_count;
+                        ++me.handler_count;
                         MediathreadCollect.error = e;
                         alert('Extension Error in ' + h + ': ' + e.message);
                     }
@@ -590,28 +590,28 @@ window.MediathreadCollect = {
         this.redundantInGroup = function(asset, primary_type) {
             //return merged asset, so new asset has benefits of both
 
-            self.asset_keys.ref_id = self.asset_keys.ref_id || {};
-            var list = self.asset_keys[primary_type] =
-                (self.asset_keys[primary_type] || {});
+            me.asset_keys.ref_id = me.asset_keys.ref_id || {};
+            var list = me.asset_keys[primary_type] =
+                (me.asset_keys[primary_type] || {});
             var merge_with = false;
             if (
                 asset.page_resource &&
-                    asset !== self.assets_found[0] &&
-                    self.assets_found.length-self.page_resource_count < 2
+                    asset !== me.assets_found[0] &&
+                    me.assets_found.length - me.page_resource_count < 2
             ) {
                 // if there's only one asset on the page and rest are
                 // page_resources
-                merge_with = self.assets_found[self.assets_found.length-2];
-            } else if (asset.ref_id && asset.ref_id in self.asset_keys.ref_id) {
+                merge_with = me.assets_found[me.assets_found.length-2];
+            } else if (asset.ref_id && asset.ref_id in me.asset_keys.ref_id) {
                 //a hack to let the page match two assets explicitly
-                merge_with = self.asset_keys.ref_id[asset.ref_id];
+                merge_with = me.asset_keys.ref_id[asset.ref_id];
             } else if (asset.sources[primary_type] in list) {
                 //if primary source urls are identical
                 merge_with = list[ asset.sources[primary_type] ];
             }
             if (merge_with) {
                 if (merge_with.html_id) {
-                    self.ASYNC.remove(merge_with);
+                    me.ASYNC.remove(merge_with);
                     delete merge_with.html_id;//so it doesn't over-write asset
                 } else if (window.console) {
                     window.console.log('ERROR: No html_id on merge-item');
@@ -628,7 +628,7 @@ window.MediathreadCollect = {
             }
             list[asset.sources[primary_type]] = asset;
             if (asset.ref_id)
-                self.asset_keys.ref_id[asset.ref_id] = asset;
+                me.asset_keys.ref_id[asset.ref_id] = asset;
             return asset;
         };
         this.mergeRedundant = function(asset) {
@@ -642,14 +642,14 @@ window.MediathreadCollect = {
             }
         };
         this.collectAssets = function(assets, errors) {
-            self.assets_found = self.assets_found.concat(assets);
+            me.assets_found = me.assets_found.concat(assets);
             for (var i = 0; i < assets.length; i++) {
-                self.no_assets_yet = false;
-                if (assets[i].page_resource) ++self.page_resource_count;
-                var after_merge = self.mergeRedundant(assets[i]);
+                me.no_assets_yet = false;
+                if (assets[i].page_resource) ++me.page_resource_count;
+                var after_merge = me.mergeRedundant(assets[i]);
                 if (after_merge) {
-                    after_merge.html_id = self.assetHtmlID(after_merge);
-                    self.ASYNC.display(after_merge, /*index*/assets.length-1);
+                    after_merge.html_id = me.assetHtmlID(after_merge);
+                    me.ASYNC.display(after_merge, /*index*/assets.length-1);
                     window.MediathreadCollect.assetBucket = assets;
                     if (window.console) {
                         window.console.log(assets);
@@ -657,16 +657,16 @@ window.MediathreadCollect = {
                 }
             }
 
-            ++self.handler_count;
+            ++me.handler_count;
 
             // Whenever an asset is found, even if it's async, remove
             // the "no assets found" error.
-            if (self.assets_found.length > 0) {
+            if (me.assets_found.length > 0) {
                 $('.no-asset-alert').remove();
             }
 
-            if (self.handler_count >= self.final_count) {
-                self.ASYNC.finish({'found': !self.no_assets_yet});
+            if (me.handler_count >= me.final_count) {
+                me.ASYNC.finish({'found': !me.no_assets_yet});
             }
         };
         this.walkFrames = function() {
@@ -744,21 +744,21 @@ window.MediathreadCollect = {
         }
 
         var o = this.options;
-        var self = this;
+        var me = this;
         var comp = this.components = {};
 
         this.onclick = function(evt) {
-            if (self.windowStatus) return;
-            self.findAssets();
+            if (me.windowStatus) return;
+            me.findAssets();
         };
 
         this.visibleY = function(target) {
             return target.ownerDocument.body.scrollTop;
         };
         this.showWindow = function() {
-            self.windowStatus = true;
+            me.windowStatus = true;
             if (comp.window) {
-                comp.window.style.top = self.visibleY(comp.window) + 'px';
+                comp.window.style.top = me.visibleY(comp.window) + 'px';
                 comp.window.style.display = 'block';
                 comp.tab.style.display = 'none';
                 $(comp.ul).empty();
@@ -768,11 +768,11 @@ window.MediathreadCollect = {
                     o.login_url = o.login_url ||
                         host_url.split('/', 3).join('/');
                     $(comp.message).empty().append(
-                        self.elt(null,'span','',{},
+                        me.elt(null,'span','',{},
                                  [o.not_logged_in_message,
-                                  self.elt(null,'br','',{}),
+                                  me.elt(null,'br','',{}),
                                   'Please ',
-                                  self.elt(null,'a','',{
+                                  me.elt(null,'a','',{
                                       href:o.login_url,
                                       target: '_blank',
                                       style: 'color:#8C3B2E;'
@@ -832,35 +832,35 @@ window.MediathreadCollect = {
                 comp.top.setAttribute('class','sherd-analyzer');
                 target.appendChild(comp.top);
             }
-            var pageYOffset = self.visibleY(target)+o.top;
+            var pageYOffset = me.visibleY(target)+o.top;
             var pageLength = $(document).height();
             $(comp.top).css('height', pageLength);
             // if page is long make sure the user is placed at top
             $(document).scrollTop(0);
             var doc = target.ownerDocument;
             comp.top.appendChild(
-                self.elt(doc,'div','sherd-tab','',[o.tab_label]));
+                me.elt(doc,'div','sherd-tab','',[o.tab_label]));
             comp.top.appendChild(
-                self.elt(doc,'div','sherd-window','', [
-                    self.elt(doc,'div','sherd-window-inner','',[
-                        self.elt(
+                me.elt(doc,'div','sherd-window','', [
+                    me.elt(doc,'div','sherd-window-inner','',[
+                        me.elt(
                             doc,'button','sherd-close btn-primary','',['X']),
-                        self.elt(
+                        me.elt(
                             doc,
                             'button',
                             'sherd-collection btn-primary',
                             '',
                             ['Go to Collection']),
-                        self.elt(
+                        me.elt(
                             doc,'h2','','',
                             ['Select "Analyze Now" to edit one item ' +
                              'immediately, or "Send to Collection" to ' +
                              'send an item and keep collecting on this page.'
                             ]),
-                        self.elt(
+                        me.elt(
                             doc,'p','sherd-message','',
                             ['Searching for items....']),
-                        self.elt(doc,'ul','sherd-asset','')
+                        me.elt(doc,'ul','sherd-asset','')
                     ])
                 ])
             );
@@ -876,7 +876,7 @@ window.MediathreadCollect = {
             M.connect(comp.tab, 'click', this.onclick);
             M.connect(comp.collection, 'click', function(evt) {
                 var hostURL = MediathreadCollectOptions.host_url;
-                var url = self.unHttpsTheLink(hostURL.split(/\/save\//)[0]);
+                var url = me.unHttpsTheLink(hostURL.split(/\/save\//)[0]);
                 window.location.replace(url + '/asset/');
             });
             M.connect(comp.close, 'click', function(evt) {
@@ -885,7 +885,7 @@ window.MediathreadCollect = {
                 if (MediathreadCollect.options.decorate) {
                     comp.tab.style.display = 'block';
                 }
-                self.windowStatus = false;
+                me.windowStatus = false;
             });
         };
         if (o.target) {
@@ -893,20 +893,20 @@ window.MediathreadCollect = {
         }
 
         this.findAssets = function() {
-            self.showWindow();
-            self.finder = new M.Finder();
-            self.finder.ASYNC.display = self.displayAsset;
-            self.finder.ASYNC.remove = self.removeAsset;
-            self.finder.ASYNC.best_frame = self.maybeShowInFrame;
-            self.finder.ASYNC.finish = self.finishedCollecting;
-            self.finder.findAssets();
+            me.showWindow();
+            me.finder = new M.Finder();
+            me.finder.ASYNC.display = me.displayAsset;
+            me.finder.ASYNC.remove = me.removeAsset;
+            me.finder.ASYNC.best_frame = me.maybeShowInFrame;
+            me.finder.ASYNC.finish = me.finishedCollecting;
+            me.finder.findAssets();
         };
 
         this.maybeShowInFrame = function(frame) {
             if (!comp.window && frame) {
                 var target = o.target || frame.document.body;
-                self.setupContent(target);
-                self.showWindow();
+                me.setupContent(target);
+                me.showWindow();
             }
         };
 
@@ -946,7 +946,7 @@ window.MediathreadCollect = {
                 asset.sources.poster;
             var newAsset;
             if (img) {
-                newAsset = self.elt(null, 'img', 'sherd-image', {
+                newAsset = me.elt(null, 'img', 'sherd-image', {
                     src: img,
                     style: 'max-width: 215px; max-height: 150px'
                 });
@@ -955,7 +955,7 @@ window.MediathreadCollect = {
                 asset.sources.thumb =
                     host_url.split('save')[0] + 'media/img/nothumb_video.png';
                 newAsset =
-                    self.elt(null, 'img', 'sherd-video', {
+                    me.elt(null, 'img', 'sherd-video', {
                         src: asset.sources.thumb,
                         style: 'max-width:215px;max-height:150px'
                     });
@@ -964,13 +964,13 @@ window.MediathreadCollect = {
             if (asset.disabled) {
                 $(form.lastChild).text(o.message_disabled_asset);
             } else if (MediathreadCollect.user_ready()) {
-                form.submitButton = self.elt(
+                form.submitButton = me.elt(
                     null, 'input', 'analyze btn-primary',
                     {
                         type: 'button',
                         value: 'Open in Mediathread'
                     });
-                form.submitButton2 = self.elt(
+                form.submitButton2 = me.elt(
                     null, 'input', 'cont btn-primary',
                     {
                         type: 'button',
@@ -979,195 +979,15 @@ window.MediathreadCollect = {
                 $(form).append(form.submitButton2);
                 $(form).append(form.submitButton);
                 $(form.submitButton).click(function() {
-                    var action = self.unHttpsTheLink(
+                    var action = me.unHttpsTheLink(
                         $(this).parent().attr('action'));
                     $(this).parent().attr('action', action);
                     $(this).parent().submit();
                 });
                 $(form.submitButton2).click(function() {
-                    window.button_asset = $(this);
-                    /* A pop up window solution... */
-                    var bucketWrap = $('<div id="bucket-wrap"/>');
-                    var bucket = $(form).clone();
-                    $('input.analyze', bucket).remove();
-                    $('input.cont', bucket).remove();
-                    var bucket_window = window.open(
-                        '',
-                        'Mediathread',
-                        'resizable,scrollbars=no,status=1,href=no,' +
-                            'location=no,menubar=no,width=650,' +
-                            'height=350,top=200,left=300'
-                    );
-                    if ($('.sherd-image',bucket_window.document).length > 0) {
-                        // make sure the bucket dies not already exists, if so
-                        // remove it.
-                        $('#bucket-wrap',bucket_window.document).remove();
-                    }
-                    bucket.appendTo(bucketWrap);
-                    $(bucket).append(
-                        '<input type="hidden" value="cont" name="button" />');
-                    $(bucket).append(
-                        '<br/><input id="submit-input" class="btn-primary" ' +
-                            'type="button" value="Save" />');
-                    $(bucket).append(
-                        '<input id="submit-cancel" class="btn-primary" ' +
-                            'type="button" value="Cancel" />');
-                    $(bucket).append(
-                        '<br/><span class ="help-text">Clicking "Save" ' +
-                            'will add this item to your Mediathread ' +
-                            'collection and return you to collecting.<span/>');
-                    $(bucketWrap).prepend(
-                        '<h2>Add this item to your Mediathread ' +
-                            'collection</h2>');
-                    $('body',
-                       bucket_window.document).append(bucketWrap);
-                    $('#submit-cancel',
-                       bucket_window.document).click(
-                           function() {
-                               bucket_window.close();
-                           });
-                    $('#submit-input', bucket_window.document)
-                        .click(function() {
-                            $(this).parent().submit();
-                        var sherdOverlay = $('.sherd-window-inner',document);
-                            var alertSavedMarginLeft =
-                                ($('.sherd-window-inner',document)
-                                 .width()/2) - (535*0.5);
-                            var alertSavedMarginTop =
-                                ($(window).height()/2) - 100;
-                            var collectionUrl =
-                                self.unHttpsTheLink(
-                                    host_url.split('save')[0] + 'asset/');
-                            var alertSaved = $(
-                                '<div class="alert-saved">' +
-                                    '<span style="font-weight:bold">' +
-                                    'Success.</span> Your item has been ' +
-                                    'successfully added to your ' +
-                                    '<a href="' + collectionUrl +
-                                    '">Mediathread collection</a>.</div>');
-                            var alertClose = $(
-                                '<div class="alert-close">X</div>');
-
-                            alertSaved.css({
-                                'top': alertSavedMarginTop + 'px',
-                                'left': alertSavedMarginLeft + 'px'
-
-                            });
-                            alertClose.click(function() {
-                                $(this).parent().remove();
-                            });
-                            alertSaved.prepend(alertClose);
-                            sherdOverlay.append(alertSaved);
-                            alertSaved.fadeIn(500, function() {
-                                var btn = window.button_asset;
-                                btn.attr('value', 'Collected');
-                                btn.off();
-                                btn.css({
-                                    background: '#999',
-                                    color: '#333'
-                                });
-                            });
-                        });// end #submit-input' click
-
-                    // style and add listeners onto the popup window
-                    //force the title of the popup
-                    bucket_window.document.title = 'Mediathread';
-                    var body = $('body',bucket_window.document);
-                    var title = body.find('.sherd-form-title');
-                    var submitBtn = body.find('.btn-primary');
-                    var header = body.find('#bucket-wrap h2');
-                    var helpText = body.find('.help-text');
-
-                    bucket.css({
-                        'background': '#fff',
-                        'text-align': 'center'
-                    });
-                    header.css({
-                        'font-family': 'arial',
-                        'font-weight': '100',
-                        'font-size': '18px',
-                        'color': '#323232',
-                        'text-align': 'center'
-                    });
-
-                    title.focus();
-                    title.css({
-                        color: '#000',
-                        width: '350px',
-                        height: '35px',
-                        fontSize: '14px',
-                        margin: '10px 0',
-                        '-moz-appearance': 'none',
-                        '-webkit-appearance': 'none'
-                    });
-                    submitBtn.css({
-                        'font-size': '14px',
-                        'font-weight': 'normal',
-                        'color': '#2f2f2f',
-                        'padding': '5px 15px',
-                        'margin': '0px 12px 12px',
-                        'border': 'solid 1px',
-                        'border-radius': '4px',
-                        '-moz-border-radius': '4px',
-                        '-webkit-border-radius': '4px',
-                        'background-color': '#efefef',
-                        '*background-color': '#efefef',
-                        'background-image': [
-                            '-moz-linear-gradient(top, #fcfcfc, #efefef)',
-                            '-webkit-gradient(linear, 0 0, 0 100%, ' +
-                                'from(#fcfcfc), to(#efefef))',
-                            '-webkit-linear-gradient(top, #fcfcfc, #efefef)',
-                            '-o-linear-gradient(top, #fcfcfc, #efefef)',
-                            'linear-gradient(to bottom, #fcfcfc, #efefef)'
-                        ],
-                        'background-repeat': 'repeat-x',
-                        'border-color': [
-                            '#0044cc #0044cc #002a80',
-                            'rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) ' +
-                                'rgba(0, 0, 0, 0.25)'
-                        ],
-                        'filter': [
-                            'progid:DXImageTransform.Microsoft.gradient(' +
-                                'startColorstr="#ff0088cc", ' +
-                                'endColorstr="#ff0044cc", GradientType=0)',
-                            'progid:DXImageTransform.Microsoft.gradient(' +
-                                'enabled=false)'
-                        ],
-                        'cursor': 'pointer',
-                        'display': 'inline-block'
-                    });
-                    submitBtn.hover(function() {
-                        $(this).css({
-                            'background-image': [
-                                '-moz-linear-gradient(top, #efefef, #fcfcfc)',
-                                '-webkit-gradient(linear, 0 0, 0 100%, ' +
-                                    'from(#efefef), to(#fcfcfc))',
-                                '-webkit-linear-gradient(top, #efefef, ' +
-                                    '#fcfcfc)',
-                                '-o-linear-gradient(top, #efefef, #fcfcfc)',
-                                'linear-gradient(to bottom, #efefef, #fcfcfc)'
-                            ]
-                        });
-                    }, function() {
-                        $(this).css({
-                            'background-image': [
-                                '-moz-linear-gradient(top, #fcfcfc, #efefef)',
-                                '-webkit-gradient(linear, 0 0, 0 100%, ' +
-                                    'from(#fcfcfc), to(#efefef))',
-                                '-webkit-linear-gradient(top, #fcfcfc, ' +
-                                    '#efefef)',
-                                '-o-linear-gradient(top, #fcfcfc, #efefef)',
-                                'linear-gradient(to bottom, #fcfcfc, #efefef)'
-                            ]
-                        });
-                    });
-
-                    helpText.css({
-                        'color': '#666',
-                        'font-size': '12px',
-                        'font-family': 'arial',
-                    });
-                });//End SubmitButton2 click
+                    var $buttonAsset = $(this);
+                    collectPopupClickHandler(form, me, $buttonAsset, host_url);
+                });
 
 
             }
@@ -1185,20 +1005,20 @@ window.MediathreadCollect = {
                 comp.message ='';/*erase searching message*/
                 if (!results.found) {
                     $(comp.h2).text(o.message_no_assets_short);
-                    $(comp.ul).html(self.elt(
+                    $(comp.ul).html(me.elt(
                         comp.ul.ownerDocument, 'li', '', '',
                         [o.message_no_assets]));
                 }
             }
         };
         this.showAssets = function(assets) {
-            self.showWindow();
-            self.clearAssets();
+            me.showWindow();
+            me.clearAssets();
             for (var i = 0; assets.length > i; i++) {
-                self.displayAsset(assets[i]);
+                me.displayAsset(assets[i]);
             }
             if (assets.length > 1 && o.allow_save_all) {
-                self.addSaveAllButton(assets.length);
+                me.addSaveAllButton(assets.length);
             }
         };
         this.addSaveAllButton = function(count) {
@@ -1233,14 +1053,14 @@ window.MediathreadCollect = {
                         frm.disabled = true;
                         $(frm.submitButton).remove();
                         if (new_href) {
-                            $(frm).append(self.elt(null,'span','',{}, [
-                                self.elt(
+                            $(frm).append(me.elt(null,'span','',{}, [
+                                me.elt(
                                     null,'a','',
                                     {href:new_href},
                                     [o.link_text_for_existing_asset])
                             ]));
                         } else {
-                            $(frm).append(self.elt(
+                            $(frm).append(me.elt(
                                 null,'span','',{},[' Saved! ']));
                         }
                     }
