@@ -974,7 +974,9 @@ window.MediathreadCollect = {
                 });
                 $(form.firstChild).empty().append(newAsset);
             } else {
-                asset.sources.thumb = host_url + 'media/img/nothumb_video.png';
+                asset.sources.thumb =
+                    host_url.replace(/save\/$/, '') +
+                    'media/img/nothumb_video.png';
                 newAsset =
                     me.elt(null, 'img', 'sherd-video', {
                         src: asset.sources.thumb,
