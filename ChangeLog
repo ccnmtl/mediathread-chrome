@@ -1,3 +1,7 @@
+2016-01-12  Nik Nyby  <nnyby@columbia.edu>
+
+	* Fix bug that occurs with host url when options aren't present.
+
 2016-01-08  Nik Nyby  <nnyby@columbia.edu>
 
 	* Host URL is now configurable in the extension options.

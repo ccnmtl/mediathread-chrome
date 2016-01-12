@@ -4,14 +4,19 @@
  */
 var getHostUrl = function() {
     return new Promise(function(fulfill, reject) {
+        var defaultHostUrl = 'https://mediathread.ccnmtl.columbia.edu/';
         try {
             chrome.storage.sync.get('options', function(data) {
-                fulfill(data.options.hostUrl);
+                if (data.options) {
+                    fulfill(data.options.hostUrl);
+                } else {
+                    fulfill(defaultHostUrl);
+                }
             });
         } catch (e) {
             // If anything fails, just return the default hardcoded
             // host url.
-            fulfill('https://mediathread.ccnmtl.columbia.edu/');
+            fulfill(defaultHostUrl);
         }
     });
 };
