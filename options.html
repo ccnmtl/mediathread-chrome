@@ -2,28 +2,67 @@
 <html>
     <head>
         <title>Mediathread Options</title>
+        <style>
+        .hidden {
+            display: none;
+        }
+
+        .radio label {
+            width: 100%;
+        }
+
+        form input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        form input[type="text"] {
+            margin-left: 5px;
+            width: 75%;
+        }
+        </style>
     </head>
     <body>
         <h3>Mediathread URL</h3>
-        <div>
-            <select id="host_url" name="host_url">
-                <option value="https://mediathread.ccnmtl.columbia.edu/">
-                    https://mediathread.ccnmtl.columbia.edu/
-                </option>
-                <option value="https://mediathread.qa.ccnmtl.columbia.edu/">
-                    https://mediathread.qa.ccnmtl.columbia.edu/
-                </option>
-                <option value="https://mediathread.stage.ccnmtl.columbia.edu/">
-                    https://mediathread.stage.ccnmtl.columbia.edu/
-                </option>
-            </select>
-            <p>
-                The Mediathread URL can be changed for testing purposes. For
-                normal use, leave this set to
-                https://mediathread.ccnmtl.columbia.edu/.
-            </p>
-        </div>
+        <form>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="host_url" id="host_url_prod"
+                           value="https://mediathread.ccnmtl.columbia.edu" checked>
+                    https://mediathread.ccnmtl.columbia.edu
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="host_url" id="host_url_qa"
+                           value="https://mediathread.qa.ccnmtl.columbia.edu">
+                    https://mediathread.qa.ccnmtl.columbia.edu
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="host_url" id="host_url_stage"
+                           value="https://mediathread.stage.ccnmtl.columbia.edu">
+                    https://mediathread.stage.ccnmtl.columbia.edu
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="host_url" id="host_url_custom"
+                           value="other">
+                    Other: <input name="custom_url"
+                                  type="text"
+                                  value=""
+                                  disabled
+                                  autocomplete="off"
+                                  autocapitalize="off"
+                                  autocorrect="off"
+                                  spellcheck="false" />
+                </label>
+            </div>
+        </form>
+        <div id="infospace" class="hidden">Saved.</div>
 
+        <script src="lib/jquery-2.2.0.min.js"></script>
         <script src="src/options.js"></script>
     </body>
 </html>

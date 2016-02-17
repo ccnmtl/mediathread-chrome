@@ -8,7 +8,11 @@ var getHostUrl = function() {
         try {
             chrome.storage.sync.get('options', function(data) {
                 if (data.options) {
-                    fulfill(data.options.hostUrl);
+                    if (data.options.hostUrl === 'other') {
+                        fulfill(data.options.customUrl);
+                    } else {
+                        fulfill(data.options.hostUrl);
+                    }
                 } else {
                     fulfill(defaultHostUrl);
                 }
@@ -22,8 +26,9 @@ var getHostUrl = function() {
 };
 
 getHostUrl().then(function(hostUrl) {
+    var isLoggedInUrl = hostUrl + '/accounts/is_logged_in/';
     $.ajax({
-        url: hostUrl + '/accounts/is_logged_in/',
+        url: isLoggedInUrl,
         dataType: 'json',
         crossDomain: true,
         cache: false,
@@ -53,7 +58,7 @@ getHostUrl().then(function(hostUrl) {
             }
         },
         error: function(d) {
-            console.error('ajax error in init.js', d);
+            alert('Error loading URL: ' + isLoggedInUrl);
         }
     });
 });
