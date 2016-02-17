@@ -58,7 +58,7 @@ function storeOptions(hostUrl, customUrl) {
     chrome.storage.sync.set({
         options: {
             hostUrl: hostUrl,
-            customUrl: customUrl
+            customUrl: $.trim(customUrl)
         }
     }, function optionsSaved() {
         $('#infospace').fadeIn();
