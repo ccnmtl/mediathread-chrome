@@ -65,9 +65,13 @@ function storeOptions(hostUrl, customUrl) {
     });
 }
 
-$('input[name="custom_url"]').on('change keyup', function() {
+$('input[name="custom_url"]').change(function(e) {
     storeOptions('other', this.value);
 });
+
+$('input[name="custom_url"]').keyup(_.debounce(function(e) {
+    storeOptions('other', this.value);
+}, 300));
 
 $('input[type="radio"][name="host_url"]').change(function() {
     storeOptions(this.value, $('input[name="custom_url"]').val());
