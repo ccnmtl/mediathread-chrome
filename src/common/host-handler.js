@@ -15,6 +15,10 @@ var getURLParameters = function(name) {
         null;
 };
 
+/**
+ * The active runner in the hostHandler object is decided via
+ * gethosthandler() in collect.js.
+ */
 var hostHandler = {
     'alexanderstreet.com': {
         find: function(callback) {
@@ -627,6 +631,14 @@ var hostHandler = {
                 }
             });
             return callback(returnArray);
+        }
+    },
+
+    'mcid.mcah.columbia.edu': {
+        also_find_general: true,
+        find: function(callback) {
+            console.log('abc');
+            callback([]);
         }
     },
 
