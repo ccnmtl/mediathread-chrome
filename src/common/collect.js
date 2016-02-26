@@ -810,7 +810,12 @@ window.MediathreadCollect = {
                 });
                 $(form.submitButton2).click(function() {
                     var $buttonAsset = $(this);
-                    collectPopupClickHandler(form, me, $buttonAsset, host_url);
+                    collectPopupClickHandler(
+                        form,
+                        me,
+                        $buttonAsset,
+                        host_url,
+                        courseName);
                 });
             }
             if (comp.ul) {

@@ -10,8 +10,11 @@
  * me - the caller's 'this'
  * $buttonAsset - the clicked button
  * hostUrl - the Mediathread url
+ * courseName - Name of the course the asset was collected into.
  */
-var collectPopupClickHandler = function(form, me, $buttonAsset, hostUrl) {
+var collectPopupClickHandler = function(
+    form, me, $buttonAsset, hostUrl, courseName
+) {
     /* A pop up window solution... */
     var bucketWrap = $('<div id="bucket-wrap"/>');
     var bucket = $(form).clone();
@@ -68,7 +71,9 @@ var collectPopupClickHandler = function(form, me, $buttonAsset, hostUrl) {
                     'Success.</span> Your item has been ' +
                     'successfully added to your ' +
                     '<a href="' + collectionUrl +
-                    '">Mediathread collection</a>.</div>');
+                    '">Mediathread collection</a> in the course: ' +
+                    coursename +
+                    '</div>');
             var alertClose = $(
                 '<div class="alert-close">X</div>');
 
