@@ -1,3 +1,9 @@
+2016-02-29  Nik Nyby  <nnyby@columbia.edu>
+
+	* Updated icons.
+	* Added listener for Mediathread "Update settings" button.
+	* Improved custom url saving behavior with debounce.
+
 2016-02-19  Nik Nyby  <nnyby@columbia.edu>
 
 	* Debounce custom url save on keyup so it doesn't fire each
