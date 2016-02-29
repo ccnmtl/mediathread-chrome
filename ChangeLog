@@ -2,7 +2,6 @@
 
 	* Updated icons.
 	* Added listener for Mediathread "Update settings" button.
-	* Improved custom url saving behavior with debounce.
 
 2016-02-19  Nik Nyby  <nnyby@columbia.edu>
 
