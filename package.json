@@ -13,8 +13,8 @@
     "mocha": "^2.3.3"
   },
   "scripts": {
-    "jshint": "jshint src/*.js tests/*.js",
-    "jscs": "jscs src/*.js tests/*.js",
+    "jshint": "jshint src/*.js src/common/*.js tests/*.js",
+    "jscs": "jscs src/*.js src/common/*.js tests/*.js",
     "test": "mocha tests/ -t 20000"
   },
   "repository": {
