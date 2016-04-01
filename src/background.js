@@ -10,8 +10,10 @@ chrome.runtime.onMessageExternal.addListener(
                     customUrl: url
                 }
             }, function optionsSaved() {
+                sendResponse('Mediathread URL updated to: ' + url);
             });
         }
+        return true;
     });
 
 chrome.browserAction.onClicked.addListener(function(tab) {
