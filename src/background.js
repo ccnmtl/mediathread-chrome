@@ -1,6 +1,10 @@
 chrome.runtime.onMessageExternal.addListener(
     function(request, sender, sendResponse) {
-        if (request.command && request.command === 'updatesettings') {
+        if (
+            request.command &&
+                request.command === 'updatesettings' &&
+                sender.url.startsWith('https://')
+        ) {
             var url = sender.url;
             url = url.replace(/#$/, '');
             url = url.replace(/\/$/, '');
