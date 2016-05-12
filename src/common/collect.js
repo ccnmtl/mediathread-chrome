@@ -674,12 +674,12 @@ window.MediathreadCollect = {
                     me.elt(doc,'div','sherd-window-inner','',[
                         me.elt(
                             doc,'button','sherd-close btn-primary','',['X']),
-                        me.elt(
-                            doc,
-                            'button',
-                            'sherd-collection btn-primary',
-                            '',
-                            ['Go to Collection']),
+                        $('<a />', {
+                            'class': 'sherd-collection btn-primary',
+                            'href': 'https://mediathread.ccnmtl.columbia.edu/asset/',
+                            'target': '_blank',
+                            'text': 'Go to Collection'
+                        })[0],
                         me.elt(
                             doc,'h2','','',
                             ['Select "Analyze Now" to edit one item ' +
@@ -699,15 +699,9 @@ window.MediathreadCollect = {
             comp.ul = comp.top.getElementsByTagName('ul')[0];
             comp.h2 = comp.top.getElementsByTagName('h2')[0];
             comp.close = comp.top.getElementsByTagName('button')[0];
-            comp.collection = comp.top.getElementsByTagName('button')[1];
             comp.message = comp.top.getElementsByTagName('p')[0];
 
             M.connect(comp.tab, 'click', this.onclick);
-            M.connect(comp.collection, 'click', function(evt) {
-                var hostURL = MediathreadCollect.options.host_url;
-                hostURL.replace(/\/save\/$/, '');
-                window.location.replace(hostURL + '/asset/');
-            });
             M.connect(comp.close, 'click', function(evt) {
                 $('.sherd-analyzer').remove();
                 comp.window.style.display = 'none';
