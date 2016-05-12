@@ -10,6 +10,10 @@ function loadOptions() {
     chrome.storage.sync.get('options', function(data) {
         var options = data.options;
 
+        if (typeof options === 'undefined') {
+            options = {};
+        }
+
         if (!options.hostUrl) {
             var defaultHost = prefilledUrls[0];
             options.hostUrl = defaultHost;
