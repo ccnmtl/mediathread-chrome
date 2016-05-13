@@ -11,10 +11,10 @@ node_modules:
 	npm install
 
 node_modules/jshint/bin/jshint:
-	npm install jshint --prefix .
+	npm install jshint@^2.9.2 --prefix .
 
 node_modules/jscs/bin/jscs:
-	npm install jscs --prefix .
+	npm install jscs@^3.0.3 --prefix .
 
 clean:
 	rm -rf node_modules
