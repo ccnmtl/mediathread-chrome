@@ -2,6 +2,10 @@
 
 	* Fixed image collection on blakearchive.org.
 
+2017-02-08  Nik Nyby  <nnyby@columbia.edu>
+
+	* Ignore query params when updating host URL.
+
 2016-05-13  Nik Nyby  <nnyby@columbia.edu>
 
 	* Fixed Go To Collection link.

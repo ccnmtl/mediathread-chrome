@@ -1,3 +1,7 @@
+var getPathFromUrl = function(url) {
+    return url.split(/[?#]/)[0];
+};
+
 chrome.runtime.onMessageExternal.addListener(
     function(request, sender, sendResponse) {
         if (
@@ -6,7 +10,7 @@ chrome.runtime.onMessageExternal.addListener(
                 sender.url.startsWith('https://')
         ) {
             var url = sender.url;
-            url = url.replace(/#$/, '');
+            url = getPathFromUrl(url);
             url = url.replace(/\/$/, '');
             chrome.storage.sync.set({
                 options: {
