@@ -10,7 +10,7 @@
     "jscs": "^2.1.1",
     "jsdom": "^9.11.0",
     "jshint": "^2.8.0",
-    "mocha": "^2.3.3"
+    "mocha": "^3.2.0"
   },
   "scripts": {
     "jshint": "jshint src/*.js src/common/*.js tests/*.js",
