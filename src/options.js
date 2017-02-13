@@ -25,22 +25,22 @@ function loadOptions() {
 
         // Select the appropriate radio button
         switch (options.hostUrl) {
-        case prefilledUrls[0]:
-            $('#host_url_prod').prop('checked', true);
-            break;
-        case prefilledUrls[1]:
-            $('#host_url_qa').prop('checked', true);
-            break;
-        case prefilledUrls[2]:
-            $('#host_url_stage').prop('checked', true);
-            break;
-        case 'other':
-            $('#host_url_custom').prop('checked', true);
-            $('input[name="custom_url"]').prop('disabled', false);
-            break;
-        default:
-            $('#host_url_prod').prop('checked', true);
-            break;
+            case prefilledUrls[0]:
+                $('#host_url_prod').prop('checked', true);
+                break;
+            case prefilledUrls[1]:
+                $('#host_url_qa').prop('checked', true);
+                break;
+            case prefilledUrls[2]:
+                $('#host_url_stage').prop('checked', true);
+                break;
+            case 'other':
+                $('#host_url_custom').prop('checked', true);
+                $('input[name="custom_url"]').prop('disabled', false);
+                break;
+            default:
+                $('#host_url_prod').prop('checked', true);
+                break;
         }
 
         $('input[name="custom_url"]').val(options.customUrl);
