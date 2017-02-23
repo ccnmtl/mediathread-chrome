@@ -25,6 +25,7 @@
     "externally_connectable": {
         "matches": [
             "*://*.columbia.edu/*",
+            "*://*.dartmouth.edu/*",
             "*://localhost:*/*"
         ]
     },

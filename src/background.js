@@ -4,11 +4,13 @@ var getPathFromUrl = function(url) {
 
 chrome.runtime.onMessageExternal.addListener(
     function(request, sender, sendResponse) {
-        if (
-            request.command &&
-                request.command === 'updatesettings' &&
-                sender.url.startsWith('https://')
-        ) {
+        if (request.command && request.command === 'updatesettings') {
+            if (!sender.url.startsWith('https://')) {
+                sendResponse('This extension requires Mediathread to be ' +
+                             'used over HTTPS.');
+                return false;
+            }
+
             var url = sender.url;
             url = getPathFromUrl(url);
             url = url.replace(/\/$/, '');
