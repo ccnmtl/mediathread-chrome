@@ -1,3 +1,5 @@
+/* globals chrome */
+
 var getPathFromUrl = function(url) {
     return url.split(/[?#]/)[0];
 };

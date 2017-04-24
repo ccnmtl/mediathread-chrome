@@ -1,3 +1,5 @@
+/* eslint-env es6, mocha, node */
+
 var assert = require('assert');
 
 var assetHandler = require('../src/common/asset-handler.js');

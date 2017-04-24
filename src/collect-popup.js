@@ -1,3 +1,6 @@
+/* eslint-env jquery */
+/* exported collectPopupClickHandler */
+
 /**
  * collectPopupClickHandler
  *

@@ -1,3 +1,6 @@
+/* eslint-env jquery */
+/* global chrome, _ */
+
 var prefilledUrls = [
     'https://mediathread.ccnmtl.columbia.edu',
     'https://mediathread.qa.ccnmtl.columbia.edu',
@@ -69,11 +72,11 @@ function storeOptions(hostUrl, customUrl) {
     });
 }
 
-$('input[name="custom_url"]').change(function(e) {
+$('input[name="custom_url"]').change(function() {
     storeOptions('other', this.value);
 });
 
-$('input[name="custom_url"]').keyup(_.debounce(function(e) {
+$('input[name="custom_url"]').keyup(_.debounce(function() {
     storeOptions('other', this.value);
 }, 300));
 
