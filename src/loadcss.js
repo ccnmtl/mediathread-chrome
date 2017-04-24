@@ -1,3 +1,6 @@
+/* eslint-env jquery */
+/* global chrome */
+
 $('head').append(
     $('<link>')
         .attr('rel', 'stylesheet')

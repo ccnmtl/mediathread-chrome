@@ -1,9 +1,12 @@
+/* eslint-env jquery */
+/* global MediathreadCollect, chrome, Promise */
+
 /**
  * Returns a promise yielding the host url stored in the extension's
  * settings.
  */
 var getHostUrl = function() {
-    return new Promise(function(fulfill, reject) {
+    return new Promise(function(fulfill) {
         var defaultHostUrl = 'https://mediathread.ccnmtl.columbia.edu/';
         try {
             chrome.storage.sync.get('options', function(data) {
@@ -57,7 +60,7 @@ getHostUrl().then(function(hostUrl) {
                         ' and select a course!');
             }
         },
-        error: function(d) {
+        error: function() {
             alert('Error loading URL: ' + isLoggedInUrl);
         }
     });
