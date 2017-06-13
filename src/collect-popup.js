@@ -61,7 +61,7 @@ var collectPopupClickHandler = function(form, me, $buttonAsset, hostUrl) {
         var sherdOverlay = $('.sherd-window-inner', window.document);
         var alertSavedMarginLeft =
             ($('.sherd-window-inner', window.document)
-             .width() / 2) - (535 * 0.5);
+                .width() / 2) - (535 * 0.5);
         var alertSavedMarginTop =
             ($(window).height() / 2) - 100;
         var collectionUrl = hostUrl.replace(/\/save\/$/, '') + '/asset/';
