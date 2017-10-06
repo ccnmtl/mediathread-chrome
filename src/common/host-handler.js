@@ -333,11 +333,8 @@ var hostHandler = {
                             );
                             var img;
                             $('img').each(function() {
-                                if (
-                                    RegExp(
-                                        'http://farm.*' + imageId)
-                                    .test(this.src)
-                                ) {
+                                if (RegExp('http://farm.*' + imageId)
+                                    .test(this.src)) {
                                     img = this;
                                 }
                             });
