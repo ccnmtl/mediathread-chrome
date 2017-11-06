@@ -115,20 +115,16 @@ var hostHandler = {
 
     'artstor.org': {
         find: function(callback) {
-            /*must have floating pane open to find image*/
             var foundImages = [];
+
+            // asset detail page
             var $elt = $('meta[name="asset.id"').first();
             var content = $elt.attr('content');
+
+            // selected list page. check this first, as the asset.id
+            // content can contain invalid data
             var selectedThumbs = $('.card.card--asset.selected');
-            if (content) {
-                foundImages.push({
-                    'artstorId': content,
-                    'sources': {},
-                    'metadata': {},
-                    'primary_type': 'image_fpx',
-                    'html': $elt
-                });
-            } else if (selectedThumbs.length > 0) {
+            if (selectedThumbs.length > 0) {
                 selectedThumbs.each(function() {
                     foundImages.push({
                         'artstorId': $(this).data('id'),
@@ -137,6 +133,14 @@ var hostHandler = {
                         'primary_type': 'image_fpx',
                         'html': this
                     });
+                });
+            } else if (content) {
+                foundImages.push({
+                    'artstorId': content,
+                    'sources': {},
+                    'metadata': {},
+                    'primary_type': 'image_fpx',
+                    'html': $elt
                 });
             } else {
                 return callback(
