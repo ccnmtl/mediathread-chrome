@@ -1,3 +1,6 @@
+
+all: eslint test
+
 test: node_modules
 	npm test
 
