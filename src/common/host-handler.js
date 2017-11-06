@@ -1,5 +1,5 @@
 /* eslint-env jquery, node */
-/* global MediathreadCollect, dijit */
+/* global MediathreadCollect */
 /* exported getImageDimensions */
 
 var getImageDimensions = function(src, callback, onerror) {
@@ -117,52 +117,21 @@ var hostHandler = {
         find: function(callback) {
             /*must have floating pane open to find image*/
             var foundImages = [];
-            var floatingPane = $('.MetaDataWidgetRoot');
-            var selectedThumbs = $('.thumbNailImageSelected');
-            if (floatingPane.length > 0) {
-                var dom = floatingPane.get(0);
+            var $elt = $('meta[name="asset.id"').first();
+            var content = $elt.attr('content');
+            var selectedThumbs = $('.card.card--asset.selected');
+            if (content) {
                 foundImages.push({
-                    'artstorId': dom.id.substr(3),/*after 'mdw'*/
+                    'artstorId': content,
                     'sources': {},
                     'metadata': {},
                     'primary_type': 'image_fpx',
-                    'html': dom
+                    'html': $elt
                 });
             } else if (selectedThumbs.length > 0) {
-                var contentScript = function() {
-                    var elId = 'dijitMap';
-                    var mapEl = document.getElementById(elId);
-                    if (mapEl) {
-                        // Remove this element if it exists.
-                        mapEl.parentNode.removeChild(mapEl);
-                    }
-
-                    // Make a 'map' between the dijit hash and the objectId's
-                    // we need. The map is a dom element with a bunch of data
-                    // attributes. That lets us access this data via the
-                    // Chrome extension. DOM is shared, but JS code isn't.
-                    mapEl = document.createElement('div');
-                    mapEl.id = elId;
-                    for (var key in dijit.registry._hash) {
-                        var obj = dijit.registry.byId(key);
-                        mapEl.setAttribute('data-' + key, obj.objectId);
-                    }
-                    document.body.appendChild(mapEl);
-                };
-
-                // Run contentScript in the page context.
-                // http://stackoverflow.com/a/2303228/173630
-                var script = document.createElement('script');
-                script.appendChild(document.createTextNode(
-                    '(' + contentScript + ')();'));
-                (document.body ||
-                 document.head ||
-                 document.documentElement).appendChild(script);
-
                 selectedThumbs.each(function() {
-                    var id = String(this.id).split('_')[0];
                     foundImages.push({
-                        'artstorId': $('#dijitMap').data(id),
+                        'artstorId': $(this).data('id'),
                         'sources': {},
                         'metadata': {},
                         'primary_type': 'image_fpx',
@@ -182,7 +151,7 @@ var hostHandler = {
             var getArtStorData = function(obj) {
                 $.ajax({
                     url: 'http://' + location.hostname +
-                        '/library/secure/imagefpx/' +
+                        '/api/secure/imagefpx/' +
                         obj.artstorId + '/103/5',
                     dataType: 'json',
                     success: function(fpxdata) {
@@ -205,7 +174,7 @@ var hostHandler = {
                 });
                 $.ajax({
                     url: 'http://' + location.hostname +
-                        '/library/secure/metadata/' +
+                        '/api/secure/metadata/' +
                         obj.artstorId,
                     dataType: 'json',
                     success: function(metadata) {
