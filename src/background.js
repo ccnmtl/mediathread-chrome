@@ -29,7 +29,7 @@ chrome.runtime.onMessageExternal.addListener(
     });
 
 chrome.browserAction.onClicked.addListener(function(tab) {
-    chrome.tabs.executeScript(tab.id, {file: 'lib/jquery-2.2.3.min.js'});
+    chrome.tabs.executeScript(tab.id, {file: 'lib/jquery-2.2.4.min.js'});
     chrome.tabs.executeScript(tab.id, {file: 'lib/URI.js'});
     chrome.tabs.executeScript(tab.id, {file: 'src/loadcss.js'});
     chrome.tabs.executeScript(tab.id, {file: 'src/collect-popup.js'});
