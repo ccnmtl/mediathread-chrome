@@ -30,7 +30,7 @@
             "*://localhost:*/*"
         ]
     },
-    "version": "0.9.11",
+    "version": "0.9.12",
     "manifest_version": 2,
     "options_ui": {
         "page": "options.html",
