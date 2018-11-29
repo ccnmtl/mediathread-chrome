@@ -29,9 +29,10 @@ var getHostUrl = function() {
 };
 
 getHostUrl().then(function(hostUrl) {
-    var isLoggedInUrl = hostUrl + '/accounts/is_logged_in/';
+    // Creating this URL object properly removes duplicate slashes.
+    var isLoggedInUrl = new URL('/accounts/is_logged_in/', hostUrl);
     $.ajax({
-        url: isLoggedInUrl,
+        url: isLoggedInUrl.href,
         dataType: 'json',
         crossDomain: true,
         cache: false,
@@ -61,7 +62,7 @@ getHostUrl().then(function(hostUrl) {
             }
         },
         error: function() {
-            alert('Error loading URL: ' + isLoggedInUrl);
+            alert('Error loading URL: ' + isLoggedInUrl.href);
         }
     });
 });

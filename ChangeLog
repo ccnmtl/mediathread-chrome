@@ -1,3 +1,8 @@
+2018-11-29  Nik Nyby  <nnyby@columbia.edu>
+
+	* Fix duplicate slash error when loading auth state from
+	Mediathread.
+
 2018-11-27  Nik Nyby  <nnyby@columbia.edu>
 
 	* Update jQuery to 3.3.1
