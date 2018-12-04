@@ -64,13 +64,14 @@ var collectPopupClickHandler = function(form, me, $buttonAsset, hostUrl) {
                 .width() / 2) - (535 * 0.5);
         var alertSavedMarginTop =
             ($(window).height() / 2) - 100;
-        var collectionUrl = hostUrl.replace(/\/save\/$/, '') + '/asset/';
+        var collectionUrl = new URL(
+            '/asset/', hostUrl.replace(/\/save\/$/, ''));
         var alertSaved = $(
             '<div class="alert-saved">' +
                 '<span style="font-weight:bold">' +
                 'Success.</span> Your item has been ' +
                 'successfully added to your ' +
-                '<a href="' + collectionUrl +
+                '<a href="' + collectionUrl.href +
                 '">Mediathread collection</a>.</div>');
         var alertClose = $(
             '<div class="alert-close">X</div>');

@@ -1,3 +1,8 @@
+2018-12-03  Nik Nyby  <nnyby@columbia.edu>
+
+	* Fix more duplicate slash errors in other parts of the code by
+	using a proper URL parser.
+
 2018-11-29  Nik Nyby  <nnyby@columbia.edu>
 
 	* Fix duplicate slash error when loading auth state from
