@@ -1,15 +1,16 @@
 {
   "name": "mediathread-chrome",
-  "version": "0.9.13",
+  "version": "0.9.14",
   "description": "Find assets to analyze in Mediathread.",
   "main": "background.js",
   "directories": {
     "test": "tests"
   },
   "devDependencies": {
-    "eslint": "^5.0.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.15.3",
     "jsdom": "~11.12.0",
-    "mocha": "~5.2.0"
+    "mocha": "~6.0.2"
   },
   "greenkeeper": {
     "ignore": [

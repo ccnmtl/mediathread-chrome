@@ -4,6 +4,29 @@ var getPathFromUrl = function(url) {
     return url.split(/[?#]/)[0];
 };
 
+// https://www.chromium.org/Home/chromium-security/extension-content-script-fetches
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        if (request.contentScriptQuery == 'getContent') {
+            var isLoggedInUrl = new URL('/accounts/is_logged_in/', request.hostUrl);
+
+            fetch(isLoggedInUrl, {
+                cache: 'no-cache',
+                mode: 'cors',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    sendResponse(data);
+                    return data;
+                })
+                .catch(function() {
+                    alert('Error loading URL: ' + isLoggedInUrl.href);
+                });
+            return true;  // Will respond asynchronously.
+        }
+    });
+
 chrome.runtime.onMessageExternal.addListener(
     function(request, sender, sendResponse) {
         if (request.command && request.command === 'updatesettings') {

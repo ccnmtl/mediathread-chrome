@@ -29,40 +29,30 @@ var getHostUrl = function() {
 };
 
 getHostUrl().then(function(hostUrl) {
-    // Creating this URL object properly removes duplicate slashes.
-    var isLoggedInUrl = new URL('/accounts/is_logged_in/', hostUrl);
-    $.ajax({
-        url: isLoggedInUrl.href,
-        dataType: 'json',
-        crossDomain: true,
-        cache: false,
-        xhrFields: {
-            withCredentials: true
-        },
-        success: function(d) {
-            if ('flickr_apikey' in d) {
-                MediathreadCollect.options.flickr_apikey = d.flickr_apikey;
-            }
-            if ('youtube_apikey' in d) {
-                MediathreadCollect.options.youtube_apikey = d.youtube_apikey;
-            }
+    chrome.runtime.sendMessage({
+        contentScriptQuery: 'getContent',
+        hostUrl: hostUrl,
+        mediathreadCollect: MediathreadCollect
+    }, function(data) {
+        if ('flickr_apikey' in data) {
+            MediathreadCollect.options.flickr_apikey = data.flickr_apikey;
+        }
+        if ('youtube_apikey' in data) {
+            MediathreadCollect.options.youtube_apikey = data.youtube_apikey;
+        }
 
-            if (d.logged_in === true && d.course_selected === true) {
-                // Start the main plugin code
-                MediathreadCollect.runners.jump(hostUrl, true);
-            } else if (d.logged_in === true && d.course_selected === false) {
-                alert(
-                    'You\'re logged in to Mediathread at ' +
-                        hostUrl +
-                        ', now select a course to use the Chrome extension.');
-            } else {
-                alert(
-                    'Log in to Mediathread at ' + hostUrl +
-                        ' and select a course!');
-            }
-        },
-        error: function() {
-            alert('Error loading URL: ' + isLoggedInUrl.href);
+        if (data.logged_in === true && data.course_selected === true) {
+            // Start the main plugin code
+            MediathreadCollect.runners.jump(hostUrl, true);
+        } else if (data.logged_in === true && data.course_selected === false) {
+            alert(
+                'You\'re logged in to Mediathread at ' +
+                    hostUrl +
+                    ', now select a course to use the Chrome extension.');
+        } else {
+            alert(
+                'Log in to Mediathread at ' + hostUrl +
+                    ' and select a course!');
         }
     });
 });
