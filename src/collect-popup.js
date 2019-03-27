@@ -14,6 +14,7 @@
  * $buttonAsset - the clicked button
  * hostUrl - the Mediathread url
  */
+// eslint-disable-next-line no-unused-vars
 var collectPopupClickHandler = function(form, me, $buttonAsset, hostUrl) {
     /* A pop up window solution... */
     var bucketWrap = $('<div id="bucket-wrap"/>');
