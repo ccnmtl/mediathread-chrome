@@ -18,5 +18,8 @@ to load the source directory.
 ### Release Checklist
 * Update ChangeLog
 * Increment version number in manifest.json and package.json
+* Make a new release for the new version in GitHub
+* Download the .zip file that GitHub made for this release
 * Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
 * In the Mediathread row, click "Edit", then "Upload Updated Package"
+* Upload zip file to Google, and Publish. Google takes up to an hour to process and release this.
