@@ -2,9 +2,8 @@
 /* global chrome, _ */
 
 var prefilledUrls = [
-    'https://mediathread.ccnmtl.columbia.edu',
-    'https://mediathread.qa.ccnmtl.columbia.edu',
-    'https://mediathread.stage.ccnmtl.columbia.edu'
+    'https://mediathread.ctl.columbia.edu',
+    'https://mediathread.stage.ctl.columbia.edu'
 ];
 
 // Restores select box state using the preferences
