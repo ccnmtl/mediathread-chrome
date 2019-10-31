@@ -7,7 +7,7 @@
  */
 var getHostUrl = function() {
     return new Promise(function(fulfill) {
-        var defaultHostUrl = 'https://mediathread.ccnmtl.columbia.edu/';
+        var defaultHostUrl = 'https://mediathread.ctl.columbia.edu/';
         try {
             chrome.storage.sync.get('options', function(data) {
                 if (data.options) {

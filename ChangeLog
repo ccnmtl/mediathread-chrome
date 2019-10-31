@@ -1,3 +1,8 @@
+2019-10-31  Nik Nyby  <nnyby@columbia.edu>
+
+	* Update Mediathread url to use *.ctl
+	* Remove mediathread.qa url option
+
 2019-03-27  Nik Nyby  <nnyby@columbia.edu>
 
 	* Fix a CORB request problem that was introduced in Chrome 73.
