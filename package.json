@@ -1,6 +1,6 @@
 {
   "name": "mediathread-chrome",
-  "version": "0.9.15",
+  "version": "0.9.16",
   "description": "Find assets to analyze in Mediathread.",
   "main": "background.js",
   "directories": {
