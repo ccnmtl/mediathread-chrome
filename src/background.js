@@ -1,4 +1,4 @@
-/* globals chrome */
+/* globals chrome, $ */
 
 var getPathFromUrl = function(url) {
     return url.split(/[?#]/)[0];
@@ -24,6 +24,25 @@ chrome.runtime.onMessage.addListener(
                     alert('Error loading URL: ' + isLoggedInUrl.href);
                 });
             return true;  // Will respond asynchronously.
+        } else if (request.contentScriptQuery === 'getYoutubeAsset') {
+            // gapi will be a string that includes the id, like
+            // https://www.googleapis.com/youtube/v3/videos?id=Tu42VMSZV8o
+            var url = request.ytApiUrl + '&' + $.param(request.urlParams);
+
+            fetch(url, {
+                cache: 'no-cache',
+                mode: 'cors',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    sendResponse(data);
+                    return data;
+                })
+                .catch(function() {
+                    alert('Error loading YouTube URL: ' + url);
+                });
+            return true;
         }
     });
 
