@@ -184,9 +184,10 @@ var hostHandler = {
                     success: function(metadata) {
                         obj.sources.title = metadata.title;
                         obj.sources.thumb =
-                            'https://library.artstor.org' +
-                            metadata.imageUrl;
-                        var m = metadata.metaData;
+                            'https://library.artstor.org' + (
+                                metadata.imageUrl || metadata.image_url);
+
+                        var m = metadata.metaData || metadata.metadata_json;
                         for (var i = 0; i < m.length; i++) {
                             ///so multiple values are still OK
                             if (m[i].fieldName in obj.metadata) {
