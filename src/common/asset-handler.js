@@ -1,5 +1,5 @@
 /* eslint-env jquery, node */
-/* global MediathreadCollect */
+/* global MediathreadCollect, chrome */
 
 var assetHandler = (function() {
     var clean = function(str) {
@@ -205,7 +205,9 @@ var assetHandler = (function() {
                                 VIDEO_ID + '?enablejsapi=1&fs=1',
                             'gapi': 'https://www.googleapis.com/' +
                                 'youtube/v3/videos?id=' + VIDEO_ID
-                        }};
+                        }
+                    };
+
                     if (emb.getCurrentTime) {
                         if (emb.getCurrentTime() > 0 &&
                             emb.getCurrentTime() < emb.getDuration()
@@ -244,18 +246,12 @@ var assetHandler = (function() {
                         part: 'snippet,status'
                     };
 
-                    // gapi will be a string that includes the id, like
-                    // https://www.googleapis.com/youtube/v3/videos?id=Tu42VMSZV8o
-                    var url = rv.sources.gapi + '&' + $.param(urlParams);
+                    chrome.runtime.sendMessage({
+                        contentScriptQuery: 'getYoutubeAsset',
+                        ytApiUrl: rv.sources.gapi,
+                        urlParams: urlParams
+                    }, ytCallback);
 
-                    $.ajax({
-                        url: url,
-                        dataType: 'json',
-                        success: ytCallback,
-                        error: function() {
-                            optionalCallback(index);
-                        }
-                    });
                     // Decrease the z-index of youtube's header so the
                     // extension's header is visible.
                     $('#masthead-positioner').css('z-index', '999');

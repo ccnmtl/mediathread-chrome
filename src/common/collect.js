@@ -186,7 +186,8 @@ window.MediathreadCollect = {
                 return;
             }
             var jump_with_first_asset = function(assets, error) {
-                if (assets.length === 0) {
+                if (assets.length === 0 ||
+                    (assets.length === 1 && typeof assets[0] === 'undefined')) {
                     if (handler.also_find_general) {
                         grabber_func();
                         return;
