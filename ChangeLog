@@ -6,6 +6,7 @@
 
 	* Update Mediathread url to use *.ctl
 	* Remove mediathread.qa url option
+	* Update jQuery to 3.4.1
 
 2019-03-27  Nik Nyby  <nnyby@columbia.edu>
 
