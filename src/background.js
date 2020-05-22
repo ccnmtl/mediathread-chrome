@@ -31,8 +31,7 @@ chrome.runtime.onMessage.addListener(
 
             fetch(url, {
                 cache: 'no-cache',
-                mode: 'cors',
-                credentials: 'include'
+                mode: 'cors'
             })
                 .then(response => response.json())
                 .then(data => {
