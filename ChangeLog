@@ -1,3 +1,7 @@
+2020-05-22  Nik Nyby  <nnyby@columbia.edu>
+
+	* Don't include CORS credentials in YouTube request.
+
 2019-11-01  Nik Nyby  <nnyby@columbia.edu>
 
 	* Fix CORB error when collecting YouTube videos
