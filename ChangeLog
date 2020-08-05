@@ -1,3 +1,7 @@
+2020-08-05  Nik Nyby  <nnyby@columbia.edu>
+
+	* Fix setting custom URL name: use only hostname
+
 2020-05-22  Nik Nyby  <nnyby@columbia.edu>
 
 	* Don't include CORS credentials in YouTube request.

@@ -1,9 +1,5 @@
 /* globals chrome, $ */
 
-var getPathFromUrl = function(url) {
-    return url.split(/[?#]/)[0];
-};
-
 // https://www.chromium.org/Home/chromium-security/extension-content-script-fetches
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
@@ -54,13 +50,11 @@ chrome.runtime.onMessageExternal.addListener(
                 return false;
             }
 
-            var url = sender.url;
-            url = getPathFromUrl(url);
-            url = url.replace(/\/$/, '');
+            var url = new URL(sender.url);
             chrome.storage.sync.set({
                 options: {
                     hostUrl: 'other',
-                    customUrl: url
+                    customUrl: url.origin
                 }
             }, function optionsSaved() {
                 sendResponse('Mediathread URL updated to: ' + url);
