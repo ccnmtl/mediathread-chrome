@@ -1,3 +1,7 @@
+2020-08-06  Nik Nyby  <nnyby@columbia.edu>
+
+	* Fix Vimeo video collection
+
 2020-08-05  Nik Nyby  <nnyby@columbia.edu>
 
 	* Fix setting custom URL name: use only hostname
