@@ -525,7 +525,7 @@ var hostHandler = {
 
     'vimeo.com': {
         find: function(callback) {
-            var videos = $('.video-wrapper');
+            var videos = $('.video-wrapper,.vp-video-wrapper');
             if (videos.length < 1) {
                 var message = 'This Vimeo page does not contain ' +
                     'videos accessible to the extension. Try ' +
