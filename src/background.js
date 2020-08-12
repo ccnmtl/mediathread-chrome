@@ -51,13 +51,14 @@ chrome.runtime.onMessageExternal.addListener(
             }
 
             var url = new URL(sender.url);
+            var newUrl = url.origin;
             chrome.storage.sync.set({
                 options: {
                     hostUrl: 'other',
-                    customUrl: url.origin
+                    customUrl: newUrl
                 }
             }, function optionsSaved() {
-                sendResponse('Mediathread URL updated to: ' + url);
+                sendResponse('Mediathread URL updated to: ' + newUrl);
             });
         }
         return true;
