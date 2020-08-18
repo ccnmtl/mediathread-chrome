@@ -58,42 +58,60 @@ var collectPopupClickHandler = function(form, me, $buttonAsset, hostUrl) {
         });
 
     $('#submit-input', bucketWindow.document).click(function() {
-        $(this).closest('form').submit();
-        var sherdOverlay = $('.sherd-window-inner', window.document);
-        var alertSavedMarginLeft =
-            ($('.sherd-window-inner', window.document)
-                .width() / 2) - (535 * 0.5);
-        var alertSavedMarginTop =
-            ($(window).height() / 2) - 100;
-        var collectionUrl = new URL(
-            '/asset/', hostUrl.replace(/\/save\/$/, ''));
-        var alertSaved = $(
-            '<div class="alert-saved">' +
-                '<span style="font-weight:bold">' +
-                'Success.</span> Your item has been ' +
-                'successfully added to your ' +
-                '<a href="' + collectionUrl.href +
-                '">Mediathread collection</a>.</div>');
-        var alertClose = $(
-            '<div class="alert-close">X</div>');
+        var $form = $(this).closest('form');
+        var action = $form.attr('action');
 
-        alertSaved.css({
-            'top': alertSavedMarginTop + 'px',
-            'left': alertSavedMarginLeft + 'px'
-        });
-        alertClose.click(function() {
-            $(this).parent().remove();
-        });
-        alertSaved.prepend(alertClose);
-        sherdOverlay.append(alertSaved);
-        alertSaved.fadeIn(500, function() {
-            var btn = $buttonAsset;
-            btn.attr('value', 'Collected');
-            btn.off();
-            btn.css({
-                background: '#999',
-                color: '#333'
-            });
+        // Instead of doing $form.submit(), make an XHR request 
+        // to avoid 'form-action' CSP restrictions.
+        $.ajax(action, {
+            method: 'POST',
+            data: $form.serialize(),
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function() {
+                bucketWindow.close();
+
+                var sherdOverlay = $('.sherd-window-inner', window.document);
+                var alertSavedMarginLeft =
+                    ($('.sherd-window-inner', window.document)
+                        .width() / 2) - (535 * 0.5);
+                var alertSavedMarginTop =
+                    ($(window).height() / 2) - 100;
+                var collectionUrl = new URL(
+                    '/asset/', hostUrl.replace(/\/save\/$/, ''));
+                var alertSaved = $(
+                    '<div class="alert-saved">' +
+                        '<span style="font-weight:bold">' +
+                        'Success.</span> Your item has been ' +
+                        'successfully added to your ' +
+                        '<a href="' + collectionUrl.href +
+                        '">Mediathread collection</a>.</div>');
+                var alertClose = $(
+                    '<div class="alert-close">X</div>');
+
+                alertSaved.css({
+                    'top': alertSavedMarginTop + 'px',
+                    'left': alertSavedMarginLeft + 'px'
+                });
+                alertClose.click(function() {
+                    $(this).parent().remove();
+                });
+                alertSaved.prepend(alertClose);
+                sherdOverlay.append(alertSaved);
+                alertSaved.fadeIn(500, function() {
+                    var btn = $buttonAsset;
+                    btn.attr('value', 'Collected');
+                    btn.off();
+                    btn.css({
+                        background: '#999',
+                        color: '#333'
+                    });
+                });
+            },
+            error: function(e) {
+                console.error('Mediathread extension collection error:', e);
+            }
         });
     });// end #submit-input' click
 
