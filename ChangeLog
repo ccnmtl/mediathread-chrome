@@ -1,3 +1,9 @@
+2020-08-18  Nik Nyby  <nnyby@columbia.edu>
+
+	* Instead of doing $form.submit(), make an XHR request 
+	to avoid 'form-action' CSP restrictions. This fixes a media
+	collection problem with Flickr.
+
 2020-08-12  Nik Nyby  <nnyby@columbia.edu>
 
 	* Fix "new URL" message
