@@ -21,5 +21,5 @@ to load the source directory.
 * Make a new release for the new version in GitHub
 * Download the .zip file that GitHub made for this release
 * Go to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
-* In the Mediathread row, click "Edit", then "Upload Updated Package"
+* Click on the Mediathread row. On the left side, click Package. Then, on the top-right, click "Upload new package". (This genius UX always takes me 10 minutes to figure out, so I've documented it here.)
 * Upload zip file to Google, and Publish. Google takes up to an hour to process and release this.
