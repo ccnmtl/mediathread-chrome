@@ -1,9 +1,7 @@
 # mediathread-chrome
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/ccnmtl/mediathread-chrome.svg)](https://greenkeeper.io/)
-
-[![Build Status](https://travis-ci.org/ccnmtl/mediathread-chrome.svg?branch=master)](https://travis-ci.org/ccnmtl/mediathread-chrome)
-
+[![Actions Status](https://github.com/ccnmtl/mediathread-chrome/workflows/build-and-test/badge.svg)](https://github.com/ccnmtl/mediathread-chrome/actions)
+ 
 Chrome extension for importing assets to [Mediathread](http://mediathread.info/)
 
 ## Installation
