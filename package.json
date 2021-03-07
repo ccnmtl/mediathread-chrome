@@ -9,7 +9,7 @@
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^7.1.0",
-    "jsdom": "~16.4.0",
+    "jsdom": "~16.5.0",
     "mocha": "~8.3.0"
   },
   "greenkeeper": {
