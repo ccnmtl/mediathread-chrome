@@ -1,6 +1,10 @@
+2021-10-26  Nik Nyby  <nnyby@columbia.edu>
+
+	* Update settings update text.
+
 2020-08-18  Nik Nyby  <nnyby@columbia.edu>
 
-	* Instead of doing $form.submit(), make an XHR request 
+	* Instead of doing $form.submit(), make an XHR request
 	to avoid 'form-action' CSP restrictions. This fixes a media
 	collection problem with Flickr.
 
