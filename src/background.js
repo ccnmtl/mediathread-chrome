@@ -58,7 +58,7 @@ chrome.runtime.onMessageExternal.addListener(
                     customUrl: newUrl
                 }
             }, function optionsSaved() {
-                sendResponse('Mediathread URL updated to: ' + newUrl);
+                sendResponse('The extension will now collect to: ' + newUrl);
             });
         }
         return true;

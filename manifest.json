@@ -27,6 +27,7 @@
             "*://*.columbia.edu/*",
             "*://*.dartmouth.edu/*",
             "*://*.sc.edu/*",
+            "*://*.stanford.edu/*",
             "*://localhost:*/*"
         ]
     },
