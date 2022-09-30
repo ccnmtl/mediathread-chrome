@@ -37,7 +37,7 @@ var hostHandler = {
                 dataType: 'json',
                 dataFilter: function(data) {
                     ///removes 'json=' prefix and unescapes content
-                    return unescape(String(data).substr(5));
+                    return decodeURI(String(data).substring(5));
                 },
                 success: function(json) {
                     var rv = [];
