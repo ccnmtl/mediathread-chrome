@@ -384,21 +384,21 @@ var hostHandler = {
                 fpRv.metadata.title = fpRv.sources.title = [
                     $('#edit-title--2').text()
                         .split('\n')[2].trim()];
-            } catch (e) {
+            } catch {
                 fpRv.metadata.title = '';
             }
             try {
                 fpRv.metadata.produced = [
                     $('#edit-production-date').text()
                         .split('\n')[2].trim()];
-            } catch (e) {
+            } catch {
                 fpRv.metadata.produced = '';
             }
             try {
                 fpRv.metadata.description = [
                     $('#edit-description--2').text()
                         .split('\n')[2].trim()];
-            } catch (e) {
+            } catch {
                 fpRv.metadata.description = '';
             }
             try {
@@ -406,21 +406,21 @@ var hostHandler = {
                     $('#edit-credits-preserved-by-rights')
                         .text()
                         .split('\n')[2].trim()];
-            } catch (e) {
+            } catch {
                 fpRv.metadata.copyright = '';
             }
             try {
                 fpRv.metadata.temporal = [
                     $('#edit-tempo--2').text()
                         .split('\n')[2].trim()];
-            } catch (e) {
+            } catch {
                 fpRv.metadata.temporal = '';
             }
             try {
                 fpRv.metadata.geographical = [
                     $('#edit-geo').text()
                         .split('\n')[2].trim()];
-            } catch (e) {
+            } catch {
                 fpRv.metadata.geographical = '';
             }
             try {
@@ -437,7 +437,7 @@ var hostHandler = {
                     }
                 }
                 fpRv.metadata.subject = tags;
-            } catch (e) {
+            } catch {
                 fpRv.metadata.tags = [];
             }
             try {
@@ -454,7 +454,7 @@ var hostHandler = {
                     }
                 }
                 fpRv.metadata.credits = credits;
-            } catch (e) {
+            } catch {
                 fpRv.metadata.credits = [];
             }
 

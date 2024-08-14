@@ -20,7 +20,7 @@ var getHostUrl = function() {
                     fulfill(defaultHostUrl);
                 }
             });
-        } catch (e) {
+        } catch {
             // If anything fails, just return the default hardcoded
             // host url.
             fulfill(defaultHostUrl);

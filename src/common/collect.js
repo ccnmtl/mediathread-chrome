@@ -242,7 +242,7 @@ window.MediathreadCollect = {
                 (dom.addEventListener) ?
                     dom.addEventListener(event, func, false) :
                     dom.attachEvent('on' + event, func));
-        } catch (e) {/*dom is null in firefox?*/}
+        } catch {/*dom is null in firefox?*/}
     },/*connect*/
     'hasClass': function(elem, cls) {
         return (' ' + (elem.className || elem.getAttribute('class')) + ' ')
@@ -506,7 +506,8 @@ window.MediathreadCollect = {
                         rv.best = context;
                     }
                     $('frame,iframe', doc).each(_walk);
-                } catch (e) {/*probably security error*/}
+
+                } catch {/*probably security error*/}
             }
             $('frame,iframe').each(_walk);
             return rv;
