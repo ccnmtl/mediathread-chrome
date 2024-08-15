@@ -1,4 +1,4 @@
-/* globals chrome, $ */
+/* globals chrome */
 
 // https://www.chromium.org/Home/chromium-security/extension-content-script-fetches
 chrome.runtime.onMessage.addListener(
