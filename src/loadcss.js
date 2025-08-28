@@ -5,5 +5,5 @@ $('head').append(
     $('<link>')
         .attr('rel', 'stylesheet')
         .attr('type', 'text/css')
-        .attr('href', chrome.extension.getURL('css/mediathread_collect.css'))
+        .attr('href', chrome.runtime.getURL('css/mediathread_collect.css'))
 );
