@@ -1,15 +1,23 @@
 {
     "background": {
-        "scripts": ["lib/jquery-3.7.1.min.js", "src/background.js"],
-        "persistent": false
+        "service_worker": "src/background.js"
     },
-    "browser_action": {
+    "action": {
         "default_icon": "img/icon-128.png",
         "default_title": "Collect with Mediathread"
     },
     "web_accessible_resources": [
-        "img/*.png",
-        "css/mediathread_collect.css"
+        {
+            "resources": [
+                "img/*",
+                "css/mediathread_collect.css",
+                "lib/*.js",
+                "src/*.js"
+            ],
+            "matches": [
+                "*://*/*"
+            ]
+        }
     ],
     "name": "Mediathread",
     "description": "Find assets to analyze in Mediathread.",
@@ -19,6 +27,8 @@
         "128": "img/icon-128.png"
     },
     "permissions": [
+        "scripting",
+        "tabs",
         "activeTab",
         "storage"
     ],
@@ -32,9 +42,8 @@
         ]
     },
     "version": "0.9.20",
-    "manifest_version": 2,
+    "manifest_version": 3,
     "options_ui": {
-        "page": "options.html",
-        "chrome_style": true
+        "page": "options.html"
     }
 }
