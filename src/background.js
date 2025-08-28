@@ -64,13 +64,18 @@ chrome.runtime.onMessageExternal.addListener(
         return true;
     });
 
-chrome.browserAction.onClicked.addListener(function(tab) {
-    chrome.tabs.executeScript(tab.id, {file: 'lib/jquery-3.7.1.min.js'});
-    chrome.tabs.executeScript(tab.id, {file: 'lib/URI.js'});
-    chrome.tabs.executeScript(tab.id, {file: 'src/loadcss.js'});
-    chrome.tabs.executeScript(tab.id, {file: 'src/collect-popup.js'});
-    chrome.tabs.executeScript(tab.id, {file: 'src/common/host-handler.js'});
-    chrome.tabs.executeScript(tab.id, {file: 'src/common/asset-handler.js'});
-    chrome.tabs.executeScript(tab.id, {file: 'src/common/collect.js'});
-    chrome.tabs.executeScript(tab.id, {file: 'src/init.js'});
+chrome.action.onClicked.addListener(function(tab) {
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: [
+            'lib/jquery-3.7.1.min.js',
+            'lib/URI.js',
+            'src/loadcss.js',
+            'src/collect-popup.js',
+            'src/common/host-handler.js',
+            'src/common/asset-handler.js',
+            'src/common/collect.js',
+            'src/init.js'
+        ]
+    });
 });
