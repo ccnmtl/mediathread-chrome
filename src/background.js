@@ -1,5 +1,16 @@
 /* globals chrome */
 
+/**
+ * Serialize an object into a string. Equivalent to jQuery.param.
+ *
+ * https://stackoverflow.com/a/25225008/173630
+ */
+const serialize = function(o) {
+    return Object.keys(o).map(function(k) {
+        return encodeURIComponent(k) + '=' + encodeURIComponent(o[k]);
+    }).join('&');
+};
+
 // https://www.chromium.org/Home/chromium-security/extension-content-script-fetches
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
@@ -23,7 +34,7 @@ chrome.runtime.onMessage.addListener(
         } else if (request.contentScriptQuery === 'getYoutubeAsset') {
             // gapi will be a string that includes the id, like
             // https://www.googleapis.com/youtube/v3/videos?id=Tu42VMSZV8o
-            var url = request.ytApiUrl + '&' + $.param(request.urlParams);
+            var url = request.ytApiUrl + '&' + serialize(request.urlParams);
 
             fetch(url, {
                 cache: 'no-cache',
