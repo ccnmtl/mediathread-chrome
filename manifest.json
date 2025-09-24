@@ -41,7 +41,7 @@
             "*://localhost:*/*"
         ]
     },
-    "version": "0.10.0",
+    "version": "0.10.1",
     "manifest_version": 3,
     "options_ui": {
         "page": "options.html"
