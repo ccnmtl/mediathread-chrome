@@ -1,3 +1,7 @@
+2025-09-24  Nik Nyby  <nnyby@columbia.edu>
+
+	* Remove jQuery dependency in background.js to fix youtube bug.
+
 2025-08-28  Nik Nyby  <nnyby@columbia.edu>
 
 	* Updated underscore.js to 1.13.7.
