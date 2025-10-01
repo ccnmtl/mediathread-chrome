@@ -1,3 +1,7 @@
+2025-10-01  Nik Nyby  <nnyby@columbia.edu>
+
+	* Remove unnecessary "tabs" permission.
+
 2025-09-24  Nik Nyby  <nnyby@columbia.edu>
 
 	* Remove jQuery dependency in background.js to fix youtube bug.
